@@ -1,0 +1,43 @@
+.section {
+    padding: 100px 20px;
+    text-align: center;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 300;
+    font-family: var(--font-main);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.card {
+    padding: 40px;
+    background: #fcfcfc;
+    border: 1px solid #f0f0f0;
+    display: block;
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: var(--color-text-main);
+}
+
+.cardSubtitle {
+    color: #666;
+}
+
+/* PC Version: 2 columns */
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
