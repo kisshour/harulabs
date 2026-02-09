@@ -4,7 +4,15 @@ import { CONTENT } from '../data/content';
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-    const [language, setLanguage] = useState('ko'); // Default to Korean
+    // Initialize from localStorage or default to 'ko'
+    const [language, setLanguageState] = useState(() => {
+        return localStorage.getItem('language') || 'ko';
+    });
+
+    const setLanguage = (lang) => {
+        setLanguageState(lang);
+        localStorage.setItem('language', lang);
+    };
 
     const value = {
         language,

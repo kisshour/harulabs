@@ -10,6 +10,20 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import { useEffect } from 'react';
+import { useLanguage } from './context/LanguageContext';
+
+// Helper component to set language and render Home
+const EnglishHome = () => {
+  const { setLanguage } = useLanguage();
+
+  useEffect(() => {
+    setLanguage('en');
+  }, [setLanguage]);
+
+  return <Home />;
+};
+
 function App() {
   return (
     <div className="app" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -17,6 +31,7 @@ function App() {
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/en" element={<EnglishHome />} />
           <Route path="/brand" element={<Brand />} />
           <Route path="/collection/:id" element={<Collection />} />
           <Route path="/category/:type" element={<Category />} />
