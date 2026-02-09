@@ -47,6 +47,16 @@ const Header = () => {
                             <NavLink to="/collection/urban" onClick={() => setIsMobileMenuOpen(false)}>URBAN</NavLink>
                         </div>
                     </div>
+                    <div className={styles.dropdown}>
+                        <span className={styles.dropdownTrigger}>{content.ui.nav.categories}</span>
+                        <div className={styles.dropdownContent}>
+                            <NavLink to="/category/ring" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.ring}</NavLink>
+                            <NavLink to="/category/necklace" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.necklace}</NavLink>
+                            <NavLink to="/category/earring" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.earring}</NavLink>
+                            <NavLink to="/category/bracelet" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.bracelet}</NavLink>
+                            <NavLink to="/category/etc" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.etc}</NavLink>
+                        </div>
+                    </div>
 
                     {/* Language Selector */}
                     <div style={{ display: 'flex', gap: '10px', marginLeft: '20px', fontSize: '0.8rem', fontWeight: '500' }}>

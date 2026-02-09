@@ -42,7 +42,16 @@ export const CONTENT = {
             nav: {
                 home: "HOME",
                 brand: "BRAND",
-                collections: "COLLECTIONS"
+                brand: "BRAND",
+                collections: "COLLECTIONS",
+                categories: "CATEGORIES",
+                categoryList: {
+                    ring: "RING",
+                    necklace: "NECKLACE",
+                    earring: "EARRING",
+                    bracelet: "BRACELET",
+                    etc: "ETC"
+                }
             },
             footer: {
                 collections: "COLLECTIONS",
@@ -108,7 +117,16 @@ export const CONTENT = {
             nav: {
                 home: "HOME",
                 brand: "BRAND",
-                collections: "COLLECTIONS"
+                brand: "BRAND",
+                collections: "COLLECTIONS",
+                categories: "CATEGORIES",
+                categoryList: {
+                    ring: "RING",
+                    necklace: "NECKLACE",
+                    earring: "EARRING",
+                    bracelet: "BRACELET",
+                    etc: "ETC"
+                }
             },
             footer: {
                 collections: "COLLECTIONS",
