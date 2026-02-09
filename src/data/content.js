@@ -27,8 +27,8 @@ export const CONTENT = {
                 id: "rhythm",
                 title: "RHYTHM",
                 subtitle: "브랜드의 정수, 아이코닉 모티프",
-                catchphrase: "HARU의 심장, 다이아몬드의 율동",
-                description: "브랜드 로고의 'R'과 다이아몬드 포인트를 가장 감각적으로 풀어낸 라인입니다. HARU만의 고유한 디자인 DNA가 고스란히 담겨 있어, 브랜드의 정체성을 가장 직관적이면서도 스타일리시하게 경험할 수 있는 상징적인 컬렉션입니다."
+                catchphrase: "HARU의 심장, 다이아몬드의 영원한 율동",
+                description: "브랜드 로고의 'R'과 찬란하게 빛나는 모이사나이트 포인트를 가장 감각적으로 풀어낸 라인입니다. 변색 없는 고품질 써지컬 스틸 프레임에 다이아몬드의 광채를 재현한 모이사나이트를 세팅하여, 일상 속에서도 변치 않는 럭셔리를 선사합니다. 모든 제품에는 공신력 있는 GRA 감별서가 포함되어 그 가치를 증명합니다. HARU만의 고유한 DNA를 가장 직관적이면서도 스타일리시하게 경험할 수 있는 상징적인 컬렉션입니다."
             },
             {
                 id: "urban",
@@ -102,8 +102,8 @@ export const CONTENT = {
                 id: "rhythm",
                 title: "RHYTHM",
                 subtitle: "The Essence of the Brand, Iconic Motifs",
-                catchphrase: "Heart of HARU, Rhythm of Diamonds",
-                description: "A line that most sensuously unravels the brand logo's 'R' and diamond points. Containing HARU's unique design DNA, it is a symbolic collection where you can experience the brand's identity most intuitively yet stylishly."
+                catchphrase: "Heart of HARU, The Eternal Rhythm of Diamonds",
+                description: "A line that sensuously interprets the brand logo's 'R' and the brilliance of moissanite. By setting moissanite—reproducing the fire of a diamond—into a high-quality surgical steel frame, we offer enduring luxury that stays with you every day. Each piece is accompanied by an official GRA Certificate, guaranteeing its exceptional value and quality. This symbolic collection allows you to experience HARU's unique design DNA in the most intuitive and stylish way."
             },
             {
                 id: "urban",
