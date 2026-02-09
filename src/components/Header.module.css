@@ -148,27 +148,57 @@
 
     .dropdownContent {
         position: static;
-        /* Flow naturally */
         transform: none;
         box-shadow: none;
-        background: #f9f9f9;
+        background: transparent;
+        /* Remove gray/white background if needed, or keep white but clean */
         width: 100%;
         display: none;
-        /* Hidden by default */
-        opacity: 1;
-        visibility: visible;
+        opacity: 0;
+        visibility: hidden;
         padding: 0;
+        transition: all 0.3s ease;
+        max-height: 0;
+        overflow: hidden;
     }
 
-    .dropdown:hover .dropdownContent {
+    /* Active state for click-based toggle */
+    .dropdown.active .dropdownContent {
         display: block;
-        /* Show on hover/tap */
-        transform: none;
+        opacity: 1;
+        visibility: visible;
+        max-height: 500px;
+        /* Arbitrary large height for animation */
+        margin-bottom: 20px;
+    }
+
+    /* Disable hover on mobile since we use click */
+    .dropdown:hover .dropdownContent {
+        display: none;
+    }
+
+    .dropdown.active:hover .dropdownContent {
+        display: block;
+    }
+
+    .dropdownTrigger {
+        display: block;
+        padding: 15px;
+        width: 100%;
     }
 
     .dropdownContent a {
-        padding: 15px;
-        border-bottom: 1px solid #eee;
+        padding: 12px;
+        border-bottom: none;
+        /* Cleaner look */
+        color: #666;
+        /* Softer text color */
+        font-size: 0.9rem;
+    }
+
+    .dropdownContent a:hover {
+        background-color: transparent;
+        color: #ffb7c5;
     }
 }
 

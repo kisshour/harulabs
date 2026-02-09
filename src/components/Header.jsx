@@ -9,7 +9,7 @@ import styles from './Header.module.css';
 const Header = () => {
     const { content, language, setLanguage } = useLanguage();
     const [isScrolled, setIsScrolled] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState(null); // 'collections' or 'categories'
     const { scrollY } = useScroll();
 
     useMotionValueEvent(scrollY, "change", (latest) => {
@@ -20,7 +20,19 @@ const Header = () => {
         }
     });
 
-    const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+    const toggleMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+        setActiveDropdown(null); // Reset dropdowns when toggling menu
+    };
+
+    const handleDropdownClick = (e, dropdownName) => {
+        // Only for mobile or click-based interaction
+        // If window width is small, toggle state
+        if (window.innerWidth <= 768) {
+            e.preventDefault(); // Prevent navigation if it's a link (though these are spans/divs now)
+            setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+        }
+    };
 
     return (
         <motion.header
@@ -30,31 +42,43 @@ const Header = () => {
             transition={{ duration: 0.5 }}
         >
             <div className={`container ${styles.headerContent}`}>
-                <NavLink to="/" className={styles.logoLink}>
+                <NavLink to="/" className={styles.logoLink} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>
                     {/* Using text for now as logo might need sizing or specific handling */}
                     <img src={logo} alt="HARU Logo" className={styles.logoImage} />
                 </NavLink>
 
                 <nav className={`${styles.desktopNav} ${isMobileMenuOpen ? styles.mobileOpen : ''}`}>
-                    <NavLink to="/" className={({ isActive }) => isActive ? styles.activeLink : ''} onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.home}</NavLink>
-                    <NavLink to="/brand" className={({ isActive }) => isActive ? styles.activeLink : ''} onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.brand}</NavLink>
-                    <div className={styles.dropdown}>
-                        <span className={styles.dropdownTrigger}>{content.ui.nav.collections}</span>
+                    <NavLink to="/" className={({ isActive }) => isActive ? styles.activeLink : ''} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.home}</NavLink>
+                    <NavLink to="/brand" className={({ isActive }) => isActive ? styles.activeLink : ''} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.brand}</NavLink>
+
+                    <div className={`${styles.dropdown} ${activeDropdown === 'collections' ? styles.active : ''}`}>
+                        <span
+                            className={styles.dropdownTrigger}
+                            onClick={(e) => handleDropdownClick(e, 'collections')}
+                        >
+                            {content.ui.nav.collections}
+                        </span>
                         <div className={styles.dropdownContent}>
-                            <NavLink to="/collection/hype" onClick={() => setIsMobileMenuOpen(false)}>HYPE</NavLink>
-                            <NavLink to="/collection/aura" onClick={() => setIsMobileMenuOpen(false)}>AURA</NavLink>
-                            <NavLink to="/collection/rhythm" onClick={() => setIsMobileMenuOpen(false)}>RHYTHM</NavLink>
-                            <NavLink to="/collection/urban" onClick={() => setIsMobileMenuOpen(false)}>URBAN</NavLink>
+                            <NavLink to="/collection/hype" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>HYPE</NavLink>
+                            <NavLink to="/collection/aura" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>AURA</NavLink>
+                            <NavLink to="/collection/rhythm" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>RHYTHM</NavLink>
+                            <NavLink to="/collection/urban" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>URBAN</NavLink>
                         </div>
                     </div>
-                    <div className={styles.dropdown}>
-                        <span className={styles.dropdownTrigger}>{content.ui.nav.categories}</span>
+
+                    <div className={`${styles.dropdown} ${activeDropdown === 'categories' ? styles.active : ''}`}>
+                        <span
+                            className={styles.dropdownTrigger}
+                            onClick={(e) => handleDropdownClick(e, 'categories')}
+                        >
+                            {content.ui.nav.categories}
+                        </span>
                         <div className={styles.dropdownContent}>
-                            <NavLink to="/category/ring" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.ring}</NavLink>
-                            <NavLink to="/category/necklace" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.necklace}</NavLink>
-                            <NavLink to="/category/earring" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.earring}</NavLink>
-                            <NavLink to="/category/bracelet" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.bracelet}</NavLink>
-                            <NavLink to="/category/etc" onClick={() => setIsMobileMenuOpen(false)}>{content.ui.nav.categoryList.etc}</NavLink>
+                            <NavLink to="/category/ring" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.categoryList.ring}</NavLink>
+                            <NavLink to="/category/necklace" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.categoryList.necklace}</NavLink>
+                            <NavLink to="/category/earring" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.categoryList.earring}</NavLink>
+                            <NavLink to="/category/bracelet" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.categoryList.bracelet}</NavLink>
+                            <NavLink to="/category/etc" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.categoryList.etc}</NavLink>
                         </div>
                     </div>
 
