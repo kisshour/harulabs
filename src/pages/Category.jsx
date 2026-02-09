@@ -6,7 +6,7 @@ import styles from './Category.module.css';
 
 const Category = () => {
     const { type } = useParams();
-    const { content } = useLanguage();
+    const { content, language } = useLanguage();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -57,7 +57,11 @@ const Category = () => {
                                 </div>
                                 <div className={styles.info}>
                                     <div className={styles.productName}>{product.name}</div>
-                                    <div className={styles.price}>{product.price.toLocaleString()} KRW</div>
+                                    <div className={styles.price}>
+                                        {content.ui?.common?.currency === 'KRW' || language === 'ko'
+                                            ? `${product.price.toLocaleString()} KRW`
+                                            : `$${product.price_usd || '0.00'}`}
+                                    </div>
                                 </div>
                             </div>
                         ))}

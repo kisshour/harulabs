@@ -58,10 +58,10 @@ export const fetchProductById = async (id) => {
 // Create or Update Product
 export const upsertProduct = async (productData) => {
     // 1. Upsert Product Info
-    const { id, name, theme, category, price, description, material } = productData;
+    const { id, name, theme, category, price, description, material, cost, price_usd } = productData;
     const { error: productError } = await supabase
         .from('products')
-        .upsert({ id, name, theme, category, price, description, material });
+        .upsert({ id, name, theme, category, price, description, material, cost, price_usd });
 
     if (productError) throw productError;
 

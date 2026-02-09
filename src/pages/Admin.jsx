@@ -6,6 +6,21 @@ import { supabase } from '../utils/supabaseClient';
 import { fetchProducts, uploadImage } from '../services/productService';
 import { useNavigate } from 'react-router-dom';
 
+const PRICING_TABLE = [
+    { cost: 1000, krw: 6900, usd: 4.99 },
+    { cost: 1500, krw: 8900, usd: 6.99 },
+    { cost: 2000, krw: 10900, usd: 7.99 },
+    { cost: 2500, krw: 12900, usd: 9.99 },
+    { cost: 3000, krw: 14900, usd: 10.99 },
+    { cost: 3500, krw: 16900, usd: 12.99 },
+    { cost: 4000, krw: 18900, usd: 13.99 },
+    { cost: 4500, krw: 20900, usd: 15.99 },
+    { cost: 5000, krw: 22900, usd: 16.99 },
+    { cost: 5500, krw: 24900, usd: 18.99 },
+    { cost: 6000, krw: 26900, usd: 19.99 },
+    { cost: 6500, krw: 29900, usd: 21.99 },
+];
+
 const Admin = () => {
     const [view, setView] = useState('dashboard'); // 'dashboard', 'form'
     const [isEditing, setIsEditing] = useState(false);
@@ -26,7 +41,35 @@ const Admin = () => {
     const [material, setMaterial] = useState('SURGICAL_STEEL');
     const [index, setIndex] = useState(1);
     const [price, setPrice] = useState(0);
+    const [cost, setCost] = useState(0); // Wholesale Cost
+    const [priceUsd, setPriceUsd] = useState(0); // USD Price
     const [description, setDescription] = useState('');
+
+    // Pricing Logic
+    const handleCostChange = (e) => {
+        const newCost = Number(e.target.value);
+        setCost(newCost);
+
+        // Find matching price tier
+        // Strategy: Find exact match or the next higher tier if not exact? 
+        // Or just closest? The user image implies strict tiers.
+        // Let's implement exact match or fallback to a formula if not found.
+        // Actually, let's just find the entry where cost <= table_cost to recommend, 
+        // or just strict match based on the provided table.
+
+        // Let's try to find an exact match first.
+        const match = PRICING_TABLE.find(p => p.cost === newCost);
+
+        if (match) {
+            setPrice(match.krw);
+            setPriceUsd(match.usd);
+        } else {
+            // Fallback logic if cost doesn't match table exactly?
+            // For now, let's just leave it manual if not matching, or maybe approximate.
+            // If user enters 1200, maybe they want to set their own price.
+            // So we only auto-set if there's a match.
+        }
+    };
 
     // Options State (Starting with one default option)
     const [options, setOptions] = useState([
@@ -71,7 +114,9 @@ const Admin = () => {
             name,
             theme,
             category,
-            price: Number(price),
+            price: Number(price), // KRW Retail
+            cost: Number(cost), // Wholesale Cost
+            price_usd: Number(priceUsd), // USD Retail
             description,
             material
         };
@@ -163,6 +208,8 @@ const Admin = () => {
         setMaterial('SURGICAL_STEEL');
         setIndex(1);
         setPrice(0);
+        setCost(0);
+        setPriceUsd(0);
         setDescription('');
         setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
         setMessage('');
@@ -177,6 +224,8 @@ const Admin = () => {
         setCategory(product.category);
         setMaterial(product.material);
         setPrice(product.price);
+        setCost(product.cost || 0); // Load cost
+        setPriceUsd(product.price_usd || 0); // Load USD price
         setDescription(product.description || ''); // Handle missing description
 
         // Attempt to parse index from ID: THEME-CAT-MAT-INDEX-COL-SZ
@@ -303,12 +352,34 @@ const Admin = () => {
                                     />
                                 </div>
                                 <div className={styles.col}>
-                                    <label className={styles.label}>Price (KRW)</label>
+                                    <label className={styles.label}>Wholesale Cost (KRW)</label>
+                                    <input
+                                        type="number"
+                                        className={styles.input}
+                                        value={cost}
+                                        onChange={handleCostChange}
+                                        placeholder="Enter cost to auto-calc"
+                                        style={{ borderColor: '#0070f3' }}
+                                    />
+                                </div>
+                            </div>
+                            <div className={styles.row}>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Retail Price (KRW)</label>
                                     <input
                                         type="number"
                                         className={styles.input}
                                         value={price}
                                         onChange={(e) => setPrice(e.target.value)}
+                                    />
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Retail Price (USD)</label>
+                                    <input
+                                        type="number"
+                                        className={styles.input}
+                                        value={priceUsd}
+                                        onChange={(e) => setPriceUsd(e.target.value)}
                                     />
                                 </div>
                             </div>
