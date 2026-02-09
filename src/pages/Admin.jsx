@@ -7,18 +7,18 @@ import { fetchProducts, uploadImage } from '../services/productService';
 import { useNavigate } from 'react-router-dom';
 
 const PRICING_TABLE = [
-    { cost: 1000, krw: 6900, usd: 4.99 },
-    { cost: 1500, krw: 8900, usd: 6.99 },
-    { cost: 2000, krw: 10900, usd: 7.99 },
-    { cost: 2500, krw: 12900, usd: 9.99 },
-    { cost: 3000, krw: 14900, usd: 10.99 },
-    { cost: 3500, krw: 16900, usd: 12.99 },
-    { cost: 4000, krw: 18900, usd: 13.99 },
-    { cost: 4500, krw: 20900, usd: 15.99 },
-    { cost: 5000, krw: 22900, usd: 16.99 },
-    { cost: 5500, krw: 24900, usd: 18.99 },
-    { cost: 6000, krw: 26900, usd: 19.99 },
-    { cost: 6500, krw: 29900, usd: 21.99 },
+    { cost: 1000, krw: 6900, usd: 4.99, thb: 179 },
+    { cost: 1500, krw: 8900, usd: 6.99, thb: 229 },
+    { cost: 2000, krw: 10900, usd: 7.99, thb: 279 },
+    { cost: 2500, krw: 12900, usd: 9.99, thb: 329 },
+    { cost: 3000, krw: 14900, usd: 10.99, thb: 389 },
+    { cost: 3500, krw: 16900, usd: 12.99, thb: 429 },
+    { cost: 4000, krw: 18900, usd: 13.99, thb: 479 },
+    { cost: 4500, krw: 20900, usd: 15.99, thb: 529 },
+    { cost: 5000, krw: 22900, usd: 16.99, thb: 579 },
+    { cost: 5500, krw: 24900, usd: 18.99, thb: 629 },
+    { cost: 6000, krw: 26900, usd: 19.99, thb: 679 },
+    { cost: 6500, krw: 29900, usd: 21.99, thb: 749 },
 ];
 
 const Admin = () => {
@@ -43,6 +43,7 @@ const Admin = () => {
     const [price, setPrice] = useState(0);
     const [cost, setCost] = useState(0); // Wholesale Cost
     const [priceUsd, setPriceUsd] = useState(0); // USD Price
+    const [priceThb, setPriceThb] = useState(0); // THB Price
     const [description, setDescription] = useState('');
 
     // Pricing Logic
@@ -63,6 +64,7 @@ const Admin = () => {
         if (match) {
             setPrice(match.krw);
             setPriceUsd(match.usd);
+            setPriceThb(match.thb);
         } else {
             // Fallback logic if cost doesn't match table exactly?
             // For now, let's just leave it manual if not matching, or maybe approximate.
@@ -117,6 +119,7 @@ const Admin = () => {
             price: Number(price), // KRW Retail
             cost: Number(cost), // Wholesale Cost
             price_usd: Number(priceUsd), // USD Retail
+            price_thb: Number(priceThb), // THB Retail
             description,
             material
         };
@@ -210,6 +213,7 @@ const Admin = () => {
         setPrice(0);
         setCost(0);
         setPriceUsd(0);
+        setPriceThb(0);
         setDescription('');
         setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
         setMessage('');
@@ -226,6 +230,7 @@ const Admin = () => {
         setPrice(product.price);
         setCost(product.cost || 0); // Load cost
         setPriceUsd(product.price_usd || 0); // Load USD price
+        setPriceThb(product.price_thb || 0); // Load THB
         setDescription(product.description || ''); // Handle missing description
 
         // Attempt to parse index from ID: THEME-CAT-MAT-INDEX-COL-SZ
@@ -380,6 +385,15 @@ const Admin = () => {
                                         className={styles.input}
                                         value={priceUsd}
                                         onChange={(e) => setPriceUsd(e.target.value)}
+                                    />
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Retail Price (THB)</label>
+                                    <input
+                                        type="number"
+                                        className={styles.input}
+                                        value={priceThb}
+                                        onChange={(e) => setPriceThb(e.target.value)}
                                     />
                                 </div>
                             </div>
