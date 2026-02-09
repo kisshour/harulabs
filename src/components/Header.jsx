@@ -37,11 +37,8 @@ const Header = () => {
     };
 
     return (
-        <motion.header
+        <header
             className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.5 }}
         >
             <div className={`container ${styles.headerContent}`}>
                 <NavLink to="/" className={styles.logoLink} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>
@@ -114,7 +111,7 @@ const Header = () => {
                     {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
-        </motion.header>
+        </header>
     );
 };
 
