@@ -4,6 +4,7 @@ import styles from './Admin.module.css';
 import { generateSKU, THEMES, CATEGORIES, MATERIALS, COLORS } from '../utils/skuGenerator';
 import { supabase } from '../utils/supabaseClient';
 import { fetchProducts, uploadImage } from '../services/productService';
+import { useNavigate } from 'react-router-dom';
 
 const Admin = () => {
     const [view, setView] = useState('dashboard'); // 'dashboard', 'form'
@@ -11,6 +12,12 @@ const Admin = () => {
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/login');
+    };
 
     // Form State
     const [name, setName] = useState('');
@@ -209,7 +216,10 @@ const Admin = () => {
                     <>
                         <div className={styles.dashboardHeader}>
                             <h1 className={styles.title} style={{ marginBottom: 0 }}>Product Dashboard</h1>
-                            <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Add New Product</button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button className={styles.btnSecondary} onClick={handleLogout} style={{ fontSize: '0.9rem' }}>Logout</button>
+                                <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Add New Product</button>
+                            </div>
                         </div>
 
                         {loading && <p>Loading products...</p>}

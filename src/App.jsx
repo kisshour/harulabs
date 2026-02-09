@@ -7,6 +7,8 @@ import Brand from './pages/Brand';
 import Collection from './pages/Collection';
 import Category from './pages/Category';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -18,7 +20,13 @@ function App() {
           <Route path="/brand" element={<Brand />} />
           <Route path="/collection/:id" element={<Collection />} />
           <Route path="/category/:type" element={<Category />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected Admin Route */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
+
         </Routes>
       </main>
       <Footer />
