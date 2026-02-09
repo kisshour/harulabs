@@ -6,19 +6,10 @@ import { supabase } from '../utils/supabaseClient';
 import { fetchProducts, uploadImage } from '../services/productService';
 import { useNavigate } from 'react-router-dom';
 
-const PRICING_TABLE = [
-    { cost: 1000, krw: 6900, usd: 4.99, thb: 179 },
-    { cost: 1500, krw: 8900, usd: 6.99, thb: 229 },
-    { cost: 2000, krw: 10900, usd: 7.99, thb: 279 },
-    { cost: 2500, krw: 12900, usd: 9.99, thb: 329 },
-    { cost: 3000, krw: 14900, usd: 10.99, thb: 389 },
-    { cost: 3500, krw: 16900, usd: 12.99, thb: 429 },
-    { cost: 4000, krw: 18900, usd: 13.99, thb: 479 },
-    { cost: 4500, krw: 20900, usd: 15.99, thb: 529 },
-    { cost: 5000, krw: 22900, usd: 16.99, thb: 579 },
-    { cost: 5500, krw: 24900, usd: 18.99, thb: 629 },
-    { cost: 6000, krw: 26900, usd: 19.99, thb: 679 },
-    { cost: 6500, krw: 29900, usd: 21.99, thb: 749 },
+const TIER_RANGES = [
+    { name: 'Tier 1', min: 1000, max: 2000, krw: 9900, usd: 6.99, thb: 199 },
+    { name: 'Tier 2', min: 2500, max: 4000, krw: 14900, usd: 10.99, thb: 299 },
+    { name: 'Tier 3', min: 4500, max: 6500, krw: 24900, usd: 18.99, thb: 499 },
 ];
 
 const Admin = () => {
@@ -44,6 +35,7 @@ const Admin = () => {
     const [cost, setCost] = useState(0); // Wholesale Cost
     const [priceUsd, setPriceUsd] = useState(0); // USD Price
     const [priceThb, setPriceThb] = useState(0); // THB Price
+    const [tier, setTier] = useState(''); // Tier (e.g., 'Tier 1')
     const [description, setDescription] = useState('');
 
     // Pricing Logic
@@ -59,17 +51,16 @@ const Admin = () => {
         // or just strict match based on the provided table.
 
         // Let's try to find an exact match first.
-        const match = PRICING_TABLE.find(p => p.cost === newCost);
+        const match = TIER_RANGES.find(t => newCost >= t.min && newCost <= t.max);
 
         if (match) {
             setPrice(match.krw);
             setPriceUsd(match.usd);
             setPriceThb(match.thb);
+            setTier(match.name);
         } else {
-            // Fallback logic if cost doesn't match table exactly?
-            // For now, let's just leave it manual if not matching, or maybe approximate.
-            // If user enters 1200, maybe they want to set their own price.
-            // So we only auto-set if there's a match.
+            // Optional: reset or keep manual?
+            setTier('');
         }
     };
 
@@ -214,6 +205,7 @@ const Admin = () => {
         setCost(0);
         setPriceUsd(0);
         setPriceThb(0);
+        setTier('');
         setDescription('');
         setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
         setMessage('');
@@ -231,6 +223,7 @@ const Admin = () => {
         setCost(product.cost || 0); // Load cost
         setPriceUsd(product.price_usd || 0); // Load USD price
         setPriceThb(product.price_thb || 0); // Load THB
+        setTier(product.tier || ''); // Load Tier
         setDescription(product.description || ''); // Handle missing description
 
         // Attempt to parse index from ID: THEME-CAT-MAT-INDEX-COL-SZ
@@ -365,6 +358,15 @@ const Admin = () => {
                                         onChange={handleCostChange}
                                         placeholder="Enter cost to auto-calc"
                                         style={{ borderColor: '#0070f3' }}
+                                    />
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Price Tier (Auto)</label>
+                                    <input
+                                        className={styles.input}
+                                        value={tier}
+                                        readOnly
+                                        style={{ backgroundColor: '#f0f0f0', fontWeight: 'bold' }}
                                     />
                                 </div>
                             </div>
