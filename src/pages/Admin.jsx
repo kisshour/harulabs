@@ -4,7 +4,12 @@ import styles from './Admin.module.css';
 import { generateSKU, THEMES, CATEGORIES, MATERIALS, COLORS } from '../utils/skuGenerator';
 
 
+import { PRODUCTS } from '../data/products';
+
 const Admin = () => {
+    const [view, setView] = useState('dashboard'); // 'dashboard', 'form'
+    const [isEditing, setIsEditing] = useState(false);
+
     // Form State
     const [name, setName] = useState('');
     const [theme, setTheme] = useState('HYPE');
@@ -40,35 +45,64 @@ const Admin = () => {
         }
     };
 
-    // Include SKU preview for the main product ID (using the first option's params as representative, or just generic params)
-    // Actually, product ID logic depends on "Main Color/Size" which usually comes from the first option or a default.
-    // Let's use the first option's color/size for the main ID suffix.
+    // Initialize Form for Creation
+    const handleCreateClick = () => {
+        setIsEditing(false);
+        setName('');
+        setTheme('HYPE');
+        setCategory('RING');
+        setMaterial('SURGICAL_STEEL');
+        setIndex(1); // Default, maybe find max index + 1 later but simple for now
+        setPrice(0);
+        setDescription('');
+        setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
+        setGeneratedCode('');
+        setView('form');
+    };
+
+    // Initialize Form for Editing
+    const handleEditClick = (product) => {
+        setIsEditing(true);
+        setName(product.name);
+        setTheme(product.theme);
+        setCategory(product.category);
+        setMaterial(product.material);
+        setPrice(product.price);
+        setDescription(product.description || ''); // Handle missing description
+
+        // Attempt to parse index from ID: THEME-CAT-MAT-INDEX-COL-SZ
+        // Example: HYPE-RING-SURGICAL_STEEL-1-SILVER-12
+        try {
+            const parts = product.id.split('-');
+            const idx = parseInt(parts[3], 10);
+            if (!isNaN(idx)) setIndex(idx);
+            else setIndex(1);
+        } catch (e) {
+            setIndex(1);
+        }
+
+        // Map options
+        if (product.options && product.options.length > 0) {
+            setOptions(product.options.map(opt => ({
+                color: opt.color,
+                size: opt.size,
+                stock: opt.stock,
+                imageName: opt.images && opt.images.length > 0 ? opt.images[0].split('/').pop() : ''
+            })));
+        } else {
+            setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
+        }
+
+        setGeneratedCode('');
+        setView('form');
+    };
+
+    // Include SKU preview for the main product ID
     const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
 
     const generateCode = () => {
         // Construct the product object
-        const productData = {
-            id: mainId,
-            name: name,
-            theme: theme,
-            category: category,
-            price: Number(price),
-            description: description,
-            material: material,
-            options: options.map(opt => ({
-                sku: generateSKU(theme, category, material, index, opt.color, opt.size),
-                color: opt.color,
-                size: opt.size,
-                stock: Number(opt.stock),
-                images: opt.imageName ? [`/assets/products/${opt.imageName}`] : []
-            }))
-        };
-
-        // Format as string
-        // We want it to look like code, not just JSON.stringify keys with quotes if possible, 
-        // but valid JSON is easier to copy-paste. Let's make it look like the source code format.
-        // Actually valid JSON is safer for data files, but our file is a .js module.
-        // We'll generate an object literal string.
+        // ... (Logic same as before, essentially)
 
         let code = `  {\n`;
         code += `    id: generateSKU('${theme}', '${category}', '${material}', ${index}, '${options[0].color}', '${options[0].size}'),\n`;
@@ -108,149 +142,226 @@ const Admin = () => {
     return (
         <div className="page-container">
             <div className={styles.adminContainer}>
-                <h1 className={styles.title}>Product Code Generator</h1>
 
-                <div className={styles.formGroup}>
-                    <div className={styles.sectionTitle}>Basic Information</div>
-                    <div className={styles.row}>
-                        <div className={styles.col}>
-                            <label className={styles.label}>Product Name</label>
-                            <input
-                                className={styles.input}
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="e.g. Hype Silver Ring"
-                            />
+                {view === 'dashboard' && (
+                    <>
+                        <div className={styles.dashboardHeader}>
+                            <h1 className={styles.title} style={{ marginBottom: 0 }}>Product Dashboard</h1>
+                            <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Add New Product</button>
                         </div>
-                        <div className={styles.col}>
-                            <label className={styles.label}>Price (KRW)</label>
-                            <input
-                                type="number"
-                                className={styles.input}
-                                value={price}
-                                onChange={(e) => setPrice(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <div className={styles.col}>
-                        <label className={styles.label}>Description</label>
-                        <textarea
-                            className={styles.textarea}
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Product description..."
-                        />
-                    </div>
-                </div>
 
-                <div className={styles.formGroup}>
-                    <div className={styles.sectionTitle}>Attributes (SKU Components)</div>
-                    <div className={styles.row}>
-                        <div className={styles.col}>
-                            <label className={styles.label}>Theme</label>
-                            <select className={styles.select} value={theme} onChange={(e) => setTheme(e.target.value)}>
-                                {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
-                            </select>
+                        <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>SKU / ID</th>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {PRODUCTS.map((product) => (
+                                        <tr key={product.id}>
+                                            <td>
+                                                {product.options[0]?.images[0] ? (
+                                                    <img
+                                                        src={product.options[0].images[0]}
+                                                        alt={product.name}
+                                                        className={styles.thumbnail}
+                                                    />
+                                                ) : (
+                                                    <div className={styles.thumbnail} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Img</div>
+                                                )}
+                                            </td>
+                                            <td style={{ fontWeight: 500 }}>{product.name}</td>
+                                            <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
+                                            <td>
+                                                <span className={styles.badge}>{product.category}</span>
+                                            </td>
+                                            <td>₩{product.price.toLocaleString()}</td>
+                                            <td>
+                                                <button
+                                                    className={styles.actionBtn}
+                                                    onClick={() => handleEditClick(product)}
+                                                >
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {PRODUCTS.length === 0 && (
+                                        <tr>
+                                            <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                                                No products found. Add one to get started!
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                        <div className={styles.col}>
-                            <label className={styles.label}>Category</label>
-                            <select className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
-                                {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                    <div className={styles.row}>
-                        <div className={styles.col}>
-                            <label className={styles.label}>Material</label>
-                            <select className={styles.select} value={material} onChange={(e) => setMaterial(e.target.value)}>
-                                {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
-                            </select>
-                        </div>
-                        <div className={styles.col}>
-                            <label className={styles.label}>Index Number</label>
-                            <input
-                                type="number"
-                                className={styles.input}
-                                value={index}
-                                onChange={(e) => setIndex(e.target.value)}
-                                min="1"
-                            />
-                        </div>
-                    </div>
-                    <div className={styles.skuPreview}>
-                        Main SKU Preview: {mainId}
-                    </div>
-                </div>
+                    </>
+                )}
 
-                <div className={styles.formGroup}>
-                    <div className={styles.sectionTitle}>Options (Variants)</div>
-                    {options.map((opt, idx) => (
-                        <div key={idx} className={styles.optionBlock}>
+                {view === 'form' && (
+                    <>
+                        <div style={{ marginBottom: '20px' }}>
+                            <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>
+                                &larr; Back to Dashboard
+                            </button>
+                        </div>
+
+                        <h1 className={styles.title}>{isEditing ? 'Edit Product' : 'Create New Product'}</h1>
+
+                        <div className={styles.formGroup}>
+                            <div className={styles.sectionTitle}>Basic Information</div>
                             <div className={styles.row}>
                                 <div className={styles.col}>
-                                    <label className={styles.label}>Color</label>
-                                    <select
-                                        className={styles.select}
-                                        value={opt.color}
-                                        onChange={(e) => handleOptionChange(idx, 'color', e.target.value)}
-                                    >
-                                        {Object.keys(COLORS).map(k => <option key={k} value={k}>{k}</option>)}
-                                    </select>
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Size</label>
+                                    <label className={styles.label}>Product Name</label>
                                     <input
                                         className={styles.input}
-                                        value={opt.size}
-                                        onChange={(e) => handleOptionChange(idx, 'size', e.target.value)}
-                                        placeholder="e.g. 12 or FR"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="e.g. Hype Silver Ring"
                                     />
                                 </div>
-                            </div>
-                            <div className={styles.row}>
                                 <div className={styles.col}>
-                                    <label className={styles.label}>Stock</label>
+                                    <label className={styles.label}>Price (KRW)</label>
                                     <input
                                         type="number"
                                         className={styles.input}
-                                        value={opt.stock}
-                                        onChange={(e) => handleOptionChange(idx, 'stock', e.target.value)}
-                                    />
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Image Filename</label>
-                                    <input
-                                        className={styles.input}
-                                        value={opt.imageName}
-                                        onChange={(e) => handleOptionChange(idx, 'imageName', e.target.value)}
-                                        placeholder="e.g. ring-1.jpg"
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
                                     />
                                 </div>
                             </div>
-                            {options.length > 1 && (
-                                <button className={styles.btnSecondary} onClick={() => removeOption(idx)} style={{ padding: '5px 10px', fontSize: '0.8rem' }}>
-                                    Remove Option
-                                </button>
-                            )}
+                            <div className={styles.col}>
+                                <label className={styles.label}>Description</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Product description..."
+                                />
+                            </div>
                         </div>
-                    ))}
-                    <button className={styles.btnSecondary} onClick={addOption}>+ Add Another Option</button>
-                </div>
 
-                <div className={styles.buttonGroup}>
-                    <button className={styles.btnPrimary} onClick={generateCode}>Generate Code</button>
-                </div>
+                        <div className={styles.formGroup}>
+                            <div className={styles.sectionTitle}>Attributes (SKU Components)</div>
+                            <div className={styles.row}>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Theme</label>
+                                    <select className={styles.select} value={theme} onChange={(e) => setTheme(e.target.value)}>
+                                        {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Category</label>
+                                    <select className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
+                                        {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className={styles.row}>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Material</label>
+                                    <select className={styles.select} value={material} onChange={(e) => setMaterial(e.target.value)}>
+                                        {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Index Number</label>
+                                    <input
+                                        type="number"
+                                        className={styles.input}
+                                        value={index}
+                                        onChange={(e) => setIndex(e.target.value)}
+                                        min="1"
+                                    />
+                                </div>
+                            </div>
+                            <div className={styles.skuPreview}>
+                                Main SKU Preview: {mainId}
+                            </div>
+                        </div>
 
-                {generatedCode && (
-                    <div className={styles.outputArea}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                            <strong>Generated Code (Copy & Paste into products.js):</strong>
-                            <button className={styles.btnSecondary} onClick={copyToClipboard} style={{ padding: '5px 10px' }}>
-                                Copy {copySuccess && <span className={styles.copySuccess}>{copySuccess}</span>}
+                        <div className={styles.formGroup}>
+                            <div className={styles.sectionTitle}>Options (Variants)</div>
+                            {options.map((opt, idx) => (
+                                <div key={idx} className={styles.optionBlock}>
+                                    <div className={styles.row}>
+                                        <div className={styles.col}>
+                                            <label className={styles.label}>Color</label>
+                                            <select
+                                                className={styles.select}
+                                                value={opt.color}
+                                                onChange={(e) => handleOptionChange(idx, 'color', e.target.value)}
+                                            >
+                                                {Object.keys(COLORS).map(k => <option key={k} value={k}>{k}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className={styles.col}>
+                                            <label className={styles.label}>Size</label>
+                                            <input
+                                                className={styles.input}
+                                                value={opt.size}
+                                                onChange={(e) => handleOptionChange(idx, 'size', e.target.value)}
+                                                placeholder="e.g. 12 or FR"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className={styles.row}>
+                                        <div className={styles.col}>
+                                            <label className={styles.label}>Stock</label>
+                                            <input
+                                                type="number"
+                                                className={styles.input}
+                                                value={opt.stock}
+                                                onChange={(e) => handleOptionChange(idx, 'stock', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className={styles.col}>
+                                            <label className={styles.label}>Image Filename</label>
+                                            <input
+                                                className={styles.input}
+                                                value={opt.imageName}
+                                                onChange={(e) => handleOptionChange(idx, 'imageName', e.target.value)}
+                                                placeholder="e.g. ring-1.jpg"
+                                            />
+                                        </div>
+                                    </div>
+                                    {options.length > 1 && (
+                                        <button className={styles.btnSecondary} onClick={() => removeOption(idx)} style={{ padding: '5px 10px', fontSize: '0.8rem' }}>
+                                            Remove Option
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button className={styles.btnSecondary} onClick={addOption}>+ Add Another Option</button>
+                        </div>
+
+                        <div className={styles.buttonGroup}>
+                            <button className={styles.btnPrimary} onClick={generateCode}>
+                                {isEditing ? 'Generate Update Code' : 'Generate Code'}
                             </button>
                         </div>
-                        <pre>{generatedCode}</pre>
-                    </div>
+
+                        {generatedCode && (
+                            <div className={styles.outputArea}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <strong>
+                                        {isEditing ? 'Generated Update (Replace object in products.js):' : 'Generated Code (Copy & Paste into products.js):'}
+                                    </strong>
+                                    <button className={styles.btnSecondary} onClick={copyToClipboard} style={{ padding: '5px 10px' }}>
+                                        Copy {copySuccess && <span className={styles.copySuccess}>{copySuccess}</span>}
+                                    </button>
+                                </div>
+                                <pre>{generatedCode}</pre>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>
