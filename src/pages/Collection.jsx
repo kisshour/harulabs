@@ -1,26 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { fetchProducts } from '../services/productService';
+import styles from './Category.module.css'; // Reusing grid styles
 
 const Collection = () => {
     const { id } = useParams();
     const { content } = useLanguage();
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const collection = content.collections.find(c => c.id === id);
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            setLoading(true);
+            const allProducts = await fetchProducts();
+            setProducts(allProducts);
+            setLoading(false);
+        };
+        loadProducts();
+    }, []);
 
     if (!collection) return <div>Collection not found</div>;
 
+    const filteredProducts = products.filter(p => p.theme === id.toUpperCase());
+
     return (
-        <div className="container" style={{ paddingTop: '150px', textAlign: 'center' }}>
-            <h1 style={{ fontSize: '4rem', marginBottom: '20px', textTransform: 'uppercase' }}>{collection.title}</h1>
-            <h2 style={{ fontSize: '1.5rem', color: '#888', marginBottom: '40px' }}>{collection.subtitle}</h2>
+        <div className="page-container" style={{ paddingTop: '100px', minHeight: '80vh' }}>
+            <div className="container" style={{ textAlign: 'center' }}>
+                <h1 style={{ fontSize: '4rem', marginBottom: '20px', textTransform: 'uppercase', fontFamily: "'Tenada', sans-serif" }}>{collection.title}</h1>
+                <h2 style={{ fontSize: '1.5rem', color: '#888', marginBottom: '40px' }}>{collection.subtitle}</h2>
 
-            <div style={{ padding: '40px', background: '#fafafa', borderRadius: '12px' }}>
-                <p style={{ fontSize: '1.2rem', fontStyle: 'italic', marginBottom: '20px' }}>"{collection.catchphrase}"</p>
-                <p>{collection.description}</p>
-            </div>
+                <div style={{ padding: '40px', background: '#fafafa', borderRadius: '12px', marginBottom: '60px' }}>
+                    <p style={{ fontSize: '1.2rem', fontStyle: 'italic', marginBottom: '20px' }}>"{collection.catchphrase}"</p>
+                    <p>{collection.description}</p>
+                </div>
 
-            <div style={{ marginTop: '80px', height: '400px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: '2rem', color: '#999', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{content.ui.common.comingSoon}</span>
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>
+                ) : filteredProducts.length === 0 ? (
+                    <div style={{ marginTop: '80px', height: '300px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+                        <span style={{ fontSize: '2rem', color: '#999', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{content.ui.common.comingSoon}</span>
+                    </div>
+                ) : (
+                    <div className={styles.grid}>
+                        {filteredProducts.map(product => (
+                            <div key={product.id} className={styles.card}>
+                                <div className={styles.imagePlaceholder}>
+                                    {product.options[0]?.images?.[0] ? (
+                                        <img src={product.options[0].images[0]} alt={product.name} />
+                                    ) : (
+                                        <div className={styles.noImage}>No Image</div>
+                                    )}
+                                </div>
+                                <div className={styles.info}>
+                                    <div className={styles.productName}>{product.name}</div>
+                                    <div className={styles.price}>{product.price.toLocaleString()} KRW</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1,13 +1,24 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { PRODUCTS } from '../data/products';
+import { fetchProducts } from '../services/productService';
 import { useLanguage } from '../context/LanguageContext';
 import styles from './Category.module.css';
 
 const Category = () => {
     const { type } = useParams();
     const { content } = useLanguage();
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            setLoading(true);
+            const allProducts = await fetchProducts();
+            setProducts(allProducts);
+            setLoading(false);
+        };
+        loadProducts();
+    }, []);
 
     // Mapping URL param to CATEGORY codes in products.js if needed, 
     // but products.js uses "RING", "NECKLACE" etc.
@@ -17,7 +28,7 @@ const Category = () => {
     // Also handling specific cases if needed, but simple uppercase should work for now.
     const categoryKey = type.toUpperCase();
 
-    const filteredProducts = PRODUCTS.filter(p => p.category === categoryKey);
+    const filteredProducts = products.filter(p => p.category === categoryKey);
 
     const categoryTitle = content.ui.nav.categoryList[type] || categoryKey;
 
@@ -26,7 +37,9 @@ const Category = () => {
             <div className="container">
                 <h1 className={styles.title}>{categoryTitle}</h1>
 
-                {filteredProducts.length === 0 ? (
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>
+                ) : filteredProducts.length === 0 ? (
                     <div className={styles.emptyState}>
                         <p>{content.ui.common.comingSoon || "Product preparation in progress."}</p>
                     </div>

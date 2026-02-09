@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
 import { generateSKU, THEMES, CATEGORIES, MATERIALS, COLORS } from '../utils/skuGenerator';
-
-
-import { PRODUCTS } from '../data/products';
+import { supabase } from '../utils/supabaseClient';
 
 const Admin = () => {
     const [view, setView] = useState('dashboard'); // 'dashboard', 'form'
     const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [products, setProducts] = useState([]);
+    const [message, setMessage] = useState('');
 
     // Form State
     const [name, setName] = useState('');
@@ -24,8 +25,94 @@ const Admin = () => {
         { color: 'SILVER', size: 'FR', stock: 10, imageName: '' }
     ]);
 
-    const [generatedCode, setGeneratedCode] = useState('');
-    const [copySuccess, setCopySuccess] = useState('');
+    // Fetch Products on Load
+    useEffect(() => {
+        fetchProductsFromDB();
+    }, []);
+
+    const fetchProductsFromDB = async () => {
+        setLoading(true);
+        const { data, error } = await supabase
+            .from('products')
+            .select(`
+                *,
+                options:product_options(*)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching products:', error);
+            setMessage('Error loading products.');
+        } else {
+            setProducts(data || []);
+        }
+        setLoading(false);
+    };
+
+    // Save Logic (Create or Update)
+    const handleSave = async () => {
+        setLoading(true);
+        setMessage('Saving...');
+
+        // 1. Construct Main Product ID
+        const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
+
+        // 2. Prepare Data
+        const productData = {
+            id: mainId,
+            name,
+            theme,
+            category,
+            price: Number(price),
+            description,
+            material
+        };
+
+        // 3. Upsert Product
+        const { error: productError } = await supabase
+            .from('products')
+            .upsert(productData);
+
+        if (productError) {
+            console.error('Error saving product:', productError);
+            setMessage(`Error: ${productError.message}`);
+            setLoading(false);
+            return;
+        }
+
+        // 4. Handle Options (Delete old ones first for simplicity, then insert new)
+        // First delete existing options for this product
+        await supabase.from('product_options').delete().eq('product_id', mainId);
+
+        // Prepare new options
+        const optionsToInsert = options.map(opt => ({
+            product_id: mainId,
+            sku: generateSKU(theme, category, material, index, opt.color, opt.size), // Ensure unique SKU for option
+            color: opt.color,
+            size: opt.size,
+            stock: Number(opt.stock),
+            images: opt.imageName ? [`/assets/products/${opt.imageName}`] : [] // Simplistic array handling for now
+            // In future, upload image to storage and get URL
+        }));
+
+        const { error: optionsError } = await supabase
+            .from('product_options')
+            .insert(optionsToInsert);
+
+        if (optionsError) {
+            console.error('Error saving options:', optionsError);
+            setMessage('Product saved, but options failed.');
+        } else {
+            setMessage('Product saved successfully!');
+            fetchProductsFromDB(); // Refresh dashboard
+            setTimeout(() => {
+                setView('dashboard');
+                setMessage('');
+            }, 1000);
+        }
+        setLoading(false);
+    };
+
 
     // Handlers
     const handleOptionChange = (idx, field, value) => {
@@ -52,11 +139,11 @@ const Admin = () => {
         setTheme('HYPE');
         setCategory('RING');
         setMaterial('SURGICAL_STEEL');
-        setIndex(1); // Default, maybe find max index + 1 later but simple for now
+        setIndex(1);
         setPrice(0);
         setDescription('');
         setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
-        setGeneratedCode('');
+        setMessage('');
         setView('form');
     };
 
@@ -68,10 +155,8 @@ const Admin = () => {
         setCategory(product.category);
         setMaterial(product.material);
         setPrice(product.price);
-        setDescription(product.description || ''); // Handle missing description
+        setDescription(product.description || '');
 
-        // Attempt to parse index from ID: THEME-CAT-MAT-INDEX-COL-SZ
-        // Example: HYPE-RING-SURGICAL_STEEL-1-SILVER-12
         try {
             const parts = product.id.split('-');
             const idx = parseInt(parts[3], 10);
@@ -81,7 +166,6 @@ const Admin = () => {
             setIndex(1);
         }
 
-        // Map options
         if (product.options && product.options.length > 0) {
             setOptions(product.options.map(opt => ({
                 color: opt.color,
@@ -93,51 +177,12 @@ const Admin = () => {
             setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
         }
 
-        setGeneratedCode('');
+        setMessage('');
         setView('form');
     };
 
     // Include SKU preview for the main product ID
     const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
-
-    const generateCode = () => {
-        // Construct the product object
-        // ... (Logic same as before, essentially)
-
-        let code = `  {\n`;
-        code += `    id: generateSKU('${theme}', '${category}', '${material}', ${index}, '${options[0].color}', '${options[0].size}'),\n`;
-        code += `    name: "${name}",\n`;
-        code += `    theme: "${theme}",\n`;
-        code += `    category: "${category}",\n`;
-        code += `    price: ${price},\n`;
-        code += `    description: "${description}",\n`;
-        code += `    material: "${material}",\n`;
-        code += `    options: [\n`;
-        options.forEach(opt => {
-            code += `      {\n`;
-            code += `        sku: generateSKU('${theme}', '${category}', '${material}', ${index}, '${opt.color}', '${opt.size}'),\n`;
-            code += `        color: "${opt.color}",\n`;
-            code += `        size: "${opt.size}",\n`;
-            code += `        stock: ${opt.stock},\n`;
-            if (opt.imageName) {
-                code += `        images: ["/assets/products/${opt.imageName}"]\n`;
-            } else {
-                code += `        images: []\n`;
-            }
-            code += `      },\n`;
-        });
-        code += `    ]\n`;
-        code += `  },`;
-
-        setGeneratedCode(code);
-    };
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(generatedCode).then(() => {
-            setCopySuccess('Copied!');
-            setTimeout(() => setCopySuccess(''), 2000);
-        });
-    };
 
     return (
         <div className="page-container">
@@ -149,6 +194,8 @@ const Admin = () => {
                             <h1 className={styles.title} style={{ marginBottom: 0 }}>Product Dashboard</h1>
                             <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Add New Product</button>
                         </div>
+
+                        {loading && <p>Loading products...</p>}
 
                         <div className={styles.tableContainer}>
                             <table className={styles.table}>
@@ -163,10 +210,10 @@ const Admin = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {PRODUCTS.map((product) => (
+                                    {products.map((product) => (
                                         <tr key={product.id}>
                                             <td>
-                                                {product.options[0]?.images[0] ? (
+                                                {product.options && product.options[0]?.images && product.options[0].images[0] ? (
                                                     <img
                                                         src={product.options[0].images[0]}
                                                         alt={product.name}
@@ -192,7 +239,7 @@ const Admin = () => {
                                             </td>
                                         </tr>
                                     ))}
-                                    {PRODUCTS.length === 0 && (
+                                    {!loading && products.length === 0 && (
                                         <tr>
                                             <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
                                                 No products found. Add one to get started!
@@ -207,10 +254,11 @@ const Admin = () => {
 
                 {view === 'form' && (
                     <>
-                        <div style={{ marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                             <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>
                                 &larr; Back to Dashboard
                             </button>
+                            {message && <span style={{ color: message.includes('Error') ? 'red' : 'green', fontWeight: 'bold' }}>{message}</span>}
                         </div>
 
                         <h1 className={styles.title}>{isEditing ? 'Edit Product' : 'Create New Product'}</h1>
@@ -343,24 +391,10 @@ const Admin = () => {
                         </div>
 
                         <div className={styles.buttonGroup}>
-                            <button className={styles.btnPrimary} onClick={generateCode}>
-                                {isEditing ? 'Generate Update Code' : 'Generate Code'}
+                            <button className={styles.btnPrimary} onClick={handleSave} disabled={loading}>
+                                {loading ? 'Saving...' : (isEditing ? 'Update Product' : 'Create Product')}
                             </button>
                         </div>
-
-                        {generatedCode && (
-                            <div className={styles.outputArea}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                    <strong>
-                                        {isEditing ? 'Generated Update (Replace object in products.js):' : 'Generated Code (Copy & Paste into products.js):'}
-                                    </strong>
-                                    <button className={styles.btnSecondary} onClick={copyToClipboard} style={{ padding: '5px 10px' }}>
-                                        Copy {copySuccess && <span className={styles.copySuccess}>{copySuccess}</span>}
-                                    </button>
-                                </div>
-                                <pre>{generatedCode}</pre>
-                            </div>
-                        )}
                     </>
                 )}
             </div>
