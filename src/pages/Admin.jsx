@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
 import { generateSKU, THEMES, CATEGORIES, MATERIALS, COLORS } from '../utils/skuGenerator';
 import { supabase } from '../utils/supabaseClient';
+import { fetchProducts, uploadImage } from '../services/productService';
 
 const Admin = () => {
     const [view, setView] = useState('dashboard'); // 'dashboard', 'form'
@@ -91,8 +92,7 @@ const Admin = () => {
             color: opt.color,
             size: opt.size,
             stock: Number(opt.stock),
-            images: opt.imageName ? [`/assets/products/${opt.imageName}`] : [] // Simplistic array handling for now
-            // In future, upload image to storage and get URL
+            images: opt.imageName ? (opt.imageName.startsWith('http') ? [opt.imageName] : [`/assets/products/${opt.imageName}`]) : []
         }));
 
         const { error: optionsError } = await supabase
@@ -119,6 +119,21 @@ const Admin = () => {
         const newOptions = [...options];
         newOptions[idx][field] = value;
         setOptions(newOptions);
+    };
+
+    const handleImageUpload = async (idx, file) => {
+        if (!file) return;
+        setMessage('Uploading image...');
+        try {
+            const publicUrl = await uploadImage(file);
+            const newOptions = [...options];
+            newOptions[idx]['imageName'] = publicUrl; // Store full URL
+            setOptions(newOptions);
+            setMessage('Image uploaded successfully!');
+        } catch (error) {
+            console.error('Upload failed:', error);
+            setMessage('Image upload failed.');
+        }
     };
 
     const addOption = () => {
@@ -155,8 +170,9 @@ const Admin = () => {
         setCategory(product.category);
         setMaterial(product.material);
         setPrice(product.price);
-        setDescription(product.description || '');
+        setDescription(product.description || ''); // Handle missing description
 
+        // Attempt to parse index from ID: THEME-CAT-MAT-INDEX-COL-SZ
         try {
             const parts = product.id.split('-');
             const idx = parseInt(parts[3], 10);
@@ -166,6 +182,7 @@ const Admin = () => {
             setIndex(1);
         }
 
+        // Map options
         if (product.options && product.options.length > 0) {
             setOptions(product.options.map(opt => ({
                 color: opt.color,
@@ -371,13 +388,22 @@ const Admin = () => {
                                             />
                                         </div>
                                         <div className={styles.col}>
-                                            <label className={styles.label}>Image Filename</label>
-                                            <input
-                                                className={styles.input}
-                                                value={opt.imageName}
-                                                onChange={(e) => handleOptionChange(idx, 'imageName', e.target.value)}
-                                                placeholder="e.g. ring-1.jpg"
-                                            />
+                                            <label className={styles.label}>Product Image</label>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                {opt.imageName && (
+                                                    <img
+                                                        src={opt.imageName.startsWith('http') ? opt.imageName : `/assets/products/${opt.imageName}`}
+                                                        alt="Preview"
+                                                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }}
+                                                    />
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleImageUpload(idx, e.target.files[0])}
+                                                    style={{ fontSize: '0.9rem' }}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                     {options.length > 1 && (

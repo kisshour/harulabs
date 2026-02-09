@@ -89,3 +89,28 @@ export const upsertProduct = async (productData) => {
 
     return true;
 };
+
+// Upload Image to Storage
+export const uploadImage = async (file) => {
+    // 1. Create a unique file name
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    // 2. Upload
+    const { data, error } = await supabase.storage
+        .from('products')
+        .upload(filePath, file);
+
+    if (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+    }
+
+    // 3. Get Public URL
+    const { data: { publicUrl } } = supabase.storage
+        .from('products')
+        .getPublicUrl(filePath);
+
+    return publicUrl;
+};
