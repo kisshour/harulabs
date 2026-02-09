@@ -34,8 +34,8 @@ export const CONTENT = {
                 id: "urban",
                 title: "URBAN",
                 subtitle: "도시의 미학, 미니멀리즘의 정석",
-                catchphrase: "일상의 궤적을 따라 흐르는 유연한 세련미",
-                description: "도심의 건축적인 미학과 절제된 미니멀리즘을 담았습니다. 매일의 스타일링에 자연스럽게 스며드는 간결한 디자인으로, 어떤 룩에도 이지적인 무드를 더하며 레이어링을 통해 나만의 감각을 자유롭게 표현하기에 최적화되어 있습니다."
+                catchphrase: "일상의 궤적을 따라 흐르는 변치 않는 세련미",
+                description: "도심의 건축적인 미학과 절제된 미니멀리즘을 담았습니다. 인체에 무해하며 변색에 강한 고품질 써지컬 스틸 소재를 사용하여, 땀과 물이 닿는 일상의 모든 순간에도 처음의 광택을 잃지 않습니다. 매일의 스타일링에 자연스럽게 스며드는 간결한 디자인은 어떤 룩에도 이지적인 무드를 더하며, 레이어링을 통해 나만의 감각을 자유롭게 표현하기에 최적화되어 있습니다."
             }
         ],
         ui: {
@@ -108,9 +108,9 @@ export const CONTENT = {
             {
                 id: "urban",
                 title: "URBAN",
-                subtitle: "Aesthetics of the City, Check of Minimalism",
-                catchphrase: "Flexible sophistication flowing along the trajectory of daily life",
-                description: "Containing the architectural aesthetics of the city and restrained minimalism. With a concise design that naturally permeates daily styling, it adds an intellectual mood to any look and is optimized for freely expressing one's own sense through layering."
+                subtitle: "Aesthetics of the City, The Essence of Minimalism",
+                catchphrase: "Enduring sophistication following the trajectory of daily life",
+                description: "This collection captures the architectural aesthetics of the city and restrained minimalism. Crafted from high-quality surgical steel—hypoallergenic and highly resistant to tarnish—it maintains its original luster through every moment of daily life, even when exposed to water or sweat. With a sleek design that seamlessly permeates your daily styling, it adds an intellectual mood to any look and is optimized for personal expression through effortless layering."
             }
         ],
         ui: {
