@@ -182,18 +182,22 @@
 
     /* Dropdown Content (The sub-menu) */
     .dropdownContent {
-        position: static;
+        position: static !important;
         /* Flow naturally */
-        transform: none;
-        box-shadow: none;
-        background: transparent;
-        width: 100%;
+        transform: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        width: 100% !important;
+        min-width: 0 !important;
         display: none;
         /* Hidden by default */
         padding: 0;
         margin: 0;
-        border: none;
-        overflow: hidden;
+        border: none !important;
+        overflow: visible !important;
+        border-radius: 0 !important;
+        left: auto !important;
+        top: auto !important;
     }
 
     /* Active State */
