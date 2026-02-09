@@ -71,39 +71,41 @@
     padding: 10px 0;
 }
 
-.dropdownContent {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background: white;
-    min-width: 180px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 15px 0;
-    border-radius: 8px;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-}
+@media (min-width: 769px) {
+    .dropdownContent {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: white;
+        min-width: 180px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 15px 0;
+        border-radius: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
 
-.dropdown:hover .dropdownContent {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-}
+    .dropdown:hover .dropdownContent {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
 
-.dropdownContent a {
-    padding: 10px 20px;
-    display: block;
-    text-align: center;
-    color: var(--color-text-muted);
-}
+    .dropdownContent a {
+        padding: 10px 20px;
+        display: block;
+        text-align: center;
+        color: var(--color-text-muted);
+    }
 
-.dropdownContent a:hover {
-    background-color: var(--color-accent-dim);
-    color: var(--color-text-main);
+    .dropdownContent a:hover {
+        background-color: var(--color-accent-dim);
+        color: var(--color-text-main);
+    }
 }
 
 .menuButton {
@@ -182,29 +184,21 @@
 
     /* Dropdown Content (The sub-menu) */
     .dropdownContent {
-        position: static !important;
-        /* Flow naturally */
-        transform: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-        width: 100% !important;
-        min-width: 0 !important;
+        position: static;
+        width: 100%;
         display: none;
-        /* Hidden by default */
         padding: 0;
         margin: 0;
-        border: none !important;
-        overflow: visible !important;
-        border-radius: 0 !important;
-        left: auto !important;
-        top: auto !important;
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+        border: none;
     }
 
     /* Active State */
     .dropdown.active .dropdownContent {
         display: block;
         padding-bottom: 20px;
-        /* Space after last item */
     }
 
     /* Remove Hover Effects on Mobile */
