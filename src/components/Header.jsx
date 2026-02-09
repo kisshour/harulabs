@@ -9,6 +9,7 @@ import styles from './Header.module.css';
 const Header = () => {
     const { content, language, setLanguage } = useLanguage();
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null); // 'collections' or 'categories'
     const { scrollY } = useScroll();
 
