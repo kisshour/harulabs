@@ -1,0 +1,134 @@
+.adminContainer {
+    padding: 40px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: 'Pretendard', sans-serif;
+    color: #333;
+}
+
+.title {
+    font-family: 'Tenada', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #333;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.sectionTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #FBDCE1;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.input,
+.select,
+.textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.skuPreview {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #d63384;
+    /* Pinkish accent */
+}
+
+.optionBlock {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btnPrimary {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnPrimary:hover {
+    background-color: #555;
+}
+
+.btnSecondary {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #333;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnSecondary:hover {
+    background-color: #f0f0f0;
+}
+
+.outputArea {
+    margin-top: 30px;
+    background: #282c34;
+    color: #abb2bf;
+    padding: 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    position: relative;
+}
+
+.copySuccess {
+    color: #98c379;
+    margin-left: 10px;
+    font-size: 0.9rem;
+}
