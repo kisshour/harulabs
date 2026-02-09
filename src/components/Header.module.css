@@ -215,11 +215,12 @@
     /* Sub-menu Links */
     .dropdownContent a {
         display: block;
-        padding: 12px 0 12px 20px;
-        /* Indent sub-items */
+        padding: 12px 0;
+        /* No side padding for centering */
         font-size: 1rem;
         color: #666;
-        text-align: left;
+        text-align: center;
+        /* Center align sub-menu items */
         border: none;
         /* No internal borders */
     }
