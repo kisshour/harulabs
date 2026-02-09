@@ -30,6 +30,7 @@ const Header = () => {
         // If window width is small, toggle state
         if (window.innerWidth <= 768) {
             e.preventDefault(); // Prevent navigation if it's a link (though these are spans/divs now)
+            e.stopPropagation();
             setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
         }
     };

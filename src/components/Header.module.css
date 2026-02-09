@@ -150,8 +150,8 @@
         position: static;
         transform: none;
         box-shadow: none;
-        background: transparent;
-        /* Remove gray/white background if needed, or keep white but clean */
+        background: #ffffff;
+        /* Explicit white */
         width: 100%;
         display: none;
         opacity: 0;
@@ -160,6 +160,9 @@
         transition: all 0.3s ease;
         max-height: 0;
         overflow: hidden;
+        border-top: 1px solid #f0f0f0;
+        /* Slight separation */
+        border-bottom: 1px solid #f0f0f0;
     }
 
     /* Active state for click-based toggle */
@@ -168,11 +171,11 @@
         opacity: 1;
         visibility: visible;
         max-height: 500px;
-        /* Arbitrary large height for animation */
-        margin-bottom: 20px;
+        margin-bottom: 0;
+        /* Remove margin/gap */
     }
 
-    /* Disable hover on mobile since we use click */
+    /* Disable hover on mobile */
     .dropdown:hover .dropdownContent {
         display: none;
     }
@@ -185,19 +188,23 @@
         display: block;
         padding: 15px;
         width: 100%;
+        font-weight: 600;
+        /* Make trigger slightly bolder */
     }
 
     .dropdownContent a {
-        padding: 12px;
-        border-bottom: none;
-        /* Cleaner look */
-        color: #666;
-        /* Softer text color */
-        font-size: 0.9rem;
+        padding: 15px;
+        /* Increase tap area */
+        border-bottom: 1px solid #fafafa;
+        color: #333;
+        /* Darker text */
+        font-size: 0.95rem;
+        background-color: #fff;
+        /* Ensure link bg is white */
     }
 
     .dropdownContent a:hover {
-        background-color: transparent;
+        background-color: #fff;
         color: #ffb7c5;
     }
 }
