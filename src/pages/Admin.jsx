@@ -7,9 +7,10 @@ import { fetchProducts, uploadImage } from '../services/productService';
 import { useNavigate } from 'react-router-dom';
 
 const TIER_RANGES = [
-    { name: 'Tier 1', min: 1000, max: 2000, krw: 9900, usd: 6.99, thb: 199 },
-    { name: 'Tier 2', min: 2500, max: 4000, krw: 14900, usd: 10.99, thb: 299 },
-    { name: 'Tier 3', min: 4500, max: 6500, krw: 24900, usd: 18.99, thb: 499 },
+    { name: 'Tier-UR1', min: 1000, max: 2000, krw: 9900, usd: 6.99, thb: 199 },
+    { name: 'Tier-UR2', min: 2500, max: 4000, krw: 14900, usd: 10.99, thb: 299 },
+    { name: 'Tier-UR3', min: 4500, max: 6500, krw: 24900, usd: 18.99, thb: 499 },
+    { name: 'Tier-RH1', min: 16000, max: 19000, krw: 49000, usd: 34.99, thb: 999 },
 ];
 
 const Admin = () => {
