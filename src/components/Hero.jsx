@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
-const images = ["/main1.jpeg", "/main2.jpeg", "/main3.jpeg"];
+const images = ["/main1.jpeg", "/main2.jpeg?v=2", "/main3.jpeg"];
 
 const Hero = () => {
     const { content } = useLanguage();
