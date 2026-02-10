@@ -52,8 +52,17 @@ const ProductDetail = () => {
     // Strategy: Show images associated with the *selected color* if available, else show all?
     // Implementation: Filter options by selectedColor to get relevant images.
     // If multiple options share the same color (just diff sizes), they usually share images.
-    const currentColorOption = product?.options?.find(opt => opt.color === selectedColor);
-    const galleryImages = currentColorOption?.images || product?.options?.[0]?.images || [];
+    // UPDATE: If exact option (Color + Size) has images, use them first.
+
+    // 1. Precise match (Color + Size - if size selected)
+    const exactOption = product?.options?.find(opt => opt.color === selectedColor && opt.size === selectedSize);
+
+    // 2. Color key match (first option with that color - if size not selected or exact match has no images?)
+    const colorOption = product?.options?.find(opt => opt.color === selectedColor);
+
+    // Decision tree: Precise with images -> Color with images -> Fallback
+    const displayOption = (exactOption?.images?.length > 0) ? exactOption : colorOption;
+    const galleryImages = displayOption?.images || product?.options?.[0]?.images || [];
 
     // Determine SKU to display
     // If size is selected, show that specific option's SKU
@@ -125,10 +134,10 @@ const ProductDetail = () => {
                     <div className={styles.category}>{product.category} / {product.material}</div>
                     <h1 className={styles.title}>
                         {product.name}
-                        <span className={styles.skuDisplay}>
-                            {currentSKU || product.id}
-                        </span>
                     </h1>
+                    <div className={styles.skuDisplay}>
+                        {currentSKU || product.id}
+                    </div>
                     <div className={styles.price}>{formattedPrice}</div>
 
                     <div className={styles.divider}></div>
@@ -157,7 +166,14 @@ const ProductDetail = () => {
                                 <button
                                     key={size}
                                     className={`${styles.sizeBtn} ${selectedSize === size ? styles.selected : ''}`}
-                                    onClick={() => setSelectedSize(size)}
+                                    onClick={() => {
+                                        setSelectedSize(size);
+                                        // Update main image if the new size has specific images
+                                        const option = product.options.find(opt => opt.color === selectedColor && opt.size === size);
+                                        if (option?.images?.length > 0) {
+                                            setCurrentImage(option.images[0]);
+                                        }
+                                    }}
                                 >
                                     {size}
                                 </button>
