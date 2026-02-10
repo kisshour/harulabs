@@ -198,6 +198,40 @@ const Admin = () => {
         }
     };
 
+    // Get next available index when parameters change
+    useEffect(() => {
+        if (!isEditing && view === 'form') {
+            fetchNextIndex();
+        }
+    }, [theme, category, material, isEditing, view]);
+
+    const fetchNextIndex = async () => {
+        // Find existing products with same prefix to determine max index
+        const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
+        // Query database for IDs starting with this prefix
+        // Since we can't do complex regex easily on client side without fetching all, 
+        // let's just fetch all and filter client side for now as dataset is small, 
+        // or rely on 'products' state if it contains all.
+        // Better: Use products state which is already loaded.
+
+        let maxIdx = 0;
+        products.forEach(p => {
+            // ID format: PREFIX-INDEX...
+            if (p.id.startsWith(prefix)) {
+                const parts = p.id.split('-');
+                if (parts[1]) {
+                    // Extract index part (first 4 chars of second part)
+                    const idxStr = parts[1].substring(0, 4);
+                    const idx = parseInt(idxStr, 10);
+                    if (!isNaN(idx) && idx > maxIdx) {
+                        maxIdx = idx;
+                    }
+                }
+            }
+        });
+        setIndex(maxIdx + 1);
+    };
+
     // Initialize Form for Creation
     const handleCreateClick = () => {
         setIsEditing(false);
@@ -205,7 +239,7 @@ const Admin = () => {
         setTheme('HYPE');
         setCategory('RING');
         setMaterial('SURGICAL_STEEL');
-        setIndex(1);
+        // Index will be set by useEffect
         setPrice(0);
         setCost(0);
         setPriceUsd(0);
