@@ -19,10 +19,17 @@ const ProductDetail = () => {
             const data = await fetchProductById(id);
             if (data) {
                 setProduct(data);
-                // Initialize selection with first option's color
+                // Initialize selection with first option's color and size
                 if (data.options && data.options.length > 0) {
                     const initialColor = data.options[0].color;
                     setSelectedColor(initialColor);
+
+                    // Find first size for this color
+                    // Assuming options are already sorted or we just pick the first one matching color
+                    // Since data.options[0] matches the color by definition:
+                    if (data.options[0].size) {
+                        setSelectedSize(data.options[0].size);
+                    }
 
                     // Set initial image
                     if (data.options[0].images && data.options[0].images.length > 0) {
