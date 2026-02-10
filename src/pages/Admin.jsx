@@ -190,8 +190,20 @@ const Admin = () => {
         setLoading(true);
         setMessage('Deleting product...');
 
-        // Delete from database (Cascade should handle options, but we can be explicit if needed)
-        // Assuming Supabase FK is set to CASCADE, but let's just delete product.
+        // 1. Delete linked options first (to avoid FK constraint issues if CASCADE is missing)
+        const { error: optionsError } = await supabase
+            .from('product_options')
+            .delete()
+            .eq('product_id', mainId);
+
+        if (optionsError) {
+            console.error('Error deleting options:', optionsError);
+            setMessage(`Error deleting options: ${optionsError.message}`);
+            setLoading(false);
+            return;
+        }
+
+        // 2. Delete the product
         const { error } = await supabase
             .from('products')
             .delete()
@@ -202,7 +214,7 @@ const Admin = () => {
             setMessage(`Error: ${error.message}`);
         } else {
             setMessage('Product deleted successfully!');
-            fetchProductsFromDB();
+            await fetchProductsFromDB(); // Wait for fetch
             setTimeout(() => {
                 setView('dashboard');
                 setMessage('');
