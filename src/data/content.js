@@ -43,6 +43,26 @@ export const CONTENT = {
                 }
             ]
         },
+        contactPage: {
+            title: "CONTACT",
+            subtitle: "HARU와 소통하는 가장 빠른 방법",
+            sections: [
+                {
+                    title: "1. 공식 메신저 (Official Messenger)",
+                    items: [
+                        { label: "LINE", value: "@harulabs", link: "https://line.me/R/ti/p/@harulabs" },
+                        { label: "Instagram", value: "harulabs.xyz", link: "https://instagram.com/harulabs.xyz" },
+                        { label: "WhatsApp", value: "+66 62 373 3978", link: "https://wa.me/66623733978" }
+                    ]
+                },
+                {
+                    title: "2. 고객 지원 이메일 (Customer Support)",
+                    items: [
+                        { label: "Email", value: "harulabs.official@gmail.com", link: "mailto:harulabs.official@gmail.com" }
+                    ]
+                }
+            ]
+        },
         collections: [
             {
                 id: "hype",
@@ -150,6 +170,26 @@ export const CONTENT = {
                             subtitle: "Separate Storage",
                             text: "Storing each piece individually in a sealed polybag or jewelry box to avoid air exposure will help preserve its brilliance longer."
                         }
+                    ]
+                }
+            ]
+        },
+        contactPage: {
+            title: "CONTACT",
+            subtitle: "The Fastest Way to Connect with HARU",
+            sections: [
+                {
+                    title: "1. Official Messenger",
+                    items: [
+                        { label: "LINE", value: "@harulabs", link: "https://line.me/R/ti/p/@harulabs" },
+                        { label: "Instagram", value: "harulabs.xyz", link: "https://instagram.com/harulabs.xyz" },
+                        { label: "WhatsApp", value: "+66 62 373 3978", link: "https://wa.me/66623733978" }
+                    ]
+                },
+                {
+                    title: "2. Customer Support Email",
+                    items: [
+                        { label: "Email", value: "harulabs.official@gmail.com", link: "mailto:harulabs.official@gmail.com" }
                     ]
                 }
             ]

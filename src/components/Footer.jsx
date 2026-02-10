@@ -42,7 +42,7 @@ const Footer = () => {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 <NavLink to="/brand" style={{ color: '#666', fontSize: '0.9rem' }}>{content.ui.footer.about}</NavLink>
                                 <NavLink to="/care" style={{ color: '#666', fontSize: '0.9rem' }}>{content.ui.footer.care}</NavLink>
-                                <span style={{ color: '#666', fontSize: '0.9rem', cursor: 'pointer' }}>{content.ui.footer.contact}</span>
+                                <NavLink to="/contact" style={{ color: '#666', fontSize: '0.9rem' }}>{content.ui.footer.contact}</NavLink>
                             </div>
                         </div>
 
