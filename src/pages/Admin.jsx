@@ -37,10 +37,10 @@ const Admin = () => {
     const [price, setPrice] = useState(0);
     const [cost, setCost] = useState(0); // Wholesale Cost
     const [priceUsd, setPriceUsd] = useState(0); // USD Price
-    const [priceThb, setPriceThb] = useState(0); // THB Price
     const [tier, setTier] = useState(''); // Tier (e.g., 'Tier 1')
     const [description, setDescription] = useState('');
     const [dragActiveIndex, setDragActiveIndex] = useState(null);
+    const [commonImages, setCommonImages] = useState([]); // Shared images for all options
 
     // Pricing Logic
     const handleCostChange = (e) => {
@@ -162,19 +162,34 @@ const Admin = () => {
         // First delete existing options for this product
         await supabase.from('product_options').delete().eq('product_id', mainId);
 
-        // Prepare new options
-        const optionsToInsert = options.map(opt => ({
-            product_id: mainId,
-            sku: generateSKU(theme, category, material, manufacturer, index, opt.color, opt.size),
-            color: opt.color,
-            size: opt.size,
-            stock: Number(opt.stock),
-            images: opt.imageNames // Save array of images
-        }));
+        // Prepare Options Data
+        // Merge specific images with common images (Specific First + Common Last)
+        const optionsData = options.map(opt => {
+            // If option has specific images, use them. 
+            // Then append common images.
+            // If option has NO specific images, it will just be common images.
+            // AND ensure no duplicates if someone uploads same image to both? (Unlikely workflow but possible)
+            // For now, simple concatenation as requested: "Specific then Common".
+
+            const combinedImages = [...(opt.imageNames || []), ...commonImages];
+
+            // Remove duplicates just in case?
+            // const uniqueImages = [...new Set(combinedImages)]; 
+            // User might want specific ordering, so simple concat is safer for "Specific then Common".
+
+            return {
+                product_id: mainId,
+                sku: generateSKU(theme, category, material, manufacturer, index, opt.color, opt.size),
+                color: opt.color,
+                size: opt.size,
+                stock: Number(opt.stock),
+                images: combinedImages
+            };
+        });
 
         const { error: optionsError } = await supabase
             .from('product_options')
-            .insert(optionsToInsert);
+            .insert(optionsData);
 
         if (optionsError) {
             console.error('Error saving options:', optionsError);
@@ -274,7 +289,11 @@ const Admin = () => {
         e.stopPropagation();
         setDragActiveIndex(null);
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            handleImageUpload(idx, e.dataTransfer.files);
+            if (idx === 'common') {
+                handleCommonImageUpload(e.dataTransfer.files);
+            } else {
+                handleImageUpload(idx, e.dataTransfer.files);
+            }
         }
     };
 
@@ -310,6 +329,31 @@ const Admin = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleCommonImageUpload = async (files) => {
+        if (!files || files.length === 0) return;
+        setLoading(true);
+        setMessage('Uploading common images... Please wait.');
+
+        try {
+            const uploadedUrls = [];
+            const uploadPromises = Array.from(files).map(file => uploadImage(file));
+            const results = await Promise.all(uploadPromises);
+
+            uploadedUrls.push(...results);
+            setCommonImages([...commonImages, ...uploadedUrls]);
+            setMessage('Common images uploaded successfully!');
+        } catch (error) {
+            console.error('Upload failed:', error);
+            setMessage(`Common image upload failed: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const removeCommonImage = (imgIdx) => {
+        setCommonImages(commonImages.filter((_, i) => i !== imgIdx));
     };
 
     const removeImage = (optIdx, imgIdx) => {
