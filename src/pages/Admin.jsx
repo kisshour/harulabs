@@ -696,9 +696,7 @@ const Admin = () => {
                                     />
                                 </div>
                             </div>
-                            <div className={styles.skuPreview}>
-                                Main SKU Preview: {mainId}
-                            </div>
+                            {/* Main SKU Preview Removed as per request to show per-option */}
                         </div>
 
                         {/* Common Images Section */}
@@ -778,6 +776,9 @@ const Admin = () => {
                                                 placeholder="e.g. 12 or FR"
                                             />
                                         </div>
+                                    </div>
+                                    <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                        SKU: {generateSKU(theme, category, material, manufacturer, index, opt.color, opt.size || 'XX')}
                                     </div>
                                     <div className={styles.row}>
                                         <div className={styles.col}>
