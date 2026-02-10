@@ -75,7 +75,7 @@ const Admin = () => {
 
     // Options State (Starting with one default option)
     const [options, setOptions] = useState([
-        { color: 'SILVER', size: 'FR', stock: 10, imageName: '' }
+        { color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }
     ]);
 
     // Fetch Products on Load
@@ -162,11 +162,11 @@ const Admin = () => {
         // Prepare new options
         const optionsToInsert = options.map(opt => ({
             product_id: mainId,
-            sku: generateSKU(theme, category, material, index, opt.color, opt.size), // Ensure unique SKU for option
+            sku: generateSKU(theme, category, material, index, opt.color, opt.size),
             color: opt.color,
             size: opt.size,
             stock: Number(opt.stock),
-            images: opt.imageName ? (opt.imageName.startsWith('http') ? [opt.imageName] : [`/assets/products/${opt.imageName}`]) : []
+            images: opt.imageNames // Save array of images
         }));
 
         const { error: optionsError } = await supabase
@@ -260,25 +260,38 @@ const Admin = () => {
         setOptions(newOptions);
     };
 
-    const handleImageUpload = async (idx, file) => {
-        if (!file) return;
-        setLoading(true); // Block interaction
-        setMessage('Uploading image... Please wait.');
-        try {
-            const publicUrl = await uploadImage(file);
-            console.log('Upload successful:', publicUrl);
+    const handleImageUpload = async (idx, files) => {
+        if (!files || files.length === 0) return;
+        setLoading(true);
+        setMessage('Uploading images... Please wait.');
 
-            // Deep copy options to ensure state update triggers correctly
-            const newOptions = options.map((opt, i) => i === idx ? { ...opt, imageName: publicUrl } : opt);
+        try {
+            const uploadedUrls = [];
+            // Upload specific files in parallel
+            const uploadPromises = Array.from(files).map(file => uploadImage(file));
+            const results = await Promise.all(uploadPromises);
+
+            uploadedUrls.push(...results);
+            console.log('Uploads successful:', uploadedUrls);
+
+            // Append new images to existing list
+            const newOptions = [...options];
+            newOptions[idx].imageNames = [...(newOptions[idx].imageNames || []), ...uploadedUrls];
             setOptions(newOptions);
 
-            setMessage('Image uploaded successfully!');
+            setMessage('Images uploaded successfully!');
         } catch (error) {
             console.error('Upload failed:', error);
             setMessage(`Image upload failed: ${error.message}`);
         } finally {
             setLoading(false);
         }
+    };
+
+    const removeImage = (optIdx, imgIdx) => {
+        const newOptions = [...options];
+        newOptions[optIdx].imageNames = newOptions[optIdx].imageNames.filter((_, i) => i !== imgIdx);
+        setOptions(newOptions);
     };
 
     const addOption = () => {
@@ -341,7 +354,7 @@ const Admin = () => {
         setPriceThb(0);
         setTier('');
         setDescription('');
-        setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
+        setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }]);
         setMessage('');
         setView('form');
     };
@@ -377,10 +390,10 @@ const Admin = () => {
                 color: opt.color,
                 size: opt.size,
                 stock: opt.stock,
-                imageName: opt.images && opt.images.length > 0 ? opt.images[0].split('/').pop() : ''
+                imageNames: opt.images || [] // Load existing images
             })));
         } else {
-            setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
+            setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }]);
         }
 
         setMessage('');
@@ -422,7 +435,7 @@ const Admin = () => {
                                     {products.map((product) => (
                                         <tr key={product.id}>
                                             <td>
-                                                {product.options && product.options[0]?.images && product.options[0].images[0] ? (
+                                                {product.options && product.options[0]?.images && product.options[0].images.length > 0 ? (
                                                     <img
                                                         src={product.options[0].images[0]}
                                                         alt={product.name}
@@ -620,19 +633,39 @@ const Admin = () => {
                                             />
                                         </div>
                                         <div className={styles.col}>
-                                            <label className={styles.label}>Product Image</label>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                {opt.imageName && (
-                                                    <img
-                                                        src={opt.imageName.startsWith('http') ? opt.imageName : `/assets/products/${opt.imageName}`}
-                                                        alt="Preview"
-                                                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }}
-                                                    />
-                                                )}
+                                            <label className={styles.label}>Product Images</label>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                {/* Image Gallery */}
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                    {opt.imageNames && opt.imageNames.map((imgUrl, imgIdx) => (
+                                                        <div key={imgIdx} style={{ position: 'relative', width: '60px', height: '60px' }}>
+                                                            <img
+                                                                src={imgUrl}
+                                                                alt={`Preview ${imgIdx}`}
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }}
+                                                            />
+                                                            <button
+                                                                onClick={() => removeImage(idx, imgIdx)}
+                                                                style={{
+                                                                    position: 'absolute', top: '-5px', right: '-5px',
+                                                                    background: 'red', color: 'white', border: 'none',
+                                                                    borderRadius: '50%', width: '18px', height: '18px',
+                                                                    cursor: 'pointer', fontSize: '10px', display: 'flex',
+                                                                    alignItems: 'center', justifyContent: 'center'
+                                                                }}
+                                                            >
+                                                                X
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Upload Input */}
                                                 <input
                                                     type="file"
                                                     accept="image/*"
-                                                    onChange={(e) => handleImageUpload(idx, e.target.files[0])}
+                                                    multiple // Allow multiple files
+                                                    onChange={(e) => handleImageUpload(idx, e.target.files)}
                                                     style={{ fontSize: '0.9rem' }}
                                                 />
                                             </div>
