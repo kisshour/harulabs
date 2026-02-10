@@ -18,6 +18,11 @@ const Admin = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
+    const [expandedRows, setExpandedRows] = useState({});
+
+    const toggleRow = (id) => {
+        setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+    };
     const [message, setMessage] = useState('');
     const [editingId, setEditingId] = useState(null); // Track original ID for editing/deleting
     const navigate = useNavigate();
@@ -517,6 +522,7 @@ const Admin = () => {
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
+                                        <th style={{ width: '40px' }}></th>
                                         <th>Image</th>
                                         <th>Name</th>
                                         <th>SKU / ID</th>
@@ -527,39 +533,82 @@ const Admin = () => {
                                 </thead>
                                 <tbody>
                                     {products.map((product) => (
-                                        <tr key={product.id}>
-                                            <td>
-                                                <Link to={`/product/${product.id}`}>
-                                                    {product.options && product.options[0]?.images && product.options[0].images.length > 0 ? (
-                                                        <img
-                                                            src={product.options[0].images[0]}
-                                                            alt={product.name}
-                                                            className={styles.thumbnail}
-                                                        />
-                                                    ) : (
-                                                        <div className={styles.thumbnail} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Img</div>
-                                                    )}
-                                                </Link>
-                                            </td>
-                                            <td style={{ fontWeight: 500 }}>
-                                                <Link to={`/product/${product.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                    {product.name}
-                                                </Link>
-                                            </td>
-                                            <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
-                                            <td>
-                                                <span className={styles.badge}>{product.category}</span>
-                                            </td>
-                                            <td>₩{product.price.toLocaleString()}</td>
-                                            <td>
-                                                <button
-                                                    className={styles.actionBtn}
-                                                    onClick={() => handleEditClick(product)}
-                                                >
-                                                    Edit
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        <React.Fragment key={product.id}>
+                                            <tr style={{ background: expandedRows[product.id] ? '#f9f9f9' : 'transparent' }}>
+                                                <td style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => toggleRow(product.id)}>
+                                                    {expandedRows[product.id] ? '▼' : '▶'}
+                                                </td>
+                                                <td>
+                                                    <Link to={`/product/${product.id}`}>
+                                                        {product.options && product.options[0]?.images && product.options[0].images.length > 0 ? (
+                                                            <img
+                                                                src={product.options[0].images[0]}
+                                                                alt={product.name}
+                                                                className={styles.thumbnail}
+                                                            />
+                                                        ) : (
+                                                            <div className={styles.thumbnail} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Img</div>
+                                                        )}
+                                                    </Link>
+                                                </td>
+                                                <td style={{ fontWeight: 500 }}>
+                                                    <Link to={`/product/${product.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                        {product.name}
+                                                    </Link>
+                                                </td>
+                                                <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
+                                                <td>
+                                                    <span className={styles.badge}>{product.category}</span>
+                                                </td>
+                                                <td>₩{product.price.toLocaleString()}</td>
+                                                <td>
+                                                    <button
+                                                        className={styles.actionBtn}
+                                                        onClick={() => handleEditClick(product)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {expandedRows[product.id] && (
+                                                <tr>
+                                                    <td colSpan="7" style={{ padding: '0 0 20px 50px', backgroundColor: '#f9f9f9' }}>
+                                                        <div style={{ padding: '10px', background: 'white', border: '1px solid #ddd', borderRadius: '4px' }}>
+                                                            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>Variants (Options)</h4>
+                                                            <table style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}>
+                                                                <thead>
+                                                                    <tr style={{ borderBottom: '1px solid #eee', color: '#666' }}>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>SKU</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Color</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Stock</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {product.options && product.options.map((opt, idx) => (
+                                                                        <tr key={idx} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                                                                            <td style={{ padding: '8px 5px', fontFamily: 'monospace' }}>
+                                                                                {/* Use the actual saved SKU from the options table */}
+                                                                                {opt.sku}
+                                                                            </td>
+                                                                            <td style={{ padding: '8px 5px' }}>{opt.color}</td>
+                                                                            <td style={{ padding: '8px 5px' }}>{opt.size}</td>
+                                                                            <td style={{ padding: '8px 5px' }}>{opt.stock}</td>
+                                                                            <td style={{ padding: '8px 5px' }}>
+                                                                                {opt.images && opt.images.length > 0 ? (
+                                                                                    <img src={opt.images[0]} alt="opt" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '2px' }} />
+                                                                                ) : '-'}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
                                     ))}
                                     {!loading && products.length === 0 && (
                                         <tr>
