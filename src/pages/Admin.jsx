@@ -109,7 +109,7 @@ const Admin = () => {
         setMessage('Saving...');
 
         // 1. Construct Main Product ID
-        const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
+        const mainId = generateSKU(theme, category, material, manufacturer, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
 
         // 2. Prepare Data
         const productData = {
@@ -122,7 +122,8 @@ const Admin = () => {
             price_usd: Number(priceUsd), // USD Retail
             price_thb: Number(priceThb), // THB Retail
             description,
-            material
+            material,
+            manufacturer
         };
 
         // Check for duplicates if creating new
@@ -163,7 +164,7 @@ const Admin = () => {
         // Prepare new options
         const optionsToInsert = options.map(opt => ({
             product_id: mainId,
-            sku: generateSKU(theme, category, material, index, opt.color, opt.size),
+            sku: generateSKU(theme, category, material, manufacturer, index, opt.color, opt.size),
             color: opt.color,
             size: opt.size,
             stock: Number(opt.stock),
