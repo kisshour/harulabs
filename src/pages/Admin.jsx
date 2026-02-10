@@ -226,13 +226,18 @@ const Admin = () => {
         try {
             const publicUrl = await uploadImage(file);
             console.log('Upload successful:', publicUrl);
-            const newOptions = [...options];
-            newOptions[idx]['imageName'] = publicUrl; // Store full URL
+
+            // Deep copy options to ensure state update triggers correctly
+            const newOptions = options.map((opt, i) => i === idx ? { ...opt, imageName: publicUrl } : opt);
             setOptions(newOptions);
+
             setMessage('Image uploaded successfully!');
+            // Optional: Alert removed to be less annoying if it works, but keeping for debugging if requested.
+            // But since user is having trouble, let's keep it visible in UI message.
         } catch (error) {
             console.error('Upload failed:', error);
-            setMessage('Image upload failed. Please try again.');
+            setMessage(`Image upload failed: ${error.message}`);
+            alert(`이미지 업로드 실패: ${error.message}\nSupabase Storage의 'products' 버킷 정책(Policy)을 확인해주세요.`);
         } finally {
             setLoading(false);
         }
