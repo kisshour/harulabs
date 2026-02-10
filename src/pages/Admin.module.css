@@ -141,6 +141,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .tableContainer {
@@ -208,4 +210,26 @@
     background: #eee;
     color: #555;
     font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .col {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .dashboardHeader {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
 }
