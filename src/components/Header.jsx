@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import logo from '../assets/logo.png';
@@ -8,6 +8,8 @@ import styles from './Header.module.css';
 
 const Header = () => {
     const { content, language, setLanguage } = useLanguage();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null); // 'collections' or 'categories'
@@ -84,7 +86,13 @@ const Header = () => {
                     {/* Language Selector */}
                     <div style={{ display: 'flex', gap: '10px', marginLeft: '20px', fontSize: '0.8rem', fontWeight: '500' }}>
                         <span
-                            onClick={() => { setLanguage('ko'); setIsMobileMenuOpen(false); }}
+                            onClick={() => {
+                                setLanguage('ko');
+                                setIsMobileMenuOpen(false);
+                                if (location.pathname === '/en') {
+                                    navigate('/');
+                                }
+                            }}
                             style={{
                                 cursor: 'pointer',
                                 color: language === 'ko' ? '#1A1A1A' : '#999',
