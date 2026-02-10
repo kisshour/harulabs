@@ -19,6 +19,7 @@ const Admin = () => {
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
     const [message, setMessage] = useState('');
+    const [editingId, setEditingId] = useState(null); // Track original ID for editing/deleting
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -182,7 +183,20 @@ const Admin = () => {
 
 
     const handleDelete = async () => {
-        if (!window.confirm(`Are you sure you want to delete product: ${mainId}?`)) {
+        // Use the ID from the product object if available (original ID), 
+        // otherwise fall back to mainId but that might be dangerous if form changed.
+        // We need to store original ID when entering edit mode.
+        // But for now, let's assume we want to delete the product currently being edited *as it was loaded*.
+        // However, we don't have 'originalId' in state. 
+        // Let's modify handleEditClick to store it or just trust the user hasn't changed key fields? 
+        // No, user said "Delete Success" so no error, meaning ID likely didn't match.
+
+        // Let's find the product in the list that matches the current state? No.
+        // We should add a state for `editingId`.
+
+        const targetId = editingId || mainId;
+
+        if (!window.confirm(`Are you sure you want to delete product: ${targetId}?`)) {
             return;
         }
 
@@ -193,7 +207,7 @@ const Admin = () => {
         const { error: optionsError } = await supabase
             .from('product_options')
             .delete()
-            .eq('product_id', mainId);
+            .eq('product_id', targetId);
 
         if (optionsError) {
             console.error('Error deleting options:', optionsError);
@@ -204,23 +218,32 @@ const Admin = () => {
         }
 
         // 2. Delete the product
-        const { error } = await supabase
+        const { error, count } = await supabase
             .from('products')
-            .delete()
-            .eq('id', mainId);
+            .delete({ count: 'exact' }) // Request count
+            .eq('id', targetId);
 
         if (error) {
             console.error('Error deleting product:', error);
             alert(`상품 삭제 실패: ${error.message}\n(Code: ${error.code})\nSupabase Table 권한(RLS)을 확인해주세요.`);
             setMessage(`Error: ${error.message}`);
         } else {
-            alert('삭제 성공!');
-            setMessage('Product deleted successfully!');
-            await fetchProductsFromDB();
-            setTimeout(() => {
-                setView('dashboard');
-                setMessage('');
-            }, 1000);
+            // Check if any row was actually deleted
+            // note: supabase js v2 returns count in 'count' property if requested, or inside data? 
+            // It seems 'count' property is available if { count: 'exact' } is passed.
+            // Let's rely on alerting the user if count is 0.
+
+            if (count === 0) {
+                alert(`삭제된 상품이 없습니다. ID 불일치 가능성: ${targetId}`);
+            } else {
+                alert('삭제 성공!');
+                setMessage('Product deleted successfully!');
+                await fetchProductsFromDB();
+                setTimeout(() => {
+                    setView('dashboard');
+                    setMessage('');
+                }, 1000);
+            }
         }
         setLoading(false);
     };
@@ -305,6 +328,7 @@ const Admin = () => {
     // Initialize Form for Creation
     const handleCreateClick = () => {
         setIsEditing(false);
+        setEditingId(null);
         setName('');
         setTheme('HYPE');
         setCategory('RING');
@@ -324,6 +348,7 @@ const Admin = () => {
     // Initialize Form for Editing
     const handleEditClick = (product) => {
         setIsEditing(true);
+        setEditingId(product.id); // Store original ID
         setName(product.name);
         setTheme(product.theme);
         setCategory(product.category);
