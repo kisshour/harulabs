@@ -35,6 +35,10 @@ const ProductDetail = () => {
         loadProduct();
     }, [id]);
 
+    if (loading) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Loading...</div>;
+    if (!product) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Product not found.</div>;
+
+
     // Derived state for available sizes based on selected color
     const availableSizes = product?.options
         ?.filter(opt => opt.color === selectedColor)
@@ -82,8 +86,7 @@ const ProductDetail = () => {
         alert(language === 'ko' ? '장바구니 기능은 준비 중입니다.' : 'Cart feature coming soon!');
     };
 
-    if (loading) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Loading...</div>;
-    if (!product) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Product not found.</div>;
+
 
     const formattedPrice = language === 'ko' || content.ui.common.currency === 'KRW'
         ? `${product.price.toLocaleString()} KRW`
