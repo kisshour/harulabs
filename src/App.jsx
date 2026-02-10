@@ -8,6 +8,7 @@ import Collection from './pages/Collection';
 import Category from './pages/Category';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import Care from './pages/Care';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { useEffect } from 'react';
@@ -35,6 +36,7 @@ function App() {
           <Route path="/brand" element={<Brand />} />
           <Route path="/collection/:id" element={<Collection />} />
           <Route path="/category/:type" element={<Category />} />
+          <Route path="/care" element={<Care />} />
           <Route path="/login" element={<Login />} />
 
           {/* Protected Admin Route */}

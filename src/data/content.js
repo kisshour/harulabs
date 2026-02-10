@@ -8,6 +8,41 @@ export const CONTENT = {
                 "부드러운 파스텔 핑크의 온기와 블랙의 명료함이 교차하는 HARU의 감성은, 섬세하면서도 당당한 현대인의 매력을 상징합니다. 로고 속 'R'에 깃든 다이아몬드처럼, 당신의 모든 하루가 독보적인 빛으로 가득하기를 바랍니다."
             ]
         },
+        careGuide: {
+            title: "CARE GUIDE",
+            sections: [
+                {
+                    title: "1. 소재 안내 (Materials)",
+                    items: [
+                        {
+                            subtitle: "Surgical Steel",
+                            text: "피부에 직접 닿는 모든 체인과 귀걸이 침은 의료용 도구에 사용되는 고품질 써지컬 스틸로 제작되어 알러지 반응을 최소화합니다."
+                        },
+                        {
+                            subtitle: "Pendant & Ornaments",
+                            text: "정교한 디자인의 펜던트는 소재 특성상 수분과 염분에 노출될 경우 변색될 수 있습니다."
+                        }
+                    ]
+                },
+                {
+                    title: "2. 관리 및 보관 (Care & Storage)",
+                    items: [
+                        {
+                            subtitle: "Keep Dry",
+                            text: "주얼리의 광택을 오래 유지하기 위해 샤워, 수영, 운동 시에는 착용을 피해주시기 바랍니다."
+                        },
+                        {
+                            subtitle: "Wipe Clean",
+                            text: "착용 후에는 부드러운 천으로 땀과 피지를 가볍게 닦아주세요."
+                        },
+                        {
+                            subtitle: "Separate Storage",
+                            text: "공기 노출을 차단할 수 있는 지퍼백이나 주얼리 케이스에 개별 보관하시면 처음의 빛을 더 오래 간직할 수 있습니다."
+                        }
+                    ]
+                }
+            ]
+        },
         collections: [
             {
                 id: "hype",
@@ -57,6 +92,7 @@ export const CONTENT = {
                 collections: "COLLECTIONS",
                 brand: "BRAND",
                 about: "Brand Story",
+                care: "Care Guide",
                 contact: "Contact",
                 language: "LANGUAGE",
                 slogan: "Where Every Moment Becomes Your Signature.",
@@ -81,6 +117,41 @@ export const CONTENT = {
             description: [
                 "HARU collects fragments of passing daily life and rebirths them into the most shining moments. Beyond decoration, we create a symbol that represents the wearer's life and attitude.",
                 "The sensibility of HARU, where the warmth of soft pastel pink and the clarity of black intersect, symbolizes the charm of modern people who are delicate yet confident. Like the diamond nested in the logo's 'R', we hope your every day is filled with unique light."
+            ]
+        },
+        careGuide: {
+            title: "CARE GUIDE",
+            sections: [
+                {
+                    title: "1. Materials",
+                    items: [
+                        {
+                            subtitle: "Surgical Steel",
+                            text: "All chains and earring posts that touch the skin are crafted from high-quality surgical steel (hypoallergenic), minimizing skin irritation."
+                        },
+                        {
+                            subtitle: "Pendant & Ornaments",
+                            text: "Due to the nature of the materials used for intricate pendant designs, discoloration may occur if exposed to moisture or salt."
+                        }
+                    ]
+                },
+                {
+                    title: "2. Care & Storage",
+                    items: [
+                        {
+                            subtitle: "Keep Dry",
+                            text: "To maintain the original luster, please remove your jewelry before showering, swimming, or exercising."
+                        },
+                        {
+                            subtitle: "Wipe Clean",
+                            text: "After wearing, gently wipe away oils and sweat with a soft, dry cloth."
+                        },
+                        {
+                            subtitle: "Separate Storage",
+                            text: "Storing each piece individually in a sealed polybag or jewelry box to avoid air exposure will help preserve its brilliance longer."
+                        }
+                    ]
+                }
             ]
         },
         collections: [
@@ -132,6 +203,7 @@ export const CONTENT = {
                 collections: "COLLECTIONS",
                 brand: "BRAND",
                 about: "Brand Story",
+                care: "Care Guide",
                 contact: "Contact",
                 language: "LANGUAGE",
                 slogan: "Where Every Moment Becomes Your Signature.",

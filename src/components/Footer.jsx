@@ -41,6 +41,7 @@ const Footer = () => {
                             <h4 style={{ fontSize: '0.9rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{content.ui.footer.brand}</h4>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 <NavLink to="/brand" style={{ color: '#666', fontSize: '0.9rem' }}>{content.ui.footer.about}</NavLink>
+                                <NavLink to="/care" style={{ color: '#666', fontSize: '0.9rem' }}>{content.ui.footer.care}</NavLink>
                                 <span style={{ color: '#666', fontSize: '0.9rem', cursor: 'pointer' }}>{content.ui.footer.contact}</span>
                             </div>
                         </div>
