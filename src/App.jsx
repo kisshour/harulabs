@@ -10,6 +10,7 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Care from './pages/Care';
 import Contact from './pages/Contact';
+import ProductDetail from './pages/ProductDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { useEffect } from 'react';
@@ -49,6 +50,7 @@ function App() {
           <Route path="/brand" element={<Brand />} />
           <Route path="/collection/:id" element={<Collection />} />
           <Route path="/category/:type" element={<Category />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/care" element={<Care />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />

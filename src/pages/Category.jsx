@@ -46,24 +46,26 @@ const Category = () => {
                 ) : (
                     <div className={styles.grid}>
                         {filteredProducts.map(product => (
-                            <div key={product.id} className={styles.card}>
-                                <div className={styles.imagePlaceholder}>
-                                    {/* Using the first option's image if available, else placeholder */}
-                                    {product.options[0]?.images?.[0] ? (
-                                        <img src={product.options[0].images[0]} alt={product.name} />
-                                    ) : (
-                                        <div className={styles.noImage}>No Image</div>
-                                    )}
-                                </div>
-                                <div className={styles.info}>
-                                    <div className={styles.productName}>{product.name}</div>
-                                    <div className={styles.price}>
-                                        {content.ui?.common?.currency === 'KRW' || language === 'ko'
-                                            ? `${product.price.toLocaleString()} KRW`
-                                            : `$${product.price_usd || '0.00'}`}
+                            <Link to={`/product/${product.id}`} key={product.id} className={styles.cardLink}>
+                                <div className={styles.card}>
+                                    <div className={styles.imagePlaceholder}>
+                                        {/* Using the first option's image if available, else placeholder */}
+                                        {product.options[0]?.images?.[0] ? (
+                                            <img src={product.options[0].images[0]} alt={product.name} />
+                                        ) : (
+                                            <div className={styles.noImage}>No Image</div>
+                                        )}
+                                    </div>
+                                    <div className={styles.info}>
+                                        <div className={styles.productName}>{product.name}</div>
+                                        <div className={styles.price}>
+                                            {content.ui?.common?.currency === 'KRW' || language === 'ko'
+                                                ? `${product.price.toLocaleString()} KRW`
+                                                : `$${product.price_usd || '0.00'}`}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}

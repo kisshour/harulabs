@@ -87,3 +87,9 @@
         margin-bottom: 40px;
     }
 }
+
+.cardLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}

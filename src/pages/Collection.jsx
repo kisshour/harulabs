@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { fetchProducts } from '../services/productService';
 import styles from './Category.module.css'; // Reusing grid styles
@@ -46,23 +46,25 @@ const Collection = () => {
                 ) : (
                     <div className={styles.grid}>
                         {filteredProducts.map(product => (
-                            <div key={product.id} className={styles.card}>
-                                <div className={styles.imagePlaceholder}>
-                                    {product.options[0]?.images?.[0] ? (
-                                        <img src={product.options[0].images[0]} alt={product.name} />
-                                    ) : (
-                                        <div className={styles.noImage}>No Image</div>
-                                    )}
-                                </div>
-                                <div className={styles.info}>
-                                    <div className={styles.productName}>{product.name}</div>
-                                    <div className={styles.price}>
-                                        {content.ui?.common?.currency === 'KRW' || language === 'ko'
-                                            ? `${product.price.toLocaleString()} KRW`
-                                            : `$${product.price_usd || '0.00'}`}
+                            <Link to={`/product/${product.id}`} key={product.id} className={styles.cardLink}>
+                                <div className={styles.card}>
+                                    <div className={styles.imagePlaceholder}>
+                                        {product.options[0]?.images?.[0] ? (
+                                            <img src={product.options[0].images[0]} alt={product.name} />
+                                        ) : (
+                                            <div className={styles.noImage}>No Image</div>
+                                        )}
+                                    </div>
+                                    <div className={styles.info}>
+                                        <div className={styles.productName}>{product.name}</div>
+                                        <div className={styles.price}>
+                                            {content.ui?.common?.currency === 'KRW' || language === 'ko'
+                                                ? `${product.price.toLocaleString()} KRW`
+                                                : `$${product.price_usd || '0.00'}`}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}
