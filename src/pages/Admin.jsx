@@ -37,6 +37,7 @@ const Admin = () => {
     const [price, setPrice] = useState(0);
     const [cost, setCost] = useState(0); // Wholesale Cost
     const [priceUsd, setPriceUsd] = useState(0); // USD Price
+    const [priceTHB, setPriceTHB] = useState(0); // THB Price
     const [tier, setTier] = useState(''); // Tier (e.g., 'Tier 1')
     const [description, setDescription] = useState('');
     const [dragActiveIndex, setDragActiveIndex] = useState(null);
@@ -60,7 +61,7 @@ const Admin = () => {
         if (match) {
             setPrice(match.krw);
             setPriceUsd(match.usd);
-            setPriceThb(match.thb);
+            setPriceTHB(match.thb);
             setTier(match.name);
 
             // Auto-select Theme based on Tier
@@ -121,7 +122,7 @@ const Admin = () => {
             price: Number(price), // KRW Retail
             cost: Number(cost), // Wholesale Cost
             price_usd: Number(priceUsd), // USD Retail
-            price_thb: Number(priceThb), // THB Retail
+            price_thb: Number(priceTHB), // THB Retail
             description,
             material,
             manufacturer
@@ -409,23 +410,31 @@ const Admin = () => {
 
     // Initialize Form for Creation
     const handleCreateClick = () => {
-        setIsEditing(false);
-        setEditingId(null);
-        setName('');
-        setTheme('HYPE');
-        setCategory('RING');
-        setMaterial('SURGICAL_STEEL');
-        setManufacturer('HOLIC');
-        // Index will be set by useEffect
-        setPrice(0);
-        setCost(0);
-        setPriceUsd(0);
-        setPriceThb(0);
-        setTier('');
-        setDescription('');
-        setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }]);
-        setMessage('');
-        setView('form');
+        console.log('Create clicked');
+        try {
+            setIsEditing(false);
+            setEditingId(null);
+            setName('');
+            setTheme('HYPE');
+            setCategory('RING');
+            setMaterial('SURGICAL_STEEL');
+            setManufacturer('HOLIC');
+            // Index will be set by useEffect
+            setPrice(0);
+            setCost(0);
+            setPriceUsd(0);
+            setPriceTHB(0);
+            setTier('');
+            setDescription('');
+            setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }]);
+            setCommonImages([]); // Reset common images
+            setMessage('');
+            setView('form');
+            console.log('View set to form');
+        } catch (error) {
+            console.error('Error in handleCreateClick:', error);
+            setMessage('Error identifying create action.');
+        }
     };
 
     // Initialize Form for Editing
@@ -440,7 +449,7 @@ const Admin = () => {
         setPrice(product.price);
         setCost(product.cost || 0); // Load cost
         setPriceUsd(product.price_usd || 0); // Load USD price
-        setPriceThb(product.price_thb || 0); // Load THB
+        setPriceTHB(product.price_thb || 0); // Load THB
         setTier(product.tier || ''); // Load Tier
         setDescription(product.description || ''); // Handle missing description
 
@@ -460,11 +469,21 @@ const Admin = () => {
                 color: opt.color,
                 size: opt.size,
                 stock: opt.stock,
-                imageNames: opt.images || [] // Load existing images
+                // We need to decide how to split specific vs common when editing.
+                // Since we merged them on save, we can't easily distinguish unless we store them separately or check against commonImages state (which isn't loaded yet/doesn't exist on product).
+                // Actually, for now, we just load ALL images into the option's specific images list.
+                // The common image feature is mostly for *creation* convenience.
+                // If we want to support "editing common images" affecting all, we'd need a schema change or convention.
+                // Current Requirement: "Upload common, and specific. Show specific then common."
+                // On Edit: We just load what's saved. If the user wants to add common again, they can, but it might duplicate.
+                // Let's keep it simple: specific images load as is. Common images input starts empty on edit.
+                imageNames: opt.images || []
             })));
         } else {
             setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }]);
         }
+
+        setCommonImages([]); // Reset common images on edit start to avoid confusion
 
         setMessage('');
         setView('form');
@@ -612,8 +631,8 @@ const Admin = () => {
                                     <input
                                         type="number"
                                         className={styles.input}
-                                        value={priceThb}
-                                        onChange={(e) => setPriceThb(e.target.value)}
+                                        value={priceTHB}
+                                        onChange={(e) => setPriceTHB(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -675,6 +694,59 @@ const Admin = () => {
                             <div className={styles.skuPreview}>
                                 Main SKU Preview: {mainId}
                             </div>
+                        </div>
+
+                        {/* Common Images Section */}
+                        <div style={{ marginBottom: '30px', border: '1px solid #eee', padding: '20px', borderRadius: '8px' }}>
+                            <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Common Images (Applied to All Options)</h3>
+                            <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '10px' }}>
+                                Images uploaded here will be shown for ALL options. <br />
+                                If an option has its own images, they will be shown <strong>first</strong>, followed by these common images.
+                            </p>
+
+                            <div
+                                className={`${styles.dropZone} ${dragActiveIndex === 'common' ? styles.dropZoneActive : ''}`}
+                                onDragEnter={(e) => handleDrag(e, 'common')}
+                                onDragLeave={(e) => handleDrag(e, 'common')}
+                                onDragOver={(e) => handleDrag(e, 'common')}
+                                onDrop={(e) => handleDrop(e, 'common')}
+                                onClick={() => document.getElementById(`common-image-upload`).click()}
+                            >
+                                <div className={styles.dropIcon}>☁️</div>
+                                <span>Drag & Drop Common Images Here</span>
+                                <span style={{ fontSize: '0.8rem', color: '#999' }}>or click to upload</span>
+                                <input
+                                    id={`common-image-upload`}
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={(e) => handleCommonImageUpload(e.target.files)}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+
+                            {/* Common Image Previews */}
+                            {commonImages.length > 0 && (
+                                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                                    {commonImages.map((img, i) => (
+                                        <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
+                                            <img src={img} alt={`Common ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+                                            <button
+                                                onClick={() => removeCommonImage(i)}
+                                                style={{
+                                                    position: 'absolute', top: -5, right: -5,
+                                                    background: 'red', color: 'white', border: 'none',
+                                                    borderRadius: '50%', width: '20px', height: '20px',
+                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    fontSize: '12px'
+                                                }}
+                                            >
+                                                X
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className={styles.formGroup}>
@@ -791,6 +863,31 @@ const Admin = () => {
                                 style={loading ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
                             >
                                 {loading ? 'Processing...' : (isEditing ? 'Update Product' : 'Create Product')}
+                            </button>
+                        </div>
+
+                        <div style={{ marginTop: '50px', paddingTop: '20px', borderTop: '2px solid #ff4444' }}>
+                            <h3 style={{ color: '#ff4444' }}>Danger Zone</h3>
+                            <button
+                                onClick={async () => {
+                                    if (window.confirm('WARNING: This will delete ALL products and options! This action cannot be undone. Are you sure?')) {
+                                        setLoading(true);
+                                        const { error: optErr } = await supabase.from('product_options').delete().neq('id', 0); // Delete all options
+                                        const { error: prodErr } = await supabase.from('products').delete().neq('id', 'placeholder'); // Delete all products
+
+                                        if (optErr || prodErr) {
+                                            alert('Error resetting DB: ' + (optErr?.message || prodErr?.message));
+                                        } else {
+                                            alert('Database has been reset successfully.');
+                                            setProducts([]);
+                                            setView('dashboard');
+                                        }
+                                        setLoading(false);
+                                    }
+                                }}
+                                style={{ backgroundColor: '#ff4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                Reset Entire Database
                             </button>
                         </div>
                     </>
