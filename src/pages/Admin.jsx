@@ -674,14 +674,26 @@ const Admin = () => {
                                                     ))}
                                                 </div>
 
-                                                {/* Upload Input */}
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    multiple // Allow multiple files
-                                                    onChange={(e) => handleImageUpload(idx, e.target.files)}
-                                                    style={{ fontSize: '0.9rem' }}
-                                                />
+                                                {/* Upload Input with Drag & Drop */}
+                                                <div
+                                                    className={`${styles.dropZone} ${dragActiveIndex === idx ? styles.dropZoneActive : ''}`}
+                                                    onDragEnter={(e) => handleDrag(e, idx)}
+                                                    onDragLeave={(e) => handleDrag(e, idx)}
+                                                    onDragOver={(e) => handleDrag(e, idx)}
+                                                    onDrop={(e) => handleDrop(e, idx)}
+                                                    onClick={() => document.getElementById(`file-input-${idx}`).click()}
+                                                >
+                                                    <div className={styles.dropIcon}>☁️</div>
+                                                    <p>Drag & Drop images here or click to upload</p>
+                                                    <input
+                                                        id={`file-input-${idx}`}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        onChange={(e) => handleImageUpload(idx, e.target.files)}
+                                                        style={{ display: 'none' }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
