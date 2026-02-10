@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
-import main1 from '../assets/main1.jpeg';
-import main2 from '../assets/main2.jpeg';
-import main3 from '../assets/main3.jpeg';
 
-const images = [main1, main2, main3];
+const images = ["/main1.jpeg", "/main2.jpeg", "/main3.jpeg"];
 
 const Hero = () => {
     const { content } = useLanguage();
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
+        console.log("Current slide index:", index);
         const timer = setInterval(() => {
             setIndex((prev) => (prev + 1) % images.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [index]);
 
     return (
         <div style={{
@@ -24,7 +22,7 @@ const Hero = () => {
             width: '100%',
             position: 'relative',
             overflow: 'hidden',
-            backgroundColor: '#000' // Fallback color
+            backgroundColor: '#111' // Dark grey fallback
         }}>
             <AnimatePresence mode='popLayout'>
                 <motion.div
