@@ -392,12 +392,13 @@ const Admin = () => {
 
         let maxIdx = 0;
         products.forEach(p => {
-            // ID format: PREFIX-INDEX...
+            // ID format: PREFIX(including index)-OPTIONS...
+            // e.g. HYRGSSHL0001-SVFR
             if (p.id.startsWith(prefix)) {
                 const parts = p.id.split('-');
-                if (parts[1]) {
-                    // Extract index part (first 4 chars of second part)
-                    const idxStr = parts[1].substring(0, 4);
+                if (parts[0]) {
+                    // Extract index part (last 4 chars of first part)
+                    const idxStr = parts[0].slice(-4);
                     const idx = parseInt(idxStr, 10);
                     if (!isNaN(idx) && idx > maxIdx) {
                         maxIdx = idx;
@@ -453,12 +454,16 @@ const Admin = () => {
         setTier(product.tier || ''); // Load Tier
         setDescription(product.description || ''); // Handle missing description
 
-        // Attempt to parse index from ID: THEME-CAT-MAT-INDEX-COL-SZ
+        // Attempt to parse index from ID: PREFIX(including index)-OPTIONS
+        // e.g. HYRGSSHL0001-SVFR
         try {
             const parts = product.id.split('-');
-            const idx = parseInt(parts[3], 10);
-            if (!isNaN(idx)) setIndex(idx);
-            else setIndex(1);
+            if (parts[0]) {
+                const idxStr = parts[0].slice(-4);
+                const idx = parseInt(idxStr, 10);
+                if (!isNaN(idx)) setIndex(idx);
+                else setIndex(1);
+            }
         } catch (e) {
             setIndex(1);
         }

@@ -51,6 +51,17 @@ const ProductDetail = () => {
     const currentColorOption = product?.options?.find(opt => opt.color === selectedColor);
     const galleryImages = currentColorOption?.images || product?.options?.[0]?.images || [];
 
+    // Determine SKU to display
+    // If size is selected, show that specific option's SKU
+    // If only color selected, show that color's first option SKU or just main ID?
+    // Let's try to find exact match
+    const currentOption = product?.options?.find(opt => opt.color === selectedColor && opt.size === selectedSize);
+    // If no exact match (e.g. size not selected), fallback to main SKU or color-based SKU?
+    // User wants "Attributes-Option" which changes dynamically.
+    // If size not selected, maybe show "HYRGSSHL0001-SV??" or just the Main ID.
+    // Let's default to Main ID if no full option selected.
+    const currentSKU = currentOption ? currentOption.sku : product.id;
+
     // Handlers
     const handleColorClick = (color) => {
         setSelectedColor(color);
@@ -109,7 +120,12 @@ const ProductDetail = () => {
                 {/* Right: Product Info */}
                 <div className={styles.info}>
                     <div className={styles.category}>{product.category} / {product.material}</div>
-                    <h1 className={styles.title}>{product.name}</h1>
+                    <h1 className={styles.title}>
+                        {product.name}
+                        <span className={styles.skuDisplay}>
+                            {currentSKU || product.id}
+                        </span>
+                    </h1>
                     <div className={styles.price}>{formattedPrice}</div>
 
                     <div className={styles.divider}></div>
@@ -146,8 +162,8 @@ const ProductDetail = () => {
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className={styles.actions}>
+                    {/* Actions - Cart Removed */}
+                    {/* <div className={styles.actions}>
                         <button
                             className={styles.addToCartBtn}
                             onClick={handleAddToCart}
@@ -155,7 +171,7 @@ const ProductDetail = () => {
                         >
                             {stockText(language)}
                         </button>
-                    </div>
+                    </div> */}
 
                     {/* Details */}
                     <div className={styles.details}>
@@ -167,7 +183,5 @@ const ProductDetail = () => {
         </div>
     );
 };
-
-const stockText = (lang) => lang === 'ko' ? '장바구니 담기' : 'ADD TO CART';
 
 export default ProductDetail;

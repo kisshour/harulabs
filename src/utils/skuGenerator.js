@@ -65,5 +65,5 @@ export const generateSKU = (theme, category, material, manufacturer, index, colo
     const colorCode = COLORS[color] || 'XX';
     const sizeCode = String(size).toUpperCase();
 
-    return `${themeCode}${categoryCode}${materialCode}${manufacturerCode}-${indexCode}${colorCode}${sizeCode}`;
+    return `${themeCode}${categoryCode}${materialCode}${manufacturerCode}${indexCode}-${colorCode}${sizeCode}`;
 };
