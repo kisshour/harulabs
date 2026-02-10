@@ -170,16 +170,20 @@ const Admin = () => {
 
     const handleImageUpload = async (idx, file) => {
         if (!file) return;
-        setMessage('Uploading image...');
+        setLoading(true); // Block interaction
+        setMessage('Uploading image... Please wait.');
         try {
             const publicUrl = await uploadImage(file);
+            console.log('Upload successful:', publicUrl);
             const newOptions = [...options];
             newOptions[idx]['imageName'] = publicUrl; // Store full URL
             setOptions(newOptions);
             setMessage('Image uploaded successfully!');
         } catch (error) {
             console.error('Upload failed:', error);
-            setMessage('Image upload failed.');
+            setMessage('Image upload failed. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
