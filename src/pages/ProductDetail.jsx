@@ -85,12 +85,22 @@ const ProductDetail = () => {
     // Handlers
     const handleColorClick = (color) => {
         setSelectedColor(color);
-        setSelectedSize(null); // Reset size when color changes
 
-        // Update main image to first image of this color
-        const newColorOption = product.options.find(opt => opt.color === color);
-        if (newColorOption && newColorOption.images && newColorOption.images.length > 0) {
-            setCurrentImage(newColorOption.images[0]);
+        // Find available options for the new color and sort by size
+        const newOptions = product.options
+            .filter(opt => opt.color === color)
+            .sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true }));
+
+        if (newOptions.length > 0) {
+            const firstOption = newOptions[0];
+            setSelectedSize(firstOption.size);
+
+            // Update main image to this option's image if available
+            if (firstOption.images && firstOption.images.length > 0) {
+                setCurrentImage(firstOption.images[0]);
+            }
+        } else {
+            setSelectedSize(null);
         }
     };
 
