@@ -181,16 +181,15 @@ const Admin = () => {
 
 
 
-
     const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+        if (!window.confirm(`Are you sure you want to delete product: ${mainId}?`)) {
             return;
         }
 
         setLoading(true);
         setMessage('Deleting product...');
 
-        // 1. Delete linked options first (to avoid FK constraint issues if CASCADE is missing)
+        // 1. Delete linked options
         const { error: optionsError } = await supabase
             .from('product_options')
             .delete()
@@ -198,6 +197,7 @@ const Admin = () => {
 
         if (optionsError) {
             console.error('Error deleting options:', optionsError);
+            alert(`옵션 삭제 실패: ${optionsError.message}\n(Code: ${optionsError.code})`);
             setMessage(`Error deleting options: ${optionsError.message}`);
             setLoading(false);
             return;
@@ -211,10 +211,12 @@ const Admin = () => {
 
         if (error) {
             console.error('Error deleting product:', error);
+            alert(`상품 삭제 실패: ${error.message}\n(Code: ${error.code})\nSupabase Table 권한(RLS)을 확인해주세요.`);
             setMessage(`Error: ${error.message}`);
         } else {
+            alert('삭제 성공!');
             setMessage('Product deleted successfully!');
-            await fetchProductsFromDB(); // Wait for fetch
+            await fetchProductsFromDB();
             setTimeout(() => {
                 setView('dashboard');
                 setMessage('');
