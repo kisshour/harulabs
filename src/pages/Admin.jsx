@@ -581,7 +581,6 @@ const Admin = () => {
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>SKU</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Color</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Stock</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
                                                                     </tr>
                                                                 </thead>
@@ -594,7 +593,6 @@ const Admin = () => {
                                                                             </td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.color}</td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.size}</td>
-                                                                            <td style={{ padding: '8px 5px' }}>{opt.stock}</td>
                                                                             <td style={{ padding: '8px 5px' }}>
                                                                                 {opt.images && opt.images.length > 0 ? (
                                                                                     <img src={opt.images[0]} alt="opt" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '2px' }} />
