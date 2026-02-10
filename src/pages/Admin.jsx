@@ -4,7 +4,7 @@ import styles from './Admin.module.css';
 import { generateSKU, THEMES, CATEGORIES, MATERIALS, MANUFACTURERS, COLORS } from '../utils/skuGenerator';
 import { supabase } from '../utils/supabaseClient';
 import { fetchProducts, uploadImage } from '../services/productService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const TIER_RANGES = [
     { name: 'Tier-UR1', min: 1000, max: 2000, krw: 9900, usd: 6.99, thb: 199 },
@@ -364,7 +364,7 @@ const Admin = () => {
     };
 
     const addOption = () => {
-        setOptions([...options, { color: 'SILVER', size: 'FR', stock: 10, imageName: '' }]);
+        setOptions([...options, { color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
     };
 
     const removeOption = (idx) => {
@@ -427,7 +427,7 @@ const Admin = () => {
             setPriceTHB(0);
             setTier('');
             setDescription('');
-            setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }]);
+            setOptions([{ color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
             setCommonImages([]); // Reset common images
             setMessage('');
             setView('form');
@@ -485,7 +485,7 @@ const Admin = () => {
                 imageNames: opt.images || []
             })));
         } else {
-            setOptions([{ color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }]);
+            setOptions([{ color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
         }
 
         setCommonImages([]); // Reset common images on edit start to avoid confusion
@@ -529,17 +529,23 @@ const Admin = () => {
                                     {products.map((product) => (
                                         <tr key={product.id}>
                                             <td>
-                                                {product.options && product.options[0]?.images && product.options[0].images.length > 0 ? (
-                                                    <img
-                                                        src={product.options[0].images[0]}
-                                                        alt={product.name}
-                                                        className={styles.thumbnail}
-                                                    />
-                                                ) : (
-                                                    <div className={styles.thumbnail} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Img</div>
-                                                )}
+                                                <Link to={`/product/${product.id}`}>
+                                                    {product.options && product.options[0]?.images && product.options[0].images.length > 0 ? (
+                                                        <img
+                                                            src={product.options[0].images[0]}
+                                                            alt={product.name}
+                                                            className={styles.thumbnail}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.thumbnail} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Img</div>
+                                                    )}
+                                                </Link>
                                             </td>
-                                            <td style={{ fontWeight: 500 }}>{product.name}</td>
+                                            <td style={{ fontWeight: 500 }}>
+                                                <Link to={`/product/${product.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                    {product.name}
+                                                </Link>
+                                            </td>
                                             <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
                                             <td>
                                                 <span className={styles.badge}>{product.category}</span>
@@ -781,15 +787,6 @@ const Admin = () => {
                                         SKU: {generateSKU(theme, category, material, manufacturer, index, opt.color, opt.size || 'XX')}
                                     </div>
                                     <div className={styles.row}>
-                                        <div className={styles.col}>
-                                            <label className={styles.label}>Stock</label>
-                                            <input
-                                                type="number"
-                                                className={styles.input}
-                                                value={opt.stock}
-                                                onChange={(e) => handleOptionChange(idx, 'stock', e.target.value)}
-                                            />
-                                        </div>
                                         <div className={styles.col}>
                                             <label className={styles.label}>Product Images</label>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
