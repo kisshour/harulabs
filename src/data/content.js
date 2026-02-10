@@ -12,7 +12,7 @@ export const CONTENT = {
             title: "CARE GUIDE",
             sections: [
                 {
-                    title: "1. 소재 안내 (Materials)",
+                    title: "소재 안내 (Materials)",
                     items: [
                         {
                             subtitle: "써지컬 스틸 (Surgical Steel)",
@@ -25,7 +25,7 @@ export const CONTENT = {
                     ]
                 },
                 {
-                    title: "2. 관리 및 보관 (Care & Storage)",
+                    title: "관리 및 보관 (Care & Storage)",
                     items: [
                         {
                             subtitle: "수분 피하기 (Keep Dry)",
@@ -48,7 +48,7 @@ export const CONTENT = {
             subtitle: "HARU와 소통하는 가장 빠른 방법",
             sections: [
                 {
-                    title: "1. 공식 메신저 (Official Messenger)",
+                    title: "공식 메신저 (Official Messenger)",
                     items: [
                         { label: "LINE", value: "@harulabs", link: "https://line.me/R/ti/p/@harulabs" },
                         { label: "Instagram", value: "harulabs.xyz", link: "https://instagram.com/harulabs.xyz" },
@@ -56,7 +56,7 @@ export const CONTENT = {
                     ]
                 },
                 {
-                    title: "2. 고객 지원 이메일 (Customer Support)",
+                    title: "고객 지원 이메일 (Customer Support)",
                     items: [
                         { label: "Email", value: "harulabs.official@gmail.com", link: "mailto:harulabs.official@gmail.com" }
                     ]
@@ -143,7 +143,7 @@ export const CONTENT = {
             title: "CARE GUIDE",
             sections: [
                 {
-                    title: "1. Materials",
+                    title: "Materials",
                     items: [
                         {
                             subtitle: "Surgical Steel",
@@ -156,7 +156,7 @@ export const CONTENT = {
                     ]
                 },
                 {
-                    title: "2. Care & Storage",
+                    title: "Care & Storage",
                     items: [
                         {
                             subtitle: "Keep Dry",
@@ -179,7 +179,7 @@ export const CONTENT = {
             subtitle: "The Fastest Way to Connect with HARU",
             sections: [
                 {
-                    title: "1. Official Messenger",
+                    title: "Official Messenger",
                     items: [
                         { label: "LINE", value: "@harulabs", link: "https://line.me/R/ti/p/@harulabs" },
                         { label: "Instagram", value: "harulabs.xyz", link: "https://instagram.com/harulabs.xyz" },
@@ -187,7 +187,7 @@ export const CONTENT = {
                     ]
                 },
                 {
-                    title: "2. Customer Support Email",
+                    title: "Customer Support Email",
                     items: [
                         { label: "Email", value: "harulabs.official@gmail.com", link: "mailto:harulabs.official@gmail.com" }
                     ]
