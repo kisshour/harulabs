@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
-import { generateSKU, THEMES, CATEGORIES, MATERIALS, COLORS } from '../utils/skuGenerator';
+import { generateSKU, THEMES, CATEGORIES, MATERIALS, MANUFACTURERS, COLORS } from '../utils/skuGenerator';
 import { supabase } from '../utils/supabaseClient';
 import { fetchProducts, uploadImage } from '../services/productService';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +32,7 @@ const Admin = () => {
     const [theme, setTheme] = useState('HYPE');
     const [category, setCategory] = useState('RING');
     const [material, setMaterial] = useState('SURGICAL_STEEL');
+    const [manufacturer, setManufacturer] = useState('HOLIC');
     const [index, setIndex] = useState(1);
     const [price, setPrice] = useState(0);
     const [cost, setCost] = useState(0); // Wholesale Cost
@@ -310,11 +311,11 @@ const Admin = () => {
         if (!isEditing && view === 'form') {
             fetchNextIndex();
         }
-    }, [theme, category, material, isEditing, view]);
+    }, [theme, category, material, manufacturer, isEditing, view]);
 
     const fetchNextIndex = async () => {
         // Find existing products with same prefix to determine max index
-        const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
+        const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}${MANUFACTURERS[manufacturer]}`;
         // Query database for IDs starting with this prefix
         // Since we can't do complex regex easily on client side without fetching all, 
         // let's just fetch all and filter client side for now as dataset is small, 
@@ -347,6 +348,7 @@ const Admin = () => {
         setTheme('HYPE');
         setCategory('RING');
         setMaterial('SURGICAL_STEEL');
+        setManufacturer('HOLIC');
         // Index will be set by useEffect
         setPrice(0);
         setCost(0);
@@ -367,6 +369,7 @@ const Admin = () => {
         setTheme(product.theme);
         setCategory(product.category);
         setMaterial(product.material);
+        setManufacturer(product.manufacturer || 'HOLIC'); // Load manufacturer, default to HOLIC if missing
         setPrice(product.price);
         setCost(product.cost || 0); // Load cost
         setPriceUsd(product.price_usd || 0); // Load USD price
@@ -401,7 +404,7 @@ const Admin = () => {
     };
 
     // Include SKU preview for the main product ID
-    const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
+    const mainId = generateSKU(theme, category, material, manufacturer, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
 
     return (
         <div className="page-container">
@@ -579,6 +582,16 @@ const Admin = () => {
                                     <label className={styles.label}>Material</label>
                                     <select className={styles.select} value={material} onChange={(e) => setMaterial(e.target.value)}>
                                         {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Manufacturer</label>
+                                    <select className={styles.select} value={manufacturer} onChange={(e) => setManufacturer(e.target.value)}>
+                                        {Object.keys(MANUFACTURERS).map(k => (
+                                            <option key={k} value={k}>
+                                                {k} ({MANUFACTURERS[k]})
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className={styles.col}>
