@@ -40,6 +40,7 @@ const Admin = () => {
     const [priceThb, setPriceThb] = useState(0); // THB Price
     const [tier, setTier] = useState(''); // Tier (e.g., 'Tier 1')
     const [description, setDescription] = useState('');
+    const [dragActiveIndex, setDragActiveIndex] = useState(null);
 
     // Pricing Logic
     const handleCostChange = (e) => {
@@ -256,6 +257,27 @@ const Admin = () => {
 
 
     // Handlers
+    // Handlers
+    // Drag and Drop Handlers
+    const handleDrag = (e, idx) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setDragActiveIndex(idx);
+        } else if (e.type === 'dragleave') {
+            setDragActiveIndex(null);
+        }
+    };
+
+    const handleDrop = (e, idx) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActiveIndex(null);
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            handleImageUpload(idx, e.dataTransfer.files);
+        }
+    };
+
     const handleOptionChange = (idx, field, value) => {
         const newOptions = [...options];
         newOptions[idx][field] = value;
