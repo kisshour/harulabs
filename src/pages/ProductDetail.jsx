@@ -137,10 +137,8 @@ const ProductDetail = () => {
                             {availableSizes.map(({ size, stock }) => (
                                 <button
                                     key={size}
-                                    className={`${styles.sizeBtn} ${selectedSize === size ? styles.selected : ''} ${stock <= 0 ? styles.outOfStock : ''}`}
-                                    onClick={() => stock > 0 && setSelectedSize(size)}
-                                    disabled={stock <= 0}
-                                    title={stock <= 0 ? 'Out of Stock' : ''}
+                                    className={`${styles.sizeBtn} ${selectedSize === size ? styles.selected : ''}`}
+                                    onClick={() => setSelectedSize(size)}
                                 >
                                     {size}
                                 </button>
