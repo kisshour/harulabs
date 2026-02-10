@@ -114,9 +114,14 @@ const ProductDetail = () => {
 
 
 
-    const formattedPrice = language === 'ko' || content.ui.common.currency === 'KRW'
-        ? `${product.price.toLocaleString()} KRW`
-        : `$${product.price_usd || '0.00'}`;
+    let formattedPrice;
+    if (language === 'ko') {
+        formattedPrice = `${product.price.toLocaleString()} KRW`;
+    } else if (language === 'th') {
+        formattedPrice = `${product.price_thb ? product.price_thb.toLocaleString() : '0'} THB`;
+    } else {
+        formattedPrice = `$${product.price_usd || '0.00'}`;
+    }
 
     return (
         <div className={styles.container}>

@@ -84,12 +84,13 @@ const Header = () => {
                     </div>
 
                     {/* Language Selector */}
+                    {/* Language Selector */}
                     <div style={{ display: 'flex', gap: '10px', marginLeft: '20px', fontSize: '0.8rem', fontWeight: '500' }}>
                         <span
                             onClick={() => {
                                 setLanguage('ko');
                                 setIsMobileMenuOpen(false);
-                                if (location.pathname === '/en') {
+                                if (location.pathname === '/en' || location.pathname === '/th') {
                                     navigate('/');
                                 }
                             }}
@@ -99,11 +100,14 @@ const Header = () => {
                                 borderBottom: language === 'ko' ? '1px solid #1A1A1A' : 'none'
                             }}
                         >
-                            KO
+                            KR
                         </span>
                         <span style={{ color: '#ccc' }}>|</span>
                         <span
-                            onClick={() => { setLanguage('en'); setIsMobileMenuOpen(false); }}
+                            onClick={() => {
+                                setLanguage('en');
+                                setIsMobileMenuOpen(false);
+                            }}
                             style={{
                                 cursor: 'pointer',
                                 color: language === 'en' ? '#1A1A1A' : '#999',
@@ -111,6 +115,20 @@ const Header = () => {
                             }}
                         >
                             EN
+                        </span>
+                        <span style={{ color: '#ccc' }}>|</span>
+                        <span
+                            onClick={() => {
+                                setLanguage('th');
+                                setIsMobileMenuOpen(false);
+                            }}
+                            style={{
+                                cursor: 'pointer',
+                                color: language === 'th' ? '#1A1A1A' : '#999',
+                                borderBottom: language === 'th' ? '1px solid #1A1A1A' : 'none'
+                            }}
+                        >
+                            TH
                         </span>
                     </div>
                 </nav>

@@ -1,49 +1,43 @@
 # 제품 데이터 입력 가이드 (Data Entry Guide)
 
-## 1. 관리자 페이지 (추천)
-가장 쉬운 방법은 **[제품 코드 생성기](/admin)** 페이지를 이용하는 것입니다.
+현재 모든 제품 데이터는 **관리자 페이지**를 통해 **Supabase 데이터베이스**에 직접 저장됩니다.
+`src/data/products.js` 파일은 더 이상 사용되지 않습니다 (초기 샘플 데이터 제외).
 
-1. 웹사이트 주소 뒤에 `/admin`을 붙여 접속하세요. (예: `http://localhost:5173/admin`)
-2. 제품 정보를 입력 폼에 작성하세요.
-3. 아래 **"Generate Code"** 버튼을 누르세요.
-4. 생성된 코드를 복사하세요.
-5. `src/data/products.js` 파일을 열고 `PRODUCTS` 배열 안에 붙여넣으세요.
+## 1. 관리자 페이지 접속
+1. 로컬 환경에서 접속: `http://localhost:5173/admin`
+2. 로그인 (이메일/비밀번호 필요)
 
----
+## 2. 제품 등록 방법
+1. **기본 정보 입력**:
+   - 이름 (Name)
+   - 테마 (Theme): HYPE, AURA, RHYTHM, URBAN 중 선택
+   - 카테고리 (Category): RING, NECKLACE 등 선택
+   - 소재 (Material)
+   - 제조사 (Manufacturer): HOLIC 등 선택
+   - 설명 (Description)
 
-## 2. 직접 코드 입력 (고급)
-`src/data/products.js` 파일에 직접 코드를 작성할 수도 있습니다.
+2. **가격 정보 입력**:
+   - 도매가(Cost)를 입력하면 **자동으로** 권장 소비자가(KRW, USD, THB)와 등급(Tier)이 계산됩니다.
+   - 필요 시 수동으로 수정 가능합니다.
 
-### 파일 위치
-`src/data/products.js`
+3. **공통 이미지 업로드 (Common Images)**:
+   - 옵션별 이미지가 없을 때 보여질 기본 이미지를 업로드합니다.
+   - 드래그 앤 드롭으로 여러 장 업로드 가능합니다.
 
-### 템플릿
-```javascript
-  {
-    // ID 자동 생성
-    id: generateSKU('THEME', 'CATEGORY', 'MATERIAL', INDEX, 'COLOR', 'SIZE'),
-    name: "제품 이름",
-    theme: "THEME",       // 예: 'HYPE'
-    category: "CATEGORY", // 예: 'RING'
-    price: 00000,
-    description: "설명...",
-    material: "MATERIAL", // 예: 'SILVER'
-    options: [
-      {
-        sku: generateSKU('THEME', 'CATEGORY', 'MATERIAL', INDEX, 'COLOR', 'SIZE'),
-        color: "COLOR",   // 예: 'SILVER'
-        size: "SIZE",     // 예: '12'
-        stock: 10,
-        images: ["/assets/products/이미지.jpg"]
-      }
-    ]
-  },
-```
+4. **옵션 추가 (Options)**:
+   - 색상(Color), 사이즈(Size)를 입력합니다. (재고는 현재 사용하지 않으므로 자동 설정됩니다.)
+   - **SKU 미리보기**: 입력된 정보에 따라 `HYRGSSHL0001-SVFR` 형태의 코드가 자동 생성되어 보입니다.
+   - 옵션별 이미지 업로드도 가능합니다.
 
-## 3. 결과 확인
-`src/data/products.js` 파일에 제품을 추가하면 **자동으로** 다음 페이지들에 업데이트됩니다:
-- **Category 페이지**: `category` 필드 값(예: `RING`, `NECKLACE`)에 맞춰 해당 카테고리 페이지에 자동 표시됩니다.
-- **Collection 페이지**: `theme` 필드 값(예: `HYPE`, `AURA`)에 맞춰 해당 컬렉션 페이지에 자동 표시됩니다.
-- **상세 페이지**: 제품을 클릭하면 상세 내용도 자동으로 연결됩니다.
+5. **저장 (Create Product)**:
+   - 하단의 `Create Product` 버튼을 누르면 DB에 저장됩니다.
+   - 저장 후 대시보드 목록에 즉시 반영됩니다.
 
-**주의**: 파일을 저장하고 브라우저를 새로고침하면 즉시 확인 가능합니다. (배포 시에는 배포 완료 후 확인)
+## 3. 수정 및 삭제
+- **대시보드**에서 등록된 제품 목록을 볼 수 있습니다.
+- `Edit` 버튼: 내용을 수정하고 `Update Product`를 누르세요.
+- `Reset Entire Database`: **주의!** 모든 데이터를 삭제하고 초기화합니다. (데이터 입력 전 초기화 권장)
+
+## 4. 결과 확인
+- 쇼핑몰 페이지(`http://localhost:5173`)로 이동하여 카테고리/컬렉션 페이지에서 확인하세요.
+- 상세 페이지에서 SKU와 옵션이 정상적으로 작동하는지 확인하세요.

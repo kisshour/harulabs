@@ -27,6 +27,16 @@ const EnglishHome = () => {
   return <Home />;
 };
 
+const ThaiHome = () => {
+  const { setLanguage } = useLanguage();
+
+  useEffect(() => {
+    setLanguage('th');
+  }, [setLanguage]);
+
+  return <Home />;
+};
+
 // Scroll to top on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -47,6 +57,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/en" element={<EnglishHome />} />
+          <Route path="/th" element={<ThaiHome />} />
           <Route path="/brand" element={<Brand />} />
           <Route path="/collection/:id" element={<Collection />} />
           <Route path="/category/:type" element={<Category />} />

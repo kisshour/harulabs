@@ -37,13 +37,25 @@
 .thumbnailList {
     display: flex;
     gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 5px;
+    flex-wrap: wrap;
+    /* Allow wrapping */
+    /* Hide Scrollbar just in case */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+.thumbnailList::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
 }
 
 .thumbnail {
-    width: 80px;
-    height: 80px;
+    /* PC: Max 6 per row. Gap is 10px. 5 gaps = 50px total. */
+    width: calc((100% - 50px) / 6);
+    aspect-ratio: 1;
+    /* Keep square */
     border-radius: 4px;
     cursor: pointer;
     opacity: 0.6;
@@ -61,6 +73,14 @@
     height: 100%;
     object-fit: cover;
     border-radius: 4px;
+}
+
+/* Mobile Responsive overrides */
+@media (max-width: 900px) {
+    .thumbnail {
+        /* Mobile: Max 4 per row. Gap is 10px. 3 gaps = 30px total. */
+        width: calc((100% - 30px) / 4);
+    }
 }
 
 /* Product Info */

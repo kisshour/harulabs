@@ -59,9 +59,13 @@ const Category = () => {
                                     <div className={styles.info}>
                                         <div className={styles.productName}>{product.name}</div>
                                         <div className={styles.price}>
-                                            {content.ui?.common?.currency === 'KRW' || language === 'ko'
-                                                ? `${product.price.toLocaleString()} KRW`
-                                                : `$${product.price_usd || '0.00'}`}
+                                            {
+                                                language === 'ko'
+                                                    ? `${product.price.toLocaleString()} KRW`
+                                                    : language === 'th'
+                                                        ? `${product.price_thb ? product.price_thb.toLocaleString() : '0'} THB`
+                                                        : `$${product.price_usd || '0.00'}`
+                                            }
                                         </div>
                                     </div>
                                 </div>

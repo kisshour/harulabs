@@ -247,7 +247,142 @@ export const CONTENT = {
                 contact: "Contact",
                 language: "LANGUAGE",
                 slogan: "Where Every Moment Becomes Your Signature.",
-                copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED."
+                copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED.",
+                businessInfo: {
+                    registration: "Business Registration No: 431-07-03272",
+                    info: "Company: HaruLabs | CEO: Hae Kang"
+                }
+            },
+            home: {
+                preview: "COLLECTION PREVIEW"
+            },
+            common: {
+                comingSoon: "COMING SOON"
+            }
+        }
+    },
+    th: {
+        brandStory: {
+            title: "BRAND STORY: HARU",
+            subtitle: "ที่ที่ทุกช่วงเวลา กลายเป็นเอกลักษณ์ในแบบคุณ",
+            description: [
+                "HARU รวบรวมชิ้นส่วนของชีวิตประจำวันที่ผ่านเลยไป เพื่อนำมาสร้างสรรค์ใหม่ให้เป็นช่วงเวลาที่เปล่งประกายที่สุด เราสร้างสรรค์สิ่งที่มากกว่าเครื่องประดับ แต่เป็นสัญลักษณ์ที่บ่งบอกถึงทัศนคติและการใช้ชีวิตของผู้สวมใส่",
+                "เสน่ห์ของ HARU คือการผสมผสานระหว่างความอบอุ่นของสีชมพูพาสเทลและความชัดเจนของสีดำ สะท้อนถึงเสน่ห์ของคนยุคใหม่ที่ละเอียดอ่อนแต่เปี่ยมด้วยความมั่นใจ เช่นเดียวกับเพชรที่สถิตอยู่ในตัว 'R' ของโลโก้ เราหวังว่าในทุกๆ วันของคุณจะเต็มไปด้วยแสงสว่างที่โดดเด่นไม่ซ้ำใคร"
+            ]
+        },
+        careGuide: {
+            title: "CARE GUIDE",
+            sections: [
+                {
+                    title: "Materials",
+                    items: [
+                        {
+                            subtitle: "Surgical Steel",
+                            text: "All chains and earring posts that touch the skin are crafted from high-quality surgical steel (hypoallergenic), minimizing skin irritation."
+                        },
+                        {
+                            subtitle: "Pendant & Ornaments",
+                            text: "Due to the nature of the materials used for intricate pendant designs, discoloration may occur if exposed to moisture or salt."
+                        }
+                    ]
+                },
+                {
+                    title: "Care & Storage",
+                    items: [
+                        {
+                            subtitle: "Keep Dry",
+                            text: "To maintain the original luster, please remove your jewelry before showering, swimming, or exercising."
+                        },
+                        {
+                            subtitle: "Wipe Clean",
+                            text: "After wearing, gently wipe away oils and sweat with a soft, dry cloth."
+                        },
+                        {
+                            subtitle: "Separate Storage",
+                            text: "Storing each piece individually in a sealed polybag or jewelry box to avoid air exposure will help preserve its brilliance longer."
+                        }
+                    ]
+                }
+            ]
+        },
+        contactPage: {
+            title: "CONTACT",
+            subtitle: "The Fastest Way to Connect with HARU",
+            sections: [
+                {
+                    title: "Official Messenger",
+                    items: [
+                        { label: "LINE", value: "@harulabs", link: "https://line.me/R/ti/p/@harulabs" },
+                        { label: "Instagram", value: "harulabs.xyz", link: "https://instagram.com/harulabs.xyz" },
+                        { label: "WhatsApp", value: "+66 62 373 3978", link: "https://wa.me/66623733978" }
+                    ]
+                },
+                {
+                    title: "Customer Support Email",
+                    items: [
+                        { label: "Email", value: "harulabs.official@gmail.com", link: "mailto:harulabs.official@gmail.com" }
+                    ]
+                }
+            ]
+        },
+        collections: [
+            {
+                id: "hype",
+                title: "HYPE",
+                subtitle: "ความงามจากรูปทรงที่กล้าหาญและแรงบันดาลใจทางศิลปะ",
+                catchphrase: "พลังแห่งความคิดสร้างสรรค์ที่ดึงดูดทุกสายตา",
+                description: "นำเสนอซิลลูเอทที่กล้าหาญและมิติทางศิลปะที่ฉีกจากกรอบเดิมๆ นี่คือคอลเลกชันที่มอบตัวตนที่ชัดเจนและแรงบันาลใจที่เปี่ยมด้วยความคิดสร้างสรรค์ สำหรับผู้ที่ไม่กลัวที่จะแสดงออกความเป็นตัวเองในจุดสูงสุดของเทรนด์"
+            },
+            {
+                id: "aura",
+                title: "AURA",
+                subtitle: "ความสง่างามที่ขัดเกลาและเหนือกาลเวลา",
+                catchphrase: "ประกายแสงที่ลุ่มลึกจากภายใน",
+                description: "มุ่งเน้นไปที่ความงามแบบคลาสสิกที่ทวีมูลค่าตามกาลเวลา ด้วยการผสมผสานระหว่างลายเส้นที่ผ่านการขัดเกลาอย่างประณีตและรายละเอียดระดับพรีเมียม ช่วยเติมเต็มบรรยากาศที่หรูหราและเงียบสงบ แต่โดดเด่นเหนือใครโดยไม่ต้องพยายาม"
+            },
+            {
+                id: "rhythm",
+                title: "RHYTHM",
+                subtitle: "หัวใจหลักของแบรนด์ และอัตลักษณ์ที่โดดเด่น",
+                catchphrase: "จังหวะแห่งเพชร หัวใจสำคัญของ HARU",
+                description: "ไลน์สินค้าที่ถ่ายทอดตัว 'R' จากโลโก้และประกายของ Moissanite ได้อย่างมีระดับ ตัวเรือนผลิตจากวัสดุ Surgical Steel คุณภาพสูงที่ไม่ลอกไม่ดำ ผสานกับการฝัง Moissanite ที่ให้ความระยิบระยับราวกับเพชรแท้ มอบความหรูหราที่อยู่คู่กับคุณได้ในทุกวัน ทุกชิ้นมาพร้อมกับใบเซอร์ GRA ที่รับรองมูลค่าอย่างเป็นทางการ ให้คุณได้สัมผัสเอกลักษณ์ของ HARU ที่เรียบหรูและทันสมัยที่สุด"
+            },
+            {
+                id: "urban",
+                title: "URBAN",
+                subtitle: "ความงามแห่งเมือง สไตล์มินิมอลที่แท้จริง",
+                catchphrase: "ความเรียบหรูที่ละเอียดอ่อนในทุกย่างก้าวของชีวิต",
+                description: "คอลเลกชันที่สะท้อนถึงความงามทางสถาปัตยกรรมของเมืองและความเรียบง่ายที่ลงตัว ตัวโซ่และก้านต่างหูที่สัมผัสผิวโดยตรง ผลิตจาก Surgical Steel คุณภาพสูงที่ปลอดภัยต่อผิวแพ้ง่าย (Hypoallergenic) ในขณะที่ตัวจี้ผ่านกระบวนการผลิตที่ประณีตเพื่อความสมบูรณ์แบบทางศิลปะ ด้วยดีไซน์ที่เรียบง่ายแต่ดูสมาร์ท เหมาะสำหรับการมิกซ์แอนด์แมทช์เพื่อบ่งบอกสไตล์ที่เป็นคุณในทุกๆ วัน"
+            }
+        ],
+        ui: {
+            nav: {
+                home: "HOME",
+                brand: "BRAND",
+                brand: "BRAND",
+                collections: "COLLECTIONS",
+                categories: "CATEGORIES",
+                categoryList: {
+                    ring: "RING",
+                    necklace: "NECKLACE",
+                    earring: "EARRING",
+                    bracelet: "BRACELET",
+                    etc: "ETC"
+                }
+            },
+            footer: {
+                collections: "COLLECTIONS",
+                brand: "BRAND",
+                about: "Brand Story",
+                care: "Care Guide",
+                contact: "Contact",
+                language: "LANGUAGE",
+                slogan: "ที่ที่ทุกช่วงเวลา กลายเป็นเอกลักษณ์ในแบบคุณ",
+                copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED.",
+                businessInfo: {
+                    registration: "Business Registration No: 431-07-03272",
+                    info: "Company: HaruLabs | CEO: Hae Kang"
+                }
             },
             home: {
                 preview: "COLLECTION PREVIEW"
