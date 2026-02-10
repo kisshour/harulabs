@@ -27,6 +27,12 @@ export const MATERIALS = {
     OTHER: 'OT'
 };
 
+export const MANUFACTURERS = {
+    HOLIC: 'HL',
+    STEEL89: 'SP', // 스틸팔구
+    SUNGHA: 'SS'   // 성하스틸
+};
+
 export const COLORS = {
     SILVER: 'SV',
     GOLD: 'GD',
@@ -42,14 +48,16 @@ export const COLORS = {
  * @param {string} theme - Key from THEMES (e.g., 'HYPE')
  * @param {string} category - Key from CATEGORIES (e.g., 'RING')
  * @param {string} material - Key from MATERIALS (e.g., 'SURGICAL_STEEL')
+ * @param {string} manufacturer - Key from MANUFACTURERS (e.g., 'HOLIC')
  * @param {number} index - Unique number (e.g., 1)
  * @param {string} color - Key from COLORS (e.g., 'SILVER')
  * @param {string|number} size - Size value (e.g., '12' or 'FR')
  */
-export const generateSKU = (theme, category, material, index, color, size) => {
+export const generateSKU = (theme, category, material, manufacturer, index, color, size) => {
     const themeCode = THEMES[theme] || 'XX';
     const categoryCode = CATEGORIES[category] || 'XX';
     const materialCode = MATERIALS[material] || 'XX';
+    const manufacturerCode = (MANUFACTURERS[manufacturer] || 'XX').toUpperCase();
 
     // Format index to 4 digits (e.g., 1 -> '0001')
     const indexCode = String(index).padStart(4, '0');
@@ -57,5 +65,5 @@ export const generateSKU = (theme, category, material, index, color, size) => {
     const colorCode = COLORS[color] || 'XX';
     const sizeCode = String(size).toUpperCase();
 
-    return `${themeCode}${categoryCode}${materialCode}-${indexCode}${colorCode}${sizeCode}`;
+    return `${themeCode}${categoryCode}${materialCode}${manufacturerCode}-${indexCode}${colorCode}${sizeCode}`;
 };
