@@ -60,6 +60,13 @@ const Admin = () => {
             setPriceUsd(match.usd);
             setPriceThb(match.thb);
             setTier(match.name);
+
+            // Auto-select Theme based on Tier
+            if (match.name.startsWith('Tier-UR')) {
+                setTheme('URBAN');
+            } else if (match.name.startsWith('Tier-RH')) {
+                setTheme('RHYTHM');
+            }
         } else {
             // Optional: reset or keep manual?
             setTier('');
