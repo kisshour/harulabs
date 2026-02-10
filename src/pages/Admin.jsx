@@ -116,14 +116,33 @@ const Admin = () => {
             material
         };
 
-        // 3. Upsert Product
-        const { error: productError } = await supabase
-            .from('products')
-            .upsert(productData);
+        // Check for duplicates if creating new
+        if (!isEditing) {
+            const exists = products.some(p => p.id === mainId);
+            if (exists) {
+                setMessage(`Error: Product ID ${mainId} already exists! Please increase Index Number.`);
+                setLoading(false);
+                return;
+            }
+        }
+
+        // 3. Save Product
+        let result;
+        if (isEditing) {
+            result = await supabase.from('products').upsert(productData);
+        } else {
+            // Use insert to prevent accidental overwrite if client-side check missed something
+            result = await supabase.from('products').insert(productData);
+        }
+        const { error: productError } = result;
 
         if (productError) {
             console.error('Error saving product:', productError);
-            setMessage(`Error: ${productError.message}`);
+            if (productError.code === '23505') { // Unique violation
+                setMessage(`Error: Product ID ${mainId} already exists!`);
+            } else {
+                setMessage(`Error: ${productError.message}`);
+            }
             setLoading(false);
             return;
         }
