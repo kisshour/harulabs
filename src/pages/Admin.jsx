@@ -605,8 +605,23 @@ return (
                     </div>
 
                     <div className={styles.buttonGroup}>
-                        <button className={styles.btnPrimary} onClick={handleSave} disabled={loading}>
-                            {loading ? 'Saving...' : (isEditing ? 'Update Product' : 'Create Product')}
+                        <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>Cancel</button>
+                        {isEditing && (
+                            <button
+                                className={styles.btnSecondary}
+                                onClick={handleDelete}
+                                style={{ borderColor: '#d32f2f', color: '#d32f2f' }}
+                            >
+                                Delete Product
+                            </button>
+                        )}
+                        <button
+                            className={styles.btnPrimary}
+                            onClick={handleSave}
+                            disabled={loading}
+                            style={loading ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+                        >
+                            {loading ? 'Processing...' : (isEditing ? 'Update Product' : 'Create Product')}
                         </button>
                     </div>
                 </>
