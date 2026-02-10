@@ -15,11 +15,11 @@ export const CONTENT = {
                     title: "1. 소재 안내 (Materials)",
                     items: [
                         {
-                            subtitle: "Surgical Steel",
+                            subtitle: "써지컬 스틸 (Surgical Steel)",
                             text: "피부에 직접 닿는 모든 체인과 귀걸이 침은 의료용 도구에 사용되는 고품질 써지컬 스틸로 제작되어 알러지 반응을 최소화합니다."
                         },
                         {
-                            subtitle: "Pendant & Ornaments",
+                            subtitle: "펜던트 및 장식 (Pendant & Ornaments)",
                             text: "정교한 디자인의 펜던트는 소재 특성상 수분과 염분에 노출될 경우 변색될 수 있습니다."
                         }
                     ]
@@ -28,15 +28,15 @@ export const CONTENT = {
                     title: "2. 관리 및 보관 (Care & Storage)",
                     items: [
                         {
-                            subtitle: "Keep Dry",
+                            subtitle: "수분 피하기 (Keep Dry)",
                             text: "주얼리의 광택을 오래 유지하기 위해 샤워, 수영, 운동 시에는 착용을 피해주시기 바랍니다."
                         },
                         {
-                            subtitle: "Wipe Clean",
+                            subtitle: "오염 닦아내기 (Wipe Clean)",
                             text: "착용 후에는 부드러운 천으로 땀과 피지를 가볍게 닦아주세요."
                         },
                         {
-                            subtitle: "Separate Storage",
+                            subtitle: "개별 보관 (Separate Storage)",
                             text: "공기 노출을 차단할 수 있는 지퍼백이나 주얼리 케이스에 개별 보관하시면 처음의 빛을 더 오래 간직할 수 있습니다."
                         }
                     ]
