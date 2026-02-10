@@ -211,7 +211,6 @@ const Admin = () => {
 
         if (optionsError) {
             console.error('Error deleting options:', optionsError);
-            alert(`옵션 삭제 실패: ${optionsError.message}\n(Code: ${optionsError.code})`);
             setMessage(`Error deleting options: ${optionsError.message}`);
             setLoading(false);
             return;
@@ -225,7 +224,6 @@ const Admin = () => {
 
         if (error) {
             console.error('Error deleting product:', error);
-            alert(`상품 삭제 실패: ${error.message}\n(Code: ${error.code})\nSupabase Table 권한(RLS)을 확인해주세요.`);
             setMessage(`Error: ${error.message}`);
         } else {
             // Check if any row was actually deleted
@@ -234,9 +232,8 @@ const Admin = () => {
             // Let's rely on alerting the user if count is 0.
 
             if (count === 0) {
-                alert(`삭제된 상품이 없습니다. ID 불일치 가능성: ${targetId}`);
+                setMessage(`No product found with ID: ${targetId}`);
             } else {
-                alert('삭제 성공!');
                 setMessage('Product deleted successfully!');
                 await fetchProductsFromDB();
                 setTimeout(() => {
@@ -269,12 +266,9 @@ const Admin = () => {
             setOptions(newOptions);
 
             setMessage('Image uploaded successfully!');
-            // Optional: Alert removed to be less annoying if it works, but keeping for debugging if requested.
-            // But since user is having trouble, let's keep it visible in UI message.
         } catch (error) {
             console.error('Upload failed:', error);
             setMessage(`Image upload failed: ${error.message}`);
-            alert(`이미지 업로드 실패: ${error.message}\nSupabase Storage의 'products' 버킷 정책(Policy)을 확인해주세요.`);
         } finally {
             setLoading(false);
         }
@@ -396,10 +390,10 @@ const Admin = () => {
                 {view === 'dashboard' && (
                     <>
                         <div className={styles.dashboardHeader}>
-                            <h1 className={styles.title} style={{ marginBottom: 0 }}>Product Dashboard</h1>
+                            <h2>Product Dashboard ({products.length})</h2>
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <button className={styles.btnSecondary} onClick={handleLogout} style={{ fontSize: '0.9rem' }}>Logout</button>
-                                <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Add New Product</button>
+                                <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Create New Product</button>
                             </div>
                         </div>
 
