@@ -84,9 +84,9 @@ const Admin = () => {
     // Options State (Starting with one default option)
     const [options, setOptions] = useState([
         {
-            theme: 'HYPE', category: 'RING', material: 'SURGICAL_STEEL', index: 1,
-            mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 10,
-            cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '', purchaseInfo: '',
+            theme: 'HYPE', category: 'RING', material: 'SURGICAL_STEEL',
+            mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
+            cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '',
             imageNames: []
         }
     ]);
@@ -394,14 +394,13 @@ const Admin = () => {
     };
 
     const addOption = () => {
-        // Inherit base cost/pricing and CURRENT defaults
-        const pricing = calculatePricing(cost);
+        // Inherit base defaults? We removed default settings inputs.
+        // So just use reasonable defaults.
         setOptions([...options, {
-            theme: theme, category: category, material: material, index: index,
+            theme: 'HYPE', category: 'RING', material: 'SURGICAL_STEEL',
             mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
-            cost: cost,
-            price: pricing.price, priceUsd: pricing.priceUsd, priceTHB: pricing.priceTHB, tier: pricing.tier,
-            purchaseInfo: purchaseInfo,
+            cost: 0,
+            price: 0, priceUsd: 0, priceTHB: 0, tier: '',
             imageNames: []
         }]);
     };
@@ -700,52 +699,33 @@ const Admin = () => {
                                     />
                                 </div>
                                 <div className={styles.col}>
-                                    <label className={styles.label}>Description</label>
-                                    <textarea
-                                        className={styles.textarea}
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        placeholder="Product description..."
+                                    <label className={styles.label}>Index (Product Number)</label>
+                                    <input
+                                        type="number"
+                                        className={styles.input}
+                                        value={index}
+                                        onChange={(e) => setIndex(e.target.value)}
                                     />
                                 </div>
                             </div>
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <div className={styles.sectionTitle}>Default Settings (New Options will inherit these)</div>
-                            <div className={styles.row}>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Theme</label>
-                                    <select className={styles.select} value={theme} onChange={(e) => setTheme(e.target.value)}>
-                                        {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
-                                    </select>
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Category</label>
-                                    <select className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
-                                        {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
-                                    </select>
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Material</label>
-                                    <select className={styles.select} value={material} onChange={(e) => setMaterial(e.target.value)}>
-                                        {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
-                                    </select>
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Index</label>
-                                    <input type="number" className={styles.input} value={index} onChange={(e) => setIndex(e.target.value)} />
-                                </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Description</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Product description..."
+                                />
                             </div>
-                            <div className={styles.row}>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Default Cost</label>
-                                    <input type="number" className={styles.input} value={cost} onChange={handleCostChange} />
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Default Purchase Info</label>
-                                    <input className={styles.input} value={purchaseInfo} onChange={(e) => setPurchaseInfo(e.target.value)} />
-                                </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Purchase Information (Private)</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    style={{ minHeight: '80px', backgroundColor: '#f9f9f9', border: '1px solid #ccc' }}
+                                    value={purchaseInfo}
+                                    onChange={(e) => setPurchaseInfo(e.target.value)}
+                                    placeholder="Supplier info, cost details, links... (Admin Only)"
+                                />
                             </div>
                         </div>
 
@@ -865,47 +845,36 @@ const Admin = () => {
                                                 placeholder="e.g. 12 or FR"
                                             />
                                         </div>
-                                        <div className={styles.col}>
-                                            <label className={styles.label}>Stock</label>
-                                            <input
-                                                type="number"
-                                                className={styles.input}
-                                                value={opt.stock}
-                                                onChange={(e) => handleOptionChange(idx, 'stock', e.target.value)}
-                                            />
-                                        </div>
                                     </div>
 
                                     <div className={styles.row}>
                                         <div className={styles.col}>
-                                            <label className={styles.label}>Cost</label>
+                                            <label className={styles.label}>Cost (Wholesale)</label>
                                             <input
                                                 type="number"
                                                 className={styles.input}
                                                 value={opt.cost}
                                                 onChange={(e) => handleOptionChange(idx, 'cost', e.target.value)}
+                                                placeholder="Input Cost"
                                             />
                                         </div>
-                                        <div className={styles.col}>
-                                            <label className={styles.label}>Calculated</label>
-                                            <div style={{ fontSize: '0.9rem', paddingTop: '5px' }}>
-                                                {opt.price ? `${opt.price.toLocaleString()} KRW` : '-'} <br />
-                                                <span style={{ color: '#888' }}>({opt.tier || '-'})</span>
+                                        <div className={styles.col} style={{ flex: 3 }}>
+                                            <label className={styles.label}>Retail Prices</label>
+                                            <div style={{ display: 'flex', gap: '15px', alignItems: 'center', height: '40px', backgroundColor: '#f0f0f0', padding: '0 10px', borderRadius: '4px' }}>
+                                                <span style={{ fontWeight: 'bold' }}>{opt.price ? opt.price.toLocaleString() : 0} KRW</span>
+                                                <span style={{ color: '#ccc' }}>|</span>
+                                                <span>${opt.priceUsd ? opt.priceUsd : 0}</span>
+                                                <span style={{ color: '#ccc' }}>|</span>
+                                                <span>{opt.priceTHB ? opt.priceTHB.toLocaleString() : 0} THB</span>
+                                                <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#666', border: '1px solid #ccc', padding: '2px 6px', borderRadius: '4px' }}>
+                                                    {opt.tier || 'NO TIER'}
+                                                </span>
                                             </div>
-                                        </div>
-                                        <div className={styles.col} style={{ flex: 2 }}>
-                                            <label className={styles.label}>Purchase Info</label>
-                                            <input
-                                                className={styles.input}
-                                                value={opt.purchaseInfo || ''}
-                                                onChange={(e) => handleOptionChange(idx, 'purchaseInfo', e.target.value)}
-                                                placeholder="Details..."
-                                            />
                                         </div>
                                     </div>
 
                                     <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                        SKU: {generateSKU(opt.theme, opt.category, opt.material, opt.index, opt.mainColor, opt.subColor, opt.size || 'XX')}
+                                        SKU: {generateSKU(opt.theme, opt.category, opt.material, index, opt.mainColor, opt.subColor, opt.size || 'XX')}
                                     </div>
                                     <div className={styles.row}>
                                         <div className={styles.col}>
