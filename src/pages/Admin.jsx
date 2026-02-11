@@ -577,7 +577,6 @@ const Admin = () => {
                                         <th>Name</th>
                                         <th>SKU / ID</th>
                                         <th>Category</th>
-                                        <th>Price</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -610,7 +609,6 @@ const Admin = () => {
                                                 <td>
                                                     <span className={styles.badge}>{product.category}</span>
                                                 </td>
-                                                <td>₩{product.price.toLocaleString()}</td>
                                                 <td>
                                                     <button
                                                         className={styles.actionBtn}
@@ -622,7 +620,7 @@ const Admin = () => {
                                             </tr>
                                             {expandedRows[product.id] && (
                                                 <tr>
-                                                    <td colSpan="7" style={{ padding: '0 0 20px 50px', backgroundColor: '#f9f9f9' }}>
+                                                    <td colSpan="6" style={{ padding: '0 0 20px 50px', backgroundColor: '#f9f9f9' }}>
                                                         <div style={{ padding: '10px', background: 'white', border: '1px solid #ddd', borderRadius: '4px' }}>
                                                             <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>Variants (Options)</h4>
                                                             <table style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}>
