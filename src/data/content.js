@@ -247,11 +247,7 @@ export const CONTENT = {
                 contact: "Contact",
                 language: "LANGUAGE",
                 slogan: "Where Every Moment Becomes Your Signature.",
-                copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED.",
-                businessInfo: {
-                    registration: "Business Registration No: 431-07-03272",
-                    info: "Company: HaruLabs | CEO: Hae Kang"
-                }
+                copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED."
             },
             home: {
                 preview: "COLLECTION PREVIEW"
@@ -378,11 +374,7 @@ export const CONTENT = {
                 contact: "Contact",
                 language: "LANGUAGE",
                 slogan: "ที่ที่ทุกช่วงเวลา กลายเป็นเอกลักษณ์ในแบบคุณ",
-                copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED.",
-                businessInfo: {
-                    registration: "Business Registration No: 431-07-03272",
-                    info: "Company: HaruLabs | CEO: Hae Kang"
-                }
+                copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED."
             },
             home: {
                 preview: "COLLECTION PREVIEW"
