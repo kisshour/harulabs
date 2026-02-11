@@ -582,8 +582,8 @@ const Admin = () => {
                                                                 <thead>
                                                                     <tr style={{ borderBottom: '1px solid #eee', color: '#666' }}>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>SKU</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Main Color</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Sub Color</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Color</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Option</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
                                                                     </tr>
@@ -821,7 +821,7 @@ const Admin = () => {
                                 <div key={idx} className={styles.optionBlock}>
                                     <div className={styles.row}>
                                         <div className={styles.col}>
-                                            <label className={styles.label}>Main Color</label>
+                                            <label className={styles.label}>Color</label>
                                             <select
                                                 className={styles.select}
                                                 value={opt.mainColor}
@@ -831,7 +831,7 @@ const Admin = () => {
                                             </select>
                                         </div>
                                         <div className={styles.col}>
-                                            <label className={styles.label}>Sub Color</label>
+                                            <label className={styles.label}>Option</label>
                                             <select
                                                 className={styles.select}
                                                 value={opt.subColor}

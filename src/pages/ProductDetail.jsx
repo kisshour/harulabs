@@ -9,7 +9,7 @@ const ProductDetail = () => {
     const { content, language } = useLanguage();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedSubColor, setSelectedSubColor] = useState(null);
     const [selectedSize, setSelectedSize] = useState(null);
     const [currentImage, setCurrentImage] = useState(null);
 
@@ -19,20 +19,25 @@ const ProductDetail = () => {
             const data = await fetchProductById(id);
             if (data) {
                 setProduct(data);
-                // Initialize selection with first option's color and size
+                // Initialize selection
                 if (data.options && data.options.length > 0) {
-                    const initialColor = data.options[0].color;
+                    const initialColor = data.options[0].color; // Main Color
                     setSelectedColor(initialColor);
 
-                    // Find first size for this color
-                    // Assuming options are already sorted or we just pick the first one matching color
-                    // Since data.options[0] matches the color by definition:
-                    if (data.options[0].size) {
-                        setSelectedSize(data.options[0].size);
+                    // Find first sub_color for this color
+                    const initialSubColor = data.options.find(opt => opt.color === initialColor)?.sub_color;
+                    setSelectedSubColor(initialSubColor);
+
+                    // Find first size for this color + sub_color
+                    const initialSizeOption = data.options.find(opt => opt.color === initialColor && opt.sub_color === initialSubColor);
+                    if (initialSizeOption?.size) {
+                        setSelectedSize(initialSizeOption.size);
                     }
 
                     // Set initial image
-                    if (data.options[0].images && data.options[0].images.length > 0) {
+                    if (initialSizeOption?.images?.length > 0) {
+                        setCurrentImage(initialSizeOption.images[0]);
+                    } else if (data.options[0].images?.length > 0) {
                         setCurrentImage(data.options[0].images[0]);
                     }
                 }
@@ -46,59 +51,80 @@ const ProductDetail = () => {
     if (!product) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Product not found.</div>;
 
 
-    // Derived state for available sizes based on selected color
+    // 1. Available Colors (Main)
+    const availableColors = [...new Set(product?.options?.map(opt => opt.color))];
+
+    // 2. Available Options (Sub Colors) for selected Color
+    const availableSubColors = [...new Set(
+        product?.options
+            ?.filter(opt => opt.color === selectedColor)
+            .map(opt => opt.sub_color)
+    )].filter(Boolean); // Remove null/undefined if any
+
+    // 3. Available Sizes for selected Color + Sub Color
     const availableSizes = product?.options
-        ?.filter(opt => opt.color === selectedColor)
+        ?.filter(opt => opt.color === selectedColor && opt.sub_color === selectedSubColor)
         .map(opt => ({ size: opt.size, stock: opt.stock }))
         .sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true })) || [];
 
-    // All available colors (unique)
-    const availableColors = [...new Set(product?.options?.map(opt => opt.color))];
 
-    // Get images for the selected color (or all images if generic?)
-    // Strategy: Show images associated with the *selected color* if available, else show all?
-    // Implementation: Filter options by selectedColor to get relevant images.
-    // If multiple options share the same color (just diff sizes), they usually share images.
-    // UPDATE: If exact option (Color + Size) has images, use them first.
-
-    // 1. Precise match (Color + Size - if size selected)
-    const exactOption = product?.options?.find(opt => opt.color === selectedColor && opt.size === selectedSize);
-
-    // 2. Color key match (first option with that color - if size not selected or exact match has no images?)
+    // Image Logic
+    // Try to find image for: Exact Option (Color+Sub+Size) -> Option Group (Color+Sub) -> Color Group -> Default
+    const exactOption = product?.options?.find(opt => opt.color === selectedColor && opt.sub_color === selectedSubColor && opt.size === selectedSize);
+    const subColorOption = product?.options?.find(opt => opt.color === selectedColor && opt.sub_color === selectedSubColor);
     const colorOption = product?.options?.find(opt => opt.color === selectedColor);
 
-    // Decision tree: Precise with images -> Color with images -> Fallback
-    const displayOption = (exactOption?.images?.length > 0) ? exactOption : colorOption;
-    const galleryImages = displayOption?.images || product?.options?.[0]?.images || [];
+    const displayOption =
+        (exactOption?.images?.length > 0) ? exactOption :
+            (subColorOption?.images?.length > 0) ? subColorOption :
+                (colorOption?.images?.length > 0) ? colorOption :
+                    product?.options?.[0]; // Fallback to first option explanation
 
-    // Determine SKU to display
-    // If size is selected, show that specific option's SKU
-    // If only color selected, show that color's first option SKU or just main ID?
-    // Let's try to find exact match
-    const currentOption = product?.options?.find(opt => opt.color === selectedColor && opt.size === selectedSize);
-    // If no exact match (e.g. size not selected), fallback to main SKU or color-based SKU?
-    // User wants "Attributes-Option" which changes dynamically.
-    // If size not selected, maybe show "HYRGSSHL0001-SV??" or just the Main ID.
-    // Let's default to Main ID if no full option selected.
-    const currentSKU = currentOption ? currentOption.sku : product.id;
+    const galleryImages = displayOption?.images || [];
+
+    // SKU Display
+    const currentSKU = exactOption ? exactOption.sku : product.id;
 
     // Handlers
     const handleColorClick = (color) => {
+        if (color === selectedColor) return;
         setSelectedColor(color);
 
-        // Find available options for the new color and sort by size
-        const newOptions = product.options
-            .filter(opt => opt.color === color)
-            .sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true }));
-
+        // Reset SubColor and Size based on new color
+        const newOptions = product.options.filter(opt => opt.color === color);
         if (newOptions.length > 0) {
-            const firstOption = newOptions[0];
-            setSelectedSize(firstOption.size);
+            const nextSubColor = newOptions[0].sub_color;
+            setSelectedSubColor(nextSubColor);
 
-            // Update main image to this option's image if available
-            if (firstOption.images && firstOption.images.length > 0) {
-                setCurrentImage(firstOption.images[0]);
+            // Filter sizes for new color + new sub color
+            const nextSizes = newOptions.filter(opt => opt.sub_color === nextSubColor);
+            if (nextSizes.length > 0) {
+                setSelectedSize(nextSizes[0].size);
+
+                // Update Image
+                const nextOpt = nextSizes[0];
+                if (nextOpt.images?.length > 0) setCurrentImage(nextOpt.images[0]);
+            } else {
+                setSelectedSize(null);
             }
+        } else {
+            setSelectedSubColor(null);
+            setSelectedSize(null);
+        }
+    };
+
+    const handleSubColorClick = (subColor) => {
+        if (subColor === selectedSubColor) return;
+        setSelectedSubColor(subColor);
+
+        // Reset Size based on new sub color
+        const newOptions = product.options.filter(opt => opt.color === selectedColor && opt.sub_color === subColor);
+        if (newOptions.length > 0) {
+            const nextSizes = newOptions.sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true }));
+            setSelectedSize(nextSizes[0].size); // Auto-select first size
+
+            // Update Image
+            if (nextSizes[0].images?.length > 0) setCurrentImage(nextSizes[0].images[0]);
         } else {
             setSelectedSize(null);
         }
@@ -180,6 +206,25 @@ const ProductDetail = () => {
                         </div>
                     </div>
 
+                    {/* Option (Sub-Color) Selection */}
+                    {availableSubColors.length > 0 && (
+                        <div className={styles.optionGroup}>
+                            <label className={styles.optionLabel}>OPTION: {selectedSubColor}</label>
+                            <div className={styles.colorList}> {/* Reusing colorList style for horizontal buttons */}
+                                {availableSubColors.map(sub => (
+                                    <button
+                                        key={sub}
+                                        style={{ minWidth: 'auto', padding: '5px 10px' }} // Inline override or add new class
+                                        className={`${styles.colorBtn} ${selectedSubColor === sub ? styles.selected : ''}`}
+                                        onClick={() => handleSubColorClick(sub)}
+                                    >
+                                        {sub}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Size Selection */}
                     <div className={styles.optionGroup}>
                         <label className={styles.optionLabel}>SIZE</label>
@@ -190,8 +235,8 @@ const ProductDetail = () => {
                                     className={`${styles.sizeBtn} ${selectedSize === size ? styles.selected : ''}`}
                                     onClick={() => {
                                         setSelectedSize(size);
-                                        // Update main image if the new size has specific images
-                                        const option = product.options.find(opt => opt.color === selectedColor && opt.size === size);
+                                        // Update main image logic
+                                        const option = product.options.find(opt => opt.color === selectedColor && opt.sub_color === selectedSubColor && opt.size === size);
                                         if (option?.images?.length > 0) {
                                             setCurrentImage(option.images[0]);
                                         }
