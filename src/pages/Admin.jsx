@@ -44,6 +44,7 @@ const Admin = () => {
     const [priceTHB, setPriceTHB] = useState(0); // THB Price
     const [tier, setTier] = useState(''); // Tier (e.g., 'Tier 1')
     const [description, setDescription] = useState('');
+    const [purchaseInfo, setPurchaseInfo] = useState(''); // New: Purchase Information
     const [dragActiveIndex, setDragActiveIndex] = useState(null);
     const [commonImages, setCommonImages] = useState([]); // Shared images for all options
 
@@ -129,6 +130,7 @@ const Admin = () => {
             price_thb: Number(priceTHB), // THB Retail
             description,
             description,
+            purchase_info: purchaseInfo,
             material
         };
 
@@ -430,6 +432,7 @@ const Admin = () => {
             setPriceTHB(0);
             setTier('');
             setDescription('');
+            setPurchaseInfo('');
             setOptions([{ color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
             setCommonImages([]); // Reset common images
             setMessage('');
@@ -453,9 +456,10 @@ const Admin = () => {
         setPrice(product.price);
         setCost(product.cost || 0); // Load cost
         setPriceUsd(product.price_usd || 0); // Load USD price
-        setPriceTHB(product.price_thb || 0); // Load THB
+        setPriceTHB(product.price_thb || 0); // Load THB price
         setTier(product.tier || ''); // Load Tier
         setDescription(product.description || ''); // Handle missing description
+        setPurchaseInfo(product.purchase_info || '');
 
         // Attempt to parse index from ID: PREFIX(including index)-OPTIONS
         // e.g. HYRGSSHL0001-SVFR
@@ -699,6 +703,20 @@ const Admin = () => {
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Product description..."
+                                />
+                            </div>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <div className={styles.sectionTitle}>Private Admin Info</div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Purchase Information (Admin Only)</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    style={{ minHeight: '80px', backgroundColor: '#f9f9f9', border: '1px solid #ccc' }}
+                                    value={purchaseInfo}
+                                    onChange={(e) => setPurchaseInfo(e.target.value)}
+                                    placeholder="Enter purchase details, supplier notes, or links here..."
                                 />
                             </div>
                         </div>
