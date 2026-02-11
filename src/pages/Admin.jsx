@@ -123,6 +123,25 @@ const Admin = () => {
         setLoading(true);
         setMessage('Saving...');
 
+        // 0. Validation
+        if (!name || name.trim() === '') {
+            setMessage('Error: Product Name is required!');
+            setLoading(false);
+            return;
+        }
+
+        // Check for duplicate name (case-insensitive)
+        const duplicateName = products.find(p =>
+            p.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+            (!isEditing || p.id !== editingId)
+        );
+
+        if (duplicateName) {
+            setMessage('Error: Product Name already exists!');
+            setLoading(false);
+            return;
+        }
+
         // 1. Construct Main Product ID
         const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
 
