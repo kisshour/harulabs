@@ -350,6 +350,16 @@ const Admin = () => {
             newOptions[idx].tier = pricing.tier;
         }
 
+        // Auto-update price if manual tier changes from dropdown
+        if (field === 'tier') {
+            const match = TIER_RANGES.find(t => t.name === value);
+            if (match) {
+                newOptions[idx].price = match.krw;
+                newOptions[idx].priceUsd = match.usd;
+                newOptions[idx].priceTHB = match.thb;
+            }
+        }
+
         setOptions(newOptions);
     };
 
@@ -899,13 +909,16 @@ const Admin = () => {
                                                 <span>${opt.priceUsd ? opt.priceUsd : 0}</span>
                                                 <span style={{ color: '#ccc' }}>|</span>
                                                 <span>{opt.priceTHB ? opt.priceTHB.toLocaleString() : 0} THB</span>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     value={opt.tier || ''}
                                                     onChange={(e) => handleOptionChange(idx, 'tier', e.target.value)}
-                                                    placeholder="Tier"
-                                                    style={{ width: '60px', padding: '2px 4px', border: '1px solid #ccc', borderRadius: '4px', textAlign: 'center' }}
-                                                />
+                                                    style={{ width: '90px', padding: '2px 4px', border: '1px solid #ccc', borderRadius: '4px', textAlign: 'center' }}
+                                                >
+                                                    <option value="">Select Tier</option>
+                                                    {TIER_RANGES.map((t) => (
+                                                        <option key={t.name} value={t.name}>{t.name}</option>
+                                                    ))}
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
