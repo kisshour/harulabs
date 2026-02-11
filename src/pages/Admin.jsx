@@ -712,25 +712,6 @@ const Admin = () => {
                                     />
                                 </div>
                             </div>
-                            <div className={styles.col}>
-                                <label className={styles.label}>Description</label>
-                                <textarea
-                                    className={styles.textarea}
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    placeholder="Product description..."
-                                />
-                            </div>
-                            <div className={styles.col}>
-                                <label className={styles.label}>Purchase Information (Private)</label>
-                                <textarea
-                                    className={styles.textarea}
-                                    style={{ minHeight: '80px', backgroundColor: '#f9f9f9', border: '1px solid #ccc' }}
-                                    value={purchaseInfo}
-                                    onChange={(e) => setPurchaseInfo(e.target.value)}
-                                    placeholder="Supplier info, cost details, links... (Admin Only)"
-                                />
-                            </div>
                             <div className={styles.row}>
                                 <div className={styles.col}>
                                     <label className={styles.label}>Theme</label>
@@ -750,6 +731,25 @@ const Admin = () => {
                                         {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
                                     </select>
                                 </div>
+                            </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Description</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Product description..."
+                                />
+                            </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Purchase Information (Private)</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    style={{ minHeight: '80px', backgroundColor: '#f9f9f9', border: '1px solid #ccc' }}
+                                    value={purchaseInfo}
+                                    onChange={(e) => setPurchaseInfo(e.target.value)}
+                                    placeholder="Supplier info, cost details, links... (Admin Only)"
+                                />
                             </div>
                         </div>
 
@@ -984,11 +984,11 @@ const Admin = () => {
                                 Reset Entire Database
                             </button>
                         </div>
+
                     </>
-                )
-                }
-            </div >
-        </div >
+                )}
+            </div>
+        </div>
     );
 };
 
