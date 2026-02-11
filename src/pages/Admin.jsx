@@ -152,6 +152,8 @@ const Admin = () => {
                 return pIdBase === targetIdBase;
             });
 
+            console.log('Duplicate Check:', { targetIdBase, exists });
+
             if (exists) {
                 setMessage(`Error: Product Index ${index} for this category already exists! (ID: ${targetIdBase}...)`);
                 setLoading(false);
@@ -434,35 +436,36 @@ const Admin = () => {
     // We'll keep a "Default Index" in state that auto-updates, and new options inherit it.
     useEffect(() => {
         if (!isEditing && view === 'form') {
+            console.log('Fetching next index for:', { theme, category, material, productsLength: products.length });
             fetchNextIndex();
         }
-    }, [theme, category, material, isEditing, view]);
+    }, [theme, category, material, isEditing, view, products]);
 
     const fetchNextIndex = async () => {
         // Find existing products with same prefix to determine max index
         const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
-        // Query database for IDs starting with this prefix
-        // Since we can't do complex regex easily on client side without fetching all, 
-        // let's just fetch all and filter client side for now as dataset is small, 
-        // or rely on 'products' state if it contains all.
-        // Better: Use products state which is already loaded.
+        console.log('Using prefix:', prefix);
 
         let maxIdx = 0;
         products.forEach(p => {
             // ID format: PREFIX(including index)-OPTIONS...
             // e.g. HYRGSSHL0001-SVFR
             if (p.id.startsWith(prefix)) {
-                const parts = p.id.split('-');
-                if (parts[0]) {
-                    // Extract index part (last 4 chars of first part)
-                    const idxStr = parts[0].slice(-4);
-                    const idx = parseInt(idxStr, 10);
-                    if (!isNaN(idx) && idx > maxIdx) {
-                        maxIdx = idx;
-                    }
+                // Example ID: URRGSS0001-SVFR
+                // Split by '-' ensures we get the base ID part
+                const baseId = p.id.split('-')[0]; // URRGSS0001
+                // Remove prefix to get index string
+                const idxStr = baseId.replace(prefix, ''); // 0001
+                const idx = parseInt(idxStr, 10);
+
+                console.log(`Found match: ${p.id}, baseId: ${baseId}, extracted idx: ${idx}`);
+
+                if (!isNaN(idx) && idx > maxIdx) {
+                    maxIdx = idx;
                 }
             }
         });
+        console.log('Setting max index to:', maxIdx + 1);
         setIndex(maxIdx + 1);
     };
 
