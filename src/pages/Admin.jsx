@@ -109,10 +109,13 @@ const Admin = () => {
         if (error) {
             console.error('Error fetching products:', error);
             setMessage('Error loading products.');
+            setLoading(false);
+            return [];
         } else {
             setProducts(data || []);
+            setLoading(false);
+            return data || [];
         }
-        setLoading(false);
     };
 
     // Save Logic (Create or Update)
@@ -446,8 +449,18 @@ const Admin = () => {
         const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
         console.log('Using prefix:', prefix);
 
+        // Ensure we iterate over something
+        let listToScan = products;
+        if (products.length === 0) {
+            console.log('Product list empty or potentially stale, fetching from DB for index calc...');
+            const loaded = await fetchProductsFromDB();
+            if (loaded && loaded.length > 0) listToScan = loaded;
+        }
+
         let maxIdx = 0;
-        products.forEach(p => {
+        const regex = new RegExp(`^${prefix}(\\d+)`);
+
+        (listToScan || []).forEach(p => {
             // ID format: PREFIX(including index)-OPTIONS...
             // e.g. HYRGSSHL0001-SVFR
             if (p.id.startsWith(prefix)) {
