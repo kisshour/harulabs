@@ -53,698 +53,660 @@ const Admin = () => {
         const newCost = Number(e.target.value);
         setCost(newCost);
 
-        // Update cost for all options that haven't been manually modified? 
-        // Or just update all for simplicity as this is "Base Cost".
-        // Let's update all options to match new base cost to save user time, 
-        // assuming they set base cost first.
-        const pricing = calculatePricing(newCost);
-
         // Update all options to match new base cost + calculated pricing
-        setOptions(options.map(opt => ({
-            ...opt,
-            cost: newCost,
-            price: pricing.price,
-            priceUsd: pricing.priceUsd,
-            priceTHB: pricing.priceTHB,
-            tier: pricing.tier
-        })));
-
-        // Find matching price tier
-        // Strategy: Find exact match or the next higher tier if not exact? 
-        // Or just closest? The user image implies strict tiers.
-        // Let's implement exact match or fallback to a formula if not found.
-        // Actually, let's just find the entry where cost <= table_cost to recommend, 
-        // or just strict match based on the provided table.
-
-        // Let's try to find an exact match first.
-        const match = TIER_RANGES.find(t => newCost >= t.min && newCost <= t.max);
-
-        if (match) {
-            setPrice(match.krw);
-            setPriceUsd(match.usd);
-            setPriceTHB(match.thb);
-            setTier(match.name);
-
-            // Auto-select Theme based on Tier
-            if (match.name.startsWith('Tier-UR')) {
-                setTheme('URBAN');
-            } else if (match.name.startsWith('Tier-RH')) {
-                setTheme('RHYTHM');
-            }
-        } else {
-            // Optional: reset or keep manual?
-            setTier('');
-        }
+        // Note: In new structure, cost might be per-option only. 
+        // But for convenience, if we have a "Batch Cost" input, we use that.
+        // For now, let's assume this handler is for a "Batch Setting" or "Default" input.
+        // But wait, user removed top inputs.
+        // Let's assume we removed the top-level 'cost' state and this handler is no longer valid in its current form
+        // OR we keep a "New Option Defaults" section.
+        // Let's keep 'cost' state as "Default Cost" for new options.
+        const pricing = calculatePricing(newCost);
+        // Only update options that haven't been touched? Or just update defaults?
+        // Let's just update the "Default" state variables.
+        // setCost(newCost); done above.
     };
 
-    // Options State (Starting with one default option)
-    const [options, setOptions] = useState([
-        { color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }
-    ]);
+    // Find matching price tier
+    // Strategy: Find exact match or the next higher tier if not exact? 
+    // Or just closest? The user image implies strict tiers.
+    // Let's implement exact match or fallback to a formula if not found.
+    // Actually, let's just find the entry where cost <= table_cost to recommend, 
+    // or just strict match based on the provided table.
 
-    // Fetch Products on Load
-    useEffect(() => {
-        fetchProductsFromDB();
-    }, []);
+    // Let's try to find an exact match first.
+    const match = TIER_RANGES.find(t => newCost >= t.min && newCost <= t.max);
 
-    const fetchProductsFromDB = async () => {
-        setLoading(true);
-        const { data, error } = await supabase
-            .from('products')
-            .select(`
+    if (match) {
+        setPrice(match.krw);
+        setPriceUsd(match.usd);
+        setPriceTHB(match.thb);
+        setTier(match.name);
+
+        // Auto-select Theme based on Tier
+        if (match.name.startsWith('Tier-UR')) {
+            setTheme('URBAN');
+        } else if (match.name.startsWith('Tier-RH')) {
+            setTheme('RHYTHM');
+        }
+    } else {
+        // Optional: reset or keep manual?
+        setTier('');
+    }
+};
+
+// Options State (Starting with one default option)
+const [options, setOptions] = useState([
+    { color: 'SILVER', size: 'FR', stock: 10, imageNames: [] }
+]);
+
+// Fetch Products on Load
+useEffect(() => {
+    fetchProductsFromDB();
+}, []);
+
+const fetchProductsFromDB = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+        .from('products')
+        .select(`
                 *,
                 options:product_options(*)
             `)
-            .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching products:', error);
-            setMessage('Error loading products.');
-        } else {
-            setProducts(data || []);
-        }
-        setLoading(false);
+    if (error) {
+        console.error('Error fetching products:', error);
+        setMessage('Error loading products.');
+    } else {
+        setProducts(data || []);
+    }
+    setLoading(false);
+};
+
+// Save Logic (Create or Update)
+const handleSave = async () => {
+    setLoading(true);
+    setMessage('Saving...');
+
+    // 1. Construct Main Product ID
+    const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
+
+    // 2. Prepare Data
+    const productData = {
+        id: mainId,
+        name,
+        theme,
+        category,
+        price: Number(price), // KRW Retail
+        cost: Number(cost), // Wholesale Cost
+        price_usd: Number(priceUsd), // USD Retail
+        price_thb: Number(priceTHB), // THB Retail
+        description,
+        description,
+        purchase_info: purchaseInfo,
+        material
     };
 
-    // Save Logic (Create or Update)
-    const handleSave = async () => {
-        setLoading(true);
-        setMessage('Saving...');
-
-        // 1. Construct Main Product ID
-        const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
-
-        // 2. Prepare Data
-        const productData = {
-            id: mainId,
-            name,
-            theme,
-            category,
-            price: Number(price), // KRW Retail
-            cost: Number(cost), // Wholesale Cost
-            price_usd: Number(priceUsd), // USD Retail
-            price_thb: Number(priceTHB), // THB Retail
-            description,
-            description,
-            purchase_info: purchaseInfo,
-            material
-        };
-
-        // Check for duplicates if creating new
-        if (!isEditing) {
-            const exists = products.some(p => p.id === mainId);
-            if (exists) {
-                setMessage(`Error: Product ID ${mainId} already exists! Please increase Index Number.`);
-                setLoading(false);
-                return;
-            }
-        }
-
-        // 3. Save Product
-        let result;
-        if (isEditing) {
-            result = await supabase.from('products').upsert(productData);
-        } else {
-            // Use insert to prevent accidental overwrite if client-side check missed something
-            result = await supabase.from('products').insert(productData);
-        }
-        const { error: productError } = result;
-
-        if (productError) {
-            console.error('Error saving product:', productError);
-            if (productError.code === '23505') { // Unique violation
-                setMessage(`Error: Product ID ${mainId} already exists!`);
-            } else {
-                setMessage(`Error: ${productError.message}`);
-            }
+    // Check for duplicates if creating new
+    if (!isEditing) {
+        const exists = products.some(p => p.id === mainId);
+        if (exists) {
+            setMessage(`Error: Product ID ${mainId} already exists! Please increase Index Number.`);
             setLoading(false);
             return;
         }
+    }
 
-        // 4. Handle Options (Delete old ones first for simplicity, then insert new)
-        // First delete existing options for this product
-        await supabase.from('product_options').delete().eq('product_id', mainId);
+    // 3. Save Product
+    let result;
+    if (isEditing) {
+        result = await supabase.from('products').upsert(productData);
+    } else {
+        // Use insert to prevent accidental overwrite if client-side check missed something
+        result = await supabase.from('products').insert(productData);
+    }
+    const { error: productError } = result;
 
-        // Prepare Options Data
-        // Merge specific images with common images (Specific First + Common Last)
-        const optionsData = options.map(opt => {
-            // If option has specific images, use them. 
-            // Then append common images.
-            // If option has NO specific images, it will just be common images.
-            // AND ensure no duplicates if someone uploads same image to both? (Unlikely workflow but possible)
-            // For now, simple concatenation as requested: "Specific then Common".
-
-            const combinedImages = [...(opt.imageNames || []), ...commonImages];
-
-            // Remove duplicates just in case?
-            // const uniqueImages = [...new Set(combinedImages)]; 
-            // User might want specific ordering, so simple concat is safer for "Specific then Common".
-
-            return {
-                product_id: mainId,
-                sku: generateSKU(theme, category, material, index, opt.mainColor, opt.subColor, opt.size),
-                color: opt.mainColor, // Store Main Color in 'color' column
-                sub_color: opt.subColor, // Store Sub Color in new column
-                size: opt.size,
-                stock: Number(opt.stock),
-                stock: Number(opt.stock),
-                cost: Number(opt.cost), // Store Option Cost
-                price: Number(opt.price),
-                price_usd: Number(opt.priceUsd), // Note naming convention snake_case for DB? productService expects object keys to match DB or be mapped?
-                // Let's check productService. It maps opt.price_usd etc.
-                price_thb: Number(opt.priceTHB),
-                tier: opt.tier,
-                images: combinedImages
-            };
-        });
-
-        const { error: optionsError } = await supabase
-            .from('product_options')
-            .insert(optionsData);
-
-        if (optionsError) {
-            console.error('Error saving options:', optionsError);
-            setMessage('Product saved, but options failed.');
+    if (productError) {
+        console.error('Error saving product:', productError);
+        if (productError.code === '23505') { // Unique violation
+            setMessage(`Error: Product ID ${mainId} already exists!`);
         } else {
-            setMessage('Product saved successfully!');
-            fetchProductsFromDB(); // Refresh dashboard
+            setMessage(`Error: ${productError.message}`);
+        }
+        setLoading(false);
+        return;
+    }
+
+    // 4. Handle Options (Delete old ones first for simplicity, then insert new)
+    // First delete existing options for this product
+    await supabase.from('product_options').delete().eq('product_id', mainId);
+
+    // Prepare Options Data
+    // Merge specific images with common images (Specific First + Common Last)
+    const optionsData = options.map(opt => {
+        // If option has specific images, use them. 
+        // Then append common images.
+        // If option has NO specific images, it will just be common images.
+        // AND ensure no duplicates if someone uploads same image to both? (Unlikely workflow but possible)
+        // For now, simple concatenation as requested: "Specific then Common".
+
+        const combinedImages = [...(opt.imageNames || []), ...commonImages];
+
+        // Remove duplicates just in case?
+        // const uniqueImages = [...new Set(combinedImages)]; 
+        // User might want specific ordering, so simple concat is safer for "Specific then Common".
+
+        return {
+            product_id: mainId,
+            sku: generateSKU(theme, category, material, index, opt.mainColor, opt.subColor, opt.size),
+            color: opt.mainColor, // Store Main Color in 'color' column
+            sub_color: opt.subColor, // Store Sub Color in new column
+            size: opt.size,
+            stock: Number(opt.stock),
+            stock: Number(opt.stock),
+            cost: Number(opt.cost), // Store Option Cost
+            price: Number(opt.price),
+            price_usd: Number(opt.priceUsd), // Note naming convention snake_case for DB? productService expects object keys to match DB or be mapped?
+            // Let's check productService. It maps opt.price_usd etc.
+            price_thb: Number(opt.priceTHB),
+            tier: opt.tier,
+            images: combinedImages
+        };
+    });
+
+    const { error: optionsError } = await supabase
+        .from('product_options')
+        .insert(optionsData);
+
+    if (optionsError) {
+        console.error('Error saving options:', optionsError);
+        setMessage('Product saved, but options failed.');
+    } else {
+        setMessage('Product saved successfully!');
+        fetchProductsFromDB(); // Refresh dashboard
+        setTimeout(() => {
+            setView('dashboard');
+            setMessage('');
+        }, 1000);
+    }
+    setLoading(false);
+};
+
+
+
+const handleDelete = async () => {
+    // Use the ID from the product object if available (original ID), 
+    // otherwise fall back to mainId but that might be dangerous if form changed.
+    // We need to store original ID when entering edit mode.
+    // But for now, let's assume we want to delete the product currently being edited *as it was loaded*.
+    // However, we don't have 'originalId' in state. 
+    // Let's modify handleEditClick to store it or just trust the user hasn't changed key fields? 
+    // No, user said "Delete Success" so no error, meaning ID likely didn't match.
+
+    // Let's find the product in the list that matches the current state? No.
+    // We should add a state for `editingId`.
+
+    const targetId = editingId || mainId;
+
+    if (!window.confirm(`Are you sure you want to delete product: ${targetId}?`)) {
+        return;
+    }
+
+    setLoading(true);
+    setMessage('Deleting product...');
+
+    // 1. Delete linked options
+    const { error: optionsError } = await supabase
+        .from('product_options')
+        .delete()
+        .eq('product_id', targetId);
+
+    if (optionsError) {
+        console.error('Error deleting options:', optionsError);
+        setMessage(`Error deleting options: ${optionsError.message}`);
+        setLoading(false);
+        return;
+    }
+
+    // 2. Delete the product
+    const { error, count } = await supabase
+        .from('products')
+        .delete({ count: 'exact' }) // Request count
+        .eq('id', targetId);
+
+    if (error) {
+        console.error('Error deleting product:', error);
+        setMessage(`Error: ${error.message}`);
+    } else {
+        // Check if any row was actually deleted
+        // note: supabase js v2 returns count in 'count' property if requested, or inside data? 
+        // It seems 'count' property is available if { count: 'exact' } is passed.
+        // Let's rely on alerting the user if count is 0.
+
+        if (count === 0) {
+            setMessage(`No product found with ID: ${targetId}`);
+        } else {
+            setMessage('Product deleted successfully!');
+            await fetchProductsFromDB();
             setTimeout(() => {
                 setView('dashboard');
                 setMessage('');
             }, 1000);
         }
-        setLoading(false);
-    };
+    }
+    setLoading(false);
+};
 
 
-
-    const handleDelete = async () => {
-        // Use the ID from the product object if available (original ID), 
-        // otherwise fall back to mainId but that might be dangerous if form changed.
-        // We need to store original ID when entering edit mode.
-        // But for now, let's assume we want to delete the product currently being edited *as it was loaded*.
-        // However, we don't have 'originalId' in state. 
-        // Let's modify handleEditClick to store it or just trust the user hasn't changed key fields? 
-        // No, user said "Delete Success" so no error, meaning ID likely didn't match.
-
-        // Let's find the product in the list that matches the current state? No.
-        // We should add a state for `editingId`.
-
-        const targetId = editingId || mainId;
-
-        if (!window.confirm(`Are you sure you want to delete product: ${targetId}?`)) {
-            return;
-        }
-
-        setLoading(true);
-        setMessage('Deleting product...');
-
-        // 1. Delete linked options
-        const { error: optionsError } = await supabase
-            .from('product_options')
-            .delete()
-            .eq('product_id', targetId);
-
-        if (optionsError) {
-            console.error('Error deleting options:', optionsError);
-            setMessage(`Error deleting options: ${optionsError.message}`);
-            setLoading(false);
-            return;
-        }
-
-        // 2. Delete the product
-        const { error, count } = await supabase
-            .from('products')
-            .delete({ count: 'exact' }) // Request count
-            .eq('id', targetId);
-
-        if (error) {
-            console.error('Error deleting product:', error);
-            setMessage(`Error: ${error.message}`);
-        } else {
-            // Check if any row was actually deleted
-            // note: supabase js v2 returns count in 'count' property if requested, or inside data? 
-            // It seems 'count' property is available if { count: 'exact' } is passed.
-            // Let's rely on alerting the user if count is 0.
-
-            if (count === 0) {
-                setMessage(`No product found with ID: ${targetId}`);
-            } else {
-                setMessage('Product deleted successfully!');
-                await fetchProductsFromDB();
-                setTimeout(() => {
-                    setView('dashboard');
-                    setMessage('');
-                }, 1000);
-            }
-        }
-        setLoading(false);
-    };
-
-
-    // Handlers
-    // Handlers
-    // Drag and Drop Handlers
-    const handleDrag = (e, idx) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.type === 'dragenter' || e.type === 'dragover') {
-            setDragActiveIndex(idx);
-        } else if (e.type === 'dragleave') {
-            setDragActiveIndex(null);
-        }
-    };
-
-    const handleDrop = (e, idx) => {
-        e.preventDefault();
-        e.stopPropagation();
+// Handlers
+// Handlers
+// Drag and Drop Handlers
+const handleDrag = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+        setDragActiveIndex(idx);
+    } else if (e.type === 'dragleave') {
         setDragActiveIndex(null);
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            if (idx === 'common') {
-                handleCommonImageUpload(e.dataTransfer.files);
-            } else {
-                handleImageUpload(idx, e.dataTransfer.files);
-            }
-        }
-    };
+    }
+};
 
-    const handleOptionChange = (idx, field, value) => {
+const handleDrop = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActiveIndex(null);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        if (idx === 'common') {
+            handleCommonImageUpload(e.dataTransfer.files);
+        } else {
+            handleImageUpload(idx, e.dataTransfer.files);
+        }
+    }
+};
+
+const handleOptionChange = (idx, field, value) => {
+    const newOptions = [...options];
+    newOptions[idx][field] = value;
+
+    // Auto-calculate pricing if cost changes
+    if (field === 'cost') {
+        const costVal = Number(value);
+        const pricing = calculatePricing(costVal);
+        newOptions[idx].price = pricing.price;
+        newOptions[idx].priceUsd = pricing.priceUsd;
+        newOptions[idx].priceTHB = pricing.priceTHB;
+        newOptions[idx].tier = pricing.tier;
+    }
+
+    setOptions(newOptions);
+};
+
+const handleImageUpload = async (idx, files) => {
+    if (!files || files.length === 0) return;
+    setLoading(true);
+    setMessage('Uploading images... Please wait.');
+
+    try {
+        const uploadedUrls = [];
+        // Upload specific files in parallel
+        const uploadPromises = Array.from(files).map(file => uploadImage(file));
+        const results = await Promise.all(uploadPromises);
+
+        uploadedUrls.push(...results);
+        console.log('Uploads successful:', uploadedUrls);
+
+        // Append new images to existing list
         const newOptions = [...options];
-        newOptions[idx][field] = value;
-
-        // Auto-calculate pricing if cost changes
-        if (field === 'cost') {
-            const costVal = Number(value);
-            const pricing = calculatePricing(costVal);
-            newOptions[idx].price = pricing.price;
-            newOptions[idx].priceUsd = pricing.priceUsd;
-            newOptions[idx].priceTHB = pricing.priceTHB;
-            newOptions[idx].tier = pricing.tier;
-        }
-
+        newOptions[idx].imageNames = [...(newOptions[idx].imageNames || []), ...uploadedUrls];
         setOptions(newOptions);
-    };
 
-    const handleImageUpload = async (idx, files) => {
-        if (!files || files.length === 0) return;
-        setLoading(true);
-        setMessage('Uploading images... Please wait.');
+        setMessage('Images uploaded successfully!');
+    } catch (error) {
+        console.error('Upload failed:', error);
+        setMessage(`Image upload failed: ${error.message}`);
+    } finally {
+        setLoading(false);
+    }
+};
 
-        try {
-            const uploadedUrls = [];
-            // Upload specific files in parallel
-            const uploadPromises = Array.from(files).map(file => uploadImage(file));
-            const results = await Promise.all(uploadPromises);
+const handleCommonImageUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    setLoading(true);
+    setMessage('Uploading common images... Please wait.');
 
-            uploadedUrls.push(...results);
-            console.log('Uploads successful:', uploadedUrls);
+    try {
+        const uploadedUrls = [];
+        const uploadPromises = Array.from(files).map(file => uploadImage(file));
+        const results = await Promise.all(uploadPromises);
 
-            // Append new images to existing list
-            const newOptions = [...options];
-            newOptions[idx].imageNames = [...(newOptions[idx].imageNames || []), ...uploadedUrls];
-            setOptions(newOptions);
+        uploadedUrls.push(...results);
+        setCommonImages([...commonImages, ...uploadedUrls]);
+        setMessage('Common images uploaded successfully!');
+    } catch (error) {
+        console.error('Upload failed:', error);
+        setMessage(`Common image upload failed: ${error.message}`);
+    } finally {
+        setLoading(false);
+    }
+};
 
-            setMessage('Images uploaded successfully!');
-        } catch (error) {
-            console.error('Upload failed:', error);
-            setMessage(`Image upload failed: ${error.message}`);
-        } finally {
-            setLoading(false);
-        }
-    };
+const removeCommonImage = (imgIdx) => {
+    setCommonImages(commonImages.filter((_, i) => i !== imgIdx));
+};
 
-    const handleCommonImageUpload = async (files) => {
-        if (!files || files.length === 0) return;
-        setLoading(true);
-        setMessage('Uploading common images... Please wait.');
+const removeImage = (optIdx, imgIdx) => {
+    const newOptions = [...options];
+    newOptions[optIdx].imageNames = newOptions[optIdx].imageNames.filter((_, i) => i !== imgIdx);
+    setOptions(newOptions);
+};
 
-        try {
-            const uploadedUrls = [];
-            const uploadPromises = Array.from(files).map(file => uploadImage(file));
-            const results = await Promise.all(uploadPromises);
+const addOption = () => {
+    // Inherit base cost/pricing and CURRENT defaults
+    const pricing = calculatePricing(cost);
+    setOptions([...options, {
+        theme: theme, category: category, material: material, index: index,
+        mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
+        cost: cost,
+        price: pricing.price, priceUsd: pricing.priceUsd, priceTHB: pricing.priceTHB, tier: pricing.tier,
+        purchaseInfo: purchaseInfo,
+        imageNames: []
+    }]);
+};
 
-            uploadedUrls.push(...results);
-            setCommonImages([...commonImages, ...uploadedUrls]);
-            setMessage('Common images uploaded successfully!');
-        } catch (error) {
-            console.error('Upload failed:', error);
-            setMessage(`Common image upload failed: ${error.message}`);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const removeCommonImage = (imgIdx) => {
-        setCommonImages(commonImages.filter((_, i) => i !== imgIdx));
-    };
-
-    const removeImage = (optIdx, imgIdx) => {
-        const newOptions = [...options];
-        newOptions[optIdx].imageNames = newOptions[optIdx].imageNames.filter((_, i) => i !== imgIdx);
+const removeOption = (idx) => {
+    if (options.length > 1) {
+        const newOptions = options.filter((_, i) => i !== idx);
         setOptions(newOptions);
-    };
+    }
+};
 
-    const addOption = () => {
-        // Inherit base cost/pricing
-        const pricing = calculatePricing(cost);
-        setOptions([...options, {
-            mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
-            cost: cost,
-            price: pricing.price, priceUsd: pricing.priceUsd, priceTHB: pricing.priceTHB, tier: pricing.tier,
-            imageNames: []
-        }]);
-    };
+// Get next available index when parameters change
+// Since Specs are now per-option, we can't auto-fetch index globally.
+// We could add a "Fetch Index" button near the index input, or auto-fetch when Spec changes for that option?
+// For now, let's rely on the Default Settings to set the initial index, 
+// and maybe disable auto-fetch for every single option change to avoid chaos.
+// We'll keep a "Default Index" in state that auto-updates, and new options inherit it.
+useEffect(() => {
+    if (!isEditing && view === 'form') {
+        fetchNextIndex();
+    }
+}, [theme, category, material, isEditing, view]);
 
-    const removeOption = (idx) => {
-        if (options.length > 1) {
-            const newOptions = options.filter((_, i) => i !== idx);
-            setOptions(newOptions);
-        }
-    };
+const fetchNextIndex = async () => {
+    // Find existing products with same prefix to determine max index
+    const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
+    // Query database for IDs starting with this prefix
+    // Since we can't do complex regex easily on client side without fetching all, 
+    // let's just fetch all and filter client side for now as dataset is small, 
+    // or rely on 'products' state if it contains all.
+    // Better: Use products state which is already loaded.
 
-    // Get next available index when parameters change
-    useEffect(() => {
-        if (!isEditing && view === 'form') {
-            fetchNextIndex();
-        }
-    }, [theme, category, material, isEditing, view]);
-
-    const fetchNextIndex = async () => {
-        // Find existing products with same prefix to determine max index
-        const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
-        // Query database for IDs starting with this prefix
-        // Since we can't do complex regex easily on client side without fetching all, 
-        // let's just fetch all and filter client side for now as dataset is small, 
-        // or rely on 'products' state if it contains all.
-        // Better: Use products state which is already loaded.
-
-        let maxIdx = 0;
-        products.forEach(p => {
-            // ID format: PREFIX(including index)-OPTIONS...
-            // e.g. HYRGSSHL0001-SVFR
-            if (p.id.startsWith(prefix)) {
-                const parts = p.id.split('-');
-                if (parts[0]) {
-                    // Extract index part (last 4 chars of first part)
-                    const idxStr = parts[0].slice(-4);
-                    const idx = parseInt(idxStr, 10);
-                    if (!isNaN(idx) && idx > maxIdx) {
-                        maxIdx = idx;
-                    }
-                }
-            }
-        });
-        setIndex(maxIdx + 1);
-    };
-
-    // Initialize Form for Creation
-    const handleCreateClick = () => {
-        console.log('Create clicked');
-        try {
-            setIsEditing(false);
-            setEditingId(null);
-            setName('');
-            setTheme('HYPE');
-            setCategory('RING');
-            setMaterial('SURGICAL_STEEL');
-            // Index will be set by useEffect
-            setPrice(0);
-            setCost(0);
-            setPriceUsd(0);
-            setPriceTHB(0);
-            setTier('');
-            setDescription('');
-            setPurchaseInfo('');
-            setOptions([{ mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '', imageNames: [] }]);
-            setCommonImages([]); // Reset common images
-            setMessage('');
-            setView('form');
-            console.log('View set to form');
-        } catch (error) {
-            console.error('Error in handleCreateClick:', error);
-            setMessage('Error identifying create action.');
-        }
-    };
-
-    // Initialize Form for Editing
-    const handleEditClick = (product) => {
-        setIsEditing(true);
-        setEditingId(product.id); // Store original ID
-        setName(product.name);
-        setTheme(product.theme);
-        setCategory(product.category);
-        setMaterial(product.material);
-        setMaterial(product.material);
-        setPrice(product.price);
-        setCost(product.cost || 0); // Load cost
-        setPriceUsd(product.price_usd || 0); // Load USD price
-        setPriceTHB(product.price_thb || 0); // Load THB price
-        setTier(product.tier || ''); // Load Tier
-        setDescription(product.description || ''); // Handle missing description
-        setPurchaseInfo(product.purchase_info || '');
-
-        // Attempt to parse index from ID: PREFIX(including index)-OPTIONS
+    let maxIdx = 0;
+    products.forEach(p => {
+        // ID format: PREFIX(including index)-OPTIONS...
         // e.g. HYRGSSHL0001-SVFR
-        try {
-            const parts = product.id.split('-');
+        if (p.id.startsWith(prefix)) {
+            const parts = p.id.split('-');
             if (parts[0]) {
+                // Extract index part (last 4 chars of first part)
                 const idxStr = parts[0].slice(-4);
                 const idx = parseInt(idxStr, 10);
-                if (!isNaN(idx)) setIndex(idx);
-                else setIndex(1);
+                if (!isNaN(idx) && idx > maxIdx) {
+                    maxIdx = idx;
+                }
             }
-        } catch (e) {
-            setIndex(1);
         }
+    });
+    setIndex(maxIdx + 1);
+};
 
-        // Map options
-        if (product.options && product.options.length > 0) {
-            setOptions(product.options.map(opt => ({
-                color: opt.color,
-                size: opt.size,
-                stock: opt.stock,
-                // We need to decide how to split specific vs common when editing.
-                // Since we merged them on save, we can't easily distinguish unless we store them separately or check against commonImages state (which isn't loaded yet/doesn't exist on product).
-                // Actually, for now, we just load ALL images into the option's specific images list.
-                // The common image feature is mostly for *creation* convenience.
-                // If we want to support "editing common images" affecting all, we'd need a schema change or convention.
-                // Current Requirement: "Upload common, and specific. Show specific then common."
-                // On Edit: We just load what's saved. If the user wants to add common again, they can, but it might duplicate.
-                // Let's keep it simple: specific images load as is. Common images input starts empty on edit.
-                imageNames: opt.images || []
-            })));
-        } else {
-            setOptions([{ color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
-        }
-
-        setCommonImages([]); // Reset common images on edit start to avoid confusion
-
+// Initialize Form for Creation
+const handleCreateClick = () => {
+    console.log('Create clicked');
+    try {
+        setIsEditing(false);
+        setEditingId(null);
+        setName('');
+        setTheme('HYPE');
+        setCategory('RING');
+        setMaterial('SURGICAL_STEEL');
+        // Index will be set by useEffect
+        setPrice(0);
+        setCost(0);
+        setPriceUsd(0);
+        setPriceTHB(0);
+        setTier('');
+        setDescription('');
+        setPurchaseInfo('');
+        setPurchaseInfo('');
+        setOptions([{
+            theme: 'HYPE', category: 'RING', material: 'SURGICAL_STEEL', index: 1,
+            mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
+            cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '', purchaseInfo: '',
+            imageNames: []
+        }]);
+        setCommonImages([]); // Reset common images
         setMessage('');
         setView('form');
-    };
+        console.log('View set to form');
+    } catch (error) {
+        console.error('Error in handleCreateClick:', error);
+        setMessage('Error identifying create action.');
+    }
+};
 
-    // Include SKU preview for the main product ID
-    const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
+// Initialize Form for Editing
+const handleEditClick = (product) => {
+    setIsEditing(true);
+    setEditingId(product.id); // Store original ID
+    setName(product.name);
+    setTheme(product.theme);
+    setCategory(product.category);
+    setMaterial(product.material);
+    setMaterial(product.material);
+    setPrice(product.price);
+    setCost(product.cost || 0); // Load cost
+    setPriceUsd(product.price_usd || 0); // Load USD price
+    setPriceTHB(product.price_thb || 0); // Load THB price
+    setTier(product.tier || ''); // Load Tier
+    setDescription(product.description || ''); // Handle missing description
+    setPurchaseInfo(product.purchase_info || '');
 
-    return (
-        <div className="page-container">
-            <div className={styles.adminContainer}>
+    // Attempt to parse index from ID: PREFIX(including index)-OPTIONS
+    // e.g. HYRGSSHL0001-SVFR
+    try {
+        const parts = product.id.split('-');
+        if (parts[0]) {
+            const idxStr = parts[0].slice(-4);
+            const idx = parseInt(idxStr, 10);
+            if (!isNaN(idx)) setIndex(idx);
+            else setIndex(1);
+        }
+    } catch (e) {
+        setIndex(1);
+    }
 
-                {view === 'dashboard' && (
-                    <>
-                        <div className={styles.dashboardHeader}>
-                            <h2>Product Dashboard ({products.length})</h2>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <button className={styles.btnSecondary} onClick={handleLogout} style={{ fontSize: '0.9rem' }}>Logout</button>
-                                <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Create New Product</button>
-                            </div>
+    // Map options
+    if (product.options && product.options.length > 0) {
+        setOptions(product.options.map(opt => ({
+            color: opt.color,
+            size: opt.size,
+            stock: opt.stock,
+            // We need to decide how to split specific vs common when editing.
+            // Since we merged them on save, we can't easily distinguish unless we store them separately or check against commonImages state (which isn't loaded yet/doesn't exist on product).
+            // Actually, for now, we just load ALL images into the option's specific images list.
+            // The common image feature is mostly for *creation* convenience.
+            // If we want to support "editing common images" affecting all, we'd need a schema change or convention.
+            // Current Requirement: "Upload common, and specific. Show specific then common."
+            // On Edit: We just load what's saved. If the user wants to add common again, they can, but it might duplicate.
+            // Let's keep it simple: specific images load as is. Common images input starts empty on edit.
+            imageNames: opt.images || []
+        })));
+    } else {
+        setOptions([{ color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
+    }
+
+    setCommonImages([]); // Reset common images on edit start to avoid confusion
+
+    setMessage('');
+    setView('form');
+};
+
+// Include SKU preview for the main product ID (Primary Option)
+const primaryOpt = options[0];
+const mainId = generateSKU(primaryOpt?.theme || 'XX', primaryOpt?.category || 'XX', primaryOpt?.material || 'XX', primaryOpt?.index || 0, primaryOpt?.mainColor || 'SILVER', primaryOpt?.subColor || 'ETC', primaryOpt?.size || 'XX');
+
+return (
+    <div className="page-container">
+        <div className={styles.adminContainer}>
+
+            {view === 'dashboard' && (
+                <>
+                    <div className={styles.dashboardHeader}>
+                        <h2>Product Dashboard ({products.length})</h2>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button className={styles.btnSecondary} onClick={handleLogout} style={{ fontSize: '0.9rem' }}>Logout</button>
+                            <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Create New Product</button>
                         </div>
+                    </div>
 
-                        {loading && <p>Loading products...</p>}
+                    {loading && <p>Loading products...</p>}
 
-                        <div className={styles.tableContainer}>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th style={{ width: '40px' }}></th>
-                                        <th>Image</th>
-                                        <th>Name</th>
-                                        <th>SKU / ID</th>
-                                        <th>Category</th>
-                                        <th>Price</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {products.map((product) => (
-                                        <React.Fragment key={product.id}>
-                                            <tr style={{ background: expandedRows[product.id] ? '#f9f9f9' : 'transparent' }}>
-                                                <td style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => toggleRow(product.id)}>
-                                                    {expandedRows[product.id] ? '▼' : '▶'}
-                                                </td>
-                                                <td>
-                                                    <Link to={`/product/${product.id}`}>
-                                                        {product.options && product.options[0]?.images && product.options[0].images.length > 0 ? (
-                                                            <img
-                                                                src={product.options[0].images[0]}
-                                                                alt={product.name}
-                                                                className={styles.thumbnail}
-                                                            />
-                                                        ) : (
-                                                            <div className={styles.thumbnail} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Img</div>
-                                                        )}
-                                                    </Link>
-                                                </td>
-                                                <td style={{ fontWeight: 500 }}>
-                                                    <Link to={`/product/${product.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                        {product.name}
-                                                    </Link>
-                                                </td>
-                                                <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
-                                                <td>
-                                                    <span className={styles.badge}>{product.category}</span>
-                                                </td>
-                                                <td>₩{product.price.toLocaleString()}</td>
-                                                <td>
-                                                    <button
-                                                        className={styles.actionBtn}
-                                                        onClick={() => handleEditClick(product)}
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            {expandedRows[product.id] && (
-                                                <tr>
-                                                    <td colSpan="7" style={{ padding: '0 0 20px 50px', backgroundColor: '#f9f9f9' }}>
-                                                        <div style={{ padding: '10px', background: 'white', border: '1px solid #ddd', borderRadius: '4px' }}>
-                                                            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>Variants (Options)</h4>
-                                                            <table style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}>
-                                                                <thead>
-                                                                    <tr style={{ borderBottom: '1px solid #eee', color: '#666' }}>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>SKU</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Color</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Option</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Cost</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Price/Tier</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    {product.options && product.options.map((opt, idx) => (
-                                                                        <tr key={idx} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                                                                            <td style={{ padding: '8px 5px', fontFamily: 'monospace' }}>
-                                                                                {/* Use the actual saved SKU from the options table */}
-                                                                                {opt.sku}
-                                                                            </td>
-                                                                            <td style={{ padding: '8px 5px' }}>{opt.color}</td>
-                                                                            <td style={{ padding: '8px 5px' }}>{opt.sub_color || '-'}</td>
-                                                                            <td style={{ padding: '8px 5px' }}>{opt.size}</td>
-                                                                            <td style={{ padding: '8px 5px' }}>{opt.cost ? opt.cost.toLocaleString() : '-'}</td>
-                                                                            <td style={{ padding: '8px 5px' }}>
-                                                                                {opt.price ? opt.price.toLocaleString() : '-'} / {opt.tier || '-'}
-                                                                            </td>
-                                                                            <td style={{ padding: '8px 5px' }}>
-                                                                                {opt.images && opt.images.length > 0 ? (
-                                                                                    <img src={opt.images[0]} alt="opt" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '2px' }} />
-                                                                                ) : '-'}
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </React.Fragment>
-                                    ))}
-                                    {!loading && products.length === 0 && (
-                                        <tr>
-                                            <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                                                No products found. Add one to get started!
+                    <div className={styles.tableContainer}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th style={{ width: '40px' }}></th>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>SKU / ID</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {products.map((product) => (
+                                    <React.Fragment key={product.id}>
+                                        <tr style={{ background: expandedRows[product.id] ? '#f9f9f9' : 'transparent' }}>
+                                            <td style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => toggleRow(product.id)}>
+                                                {expandedRows[product.id] ? '▼' : '▶'}
+                                            </td>
+                                            <td>
+                                                <Link to={`/product/${product.id}`}>
+                                                    {product.options && product.options[0]?.images && product.options[0].images.length > 0 ? (
+                                                        <img
+                                                            src={product.options[0].images[0]}
+                                                            alt={product.name}
+                                                            className={styles.thumbnail}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.thumbnail} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Img</div>
+                                                    )}
+                                                </Link>
+                                            </td>
+                                            <td style={{ fontWeight: 500 }}>
+                                                <Link to={`/product/${product.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                    {product.name}
+                                                </Link>
+                                            </td>
+                                            <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
+                                            <td>
+                                                <span className={styles.badge}>{product.category}</span>
+                                            </td>
+                                            <td>₩{product.price.toLocaleString()}</td>
+                                            <td>
+                                                <button
+                                                    className={styles.actionBtn}
+                                                    onClick={() => handleEditClick(product)}
+                                                >
+                                                    Edit
+                                                </button>
                                             </td>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                )}
+                                        {expandedRows[product.id] && (
+                                            <tr>
+                                                <td colSpan="7" style={{ padding: '0 0 20px 50px', backgroundColor: '#f9f9f9' }}>
+                                                    <div style={{ padding: '10px', background: 'white', border: '1px solid #ddd', borderRadius: '4px' }}>
+                                                        <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>Variants (Options)</h4>
+                                                        <table style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}>
+                                                            <thead>
+                                                                <tr style={{ borderBottom: '1px solid #eee', color: '#666' }}>
+                                                                    <th style={{ padding: '5px', textAlign: 'left' }}>SKU</th>
+                                                                    <th style={{ padding: '5px', textAlign: 'left' }}>Color</th>
+                                                                    <th style={{ padding: '5px', textAlign: 'left' }}>Option</th>
+                                                                    <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
+                                                                    <th style={{ padding: '5px', textAlign: 'left' }}>Cost</th>
+                                                                    <th style={{ padding: '5px', textAlign: 'left' }}>Price/Tier</th>
+                                                                    <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {product.options && product.options.map((opt, idx) => (
+                                                                    <tr key={idx} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                                                                        <td style={{ padding: '8px 5px', fontFamily: 'monospace' }}>
+                                                                            {/* Use the actual saved SKU from the options table */}
+                                                                            {opt.sku}
+                                                                        </td>
+                                                                        <td style={{ padding: '8px 5px' }}>{opt.color}</td>
+                                                                        <td style={{ padding: '8px 5px' }}>{opt.sub_color || '-'}</td>
+                                                                        <td style={{ padding: '8px 5px' }}>{opt.size}</td>
+                                                                        <td style={{ padding: '8px 5px' }}>{opt.cost ? opt.cost.toLocaleString() : '-'}</td>
+                                                                        <td style={{ padding: '8px 5px' }}>
+                                                                            {opt.price ? opt.price.toLocaleString() : '-'} / {opt.tier || '-'}
+                                                                        </td>
+                                                                        <td style={{ padding: '8px 5px' }}>
+                                                                            {opt.images && opt.images.length > 0 ? (
+                                                                                <img src={opt.images[0]} alt="opt" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '2px' }} />
+                                                                            ) : '-'}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                                {!loading && products.length === 0 && (
+                                    <tr>
+                                        <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                                            No products found. Add one to get started!
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            )}
 
-                {view === 'form' && (
-                    <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>
-                                &larr; Back to Dashboard
-                            </button>
-                            {message && <span style={{ color: message.includes('Error') ? 'red' : 'green', fontWeight: 'bold' }}>{message}</span>}
-                        </div>
+            {view === 'form' && (
+                <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>
+                            &larr; Back to Dashboard
+                        </button>
+                        {message && <span style={{ color: message.includes('Error') ? 'red' : 'green', fontWeight: 'bold' }}>{message}</span>}
+                    </div>
 
-                        <h1 className={styles.title}>{isEditing ? 'Edit Product' : 'Create New Product'}</h1>
+                    <h1 className={styles.title}>{isEditing ? 'Edit Product' : 'Create New Product'}</h1>
 
-                        <div className={styles.formGroup}>
-                            <div className={styles.sectionTitle}>Basic Information</div>
-                            <div className={styles.row}>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Product Name</label>
-                                    <input
-                                        className={styles.input}
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="e.g. Hype Silver Ring"
-                                    />
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Wholesale Cost (KRW)</label>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={cost}
-                                        onChange={handleCostChange}
-                                        placeholder="Enter cost to auto-calc"
-                                        style={{ borderColor: '#0070f3' }}
-                                    />
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Price Tier (Auto)</label>
-                                    <input
-                                        className={styles.input}
-                                        value={tier}
-                                        readOnly
-                                        style={{ backgroundColor: '#f0f0f0', fontWeight: 'bold' }}
-                                    />
-                                </div>
-                            </div>
-                            <div className={styles.row}>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Retail Price (KRW)</label>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={price}
-                                        onChange={(e) => setPrice(e.target.value)}
-                                    />
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Retail Price (USD)</label>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={priceUsd}
-                                        onChange={(e) => setPriceUsd(e.target.value)}
-                                    />
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Retail Price (THB)</label>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={priceTHB}
-                                        onChange={(e) => setPriceTHB(e.target.value)}
-                                    />
-                                </div>
+                    <div className={styles.formGroup}>
+                        <div className={styles.sectionTitle}>Basic Information</div>
+                        <div className={styles.row}>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Product Name</label>
+                                <input
+                                    className={styles.input}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="e.g. Hype Silver Ring"
+                                />
                             </div>
                             <div className={styles.col}>
                                 <label className={styles.label}>Description</label>
@@ -756,272 +718,317 @@ const Admin = () => {
                                 />
                             </div>
                         </div>
+                    </div>
 
-                        <div className={styles.formGroup}>
-                            <div className={styles.sectionTitle}>Private Admin Info</div>
+                    <div className={styles.formGroup}>
+                        <div className={styles.sectionTitle}>Default Settings (New Options will inherit these)</div>
+                        <div className={styles.row}>
                             <div className={styles.col}>
-                                <label className={styles.label}>Purchase Information (Admin Only)</label>
-                                <textarea
-                                    className={styles.textarea}
-                                    style={{ minHeight: '80px', backgroundColor: '#f9f9f9', border: '1px solid #ccc' }}
-                                    value={purchaseInfo}
-                                    onChange={(e) => setPurchaseInfo(e.target.value)}
-                                    placeholder="Enter purchase details, supplier notes, or links here..."
-                                />
+                                <label className={styles.label}>Theme</label>
+                                <select className={styles.select} value={theme} onChange={(e) => setTheme(e.target.value)}>
+                                    {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
+                                </select>
+                            </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Category</label>
+                                <select className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
+                                    {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
+                                </select>
+                            </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Material</label>
+                                <select className={styles.select} value={material} onChange={(e) => setMaterial(e.target.value)}>
+                                    {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
+                                </select>
+                            </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Index</label>
+                                <input type="number" className={styles.input} value={index} onChange={(e) => setIndex(e.target.value)} />
                             </div>
                         </div>
-
-                        <div className={styles.formGroup}>
-                            <div className={styles.sectionTitle}>Attributes (SKU Components)</div>
-                            <div className={styles.row}>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Theme</label>
-                                    <select className={styles.select} value={theme} onChange={(e) => setTheme(e.target.value)}>
-                                        {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
-                                    </select>
-                                </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Category</label>
-                                    <select className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
-                                        {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
-                                    </select>
-                                </div>
+                        <div className={styles.row}>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Default Cost</label>
+                                <input type="number" className={styles.input} value={cost} onChange={handleCostChange} />
                             </div>
-                            <div className={styles.row}>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Material</label>
-                                    <select className={styles.select} value={material} onChange={(e) => setMaterial(e.target.value)}>
-                                        {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
-                                    </select>
-                                </div>
-
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Index Number</label>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={index}
-                                        onChange={(e) => setIndex(e.target.value)}
-                                        min="1"
-                                    />
-                                </div>
+                            <div className={styles.col}>
+                                <label className={styles.label}>Default Purchase Info</label>
+                                <input className={styles.input} value={purchaseInfo} onChange={(e) => setPurchaseInfo(e.target.value)} />
                             </div>
-                            {/* Main SKU Preview Removed as per request to show per-option */}
+                        </div>
+                    </div>
+
+                    {/* Common Images Section */}
+
+                    {/* Common Images Section */}
+                    <div style={{ marginBottom: '30px', border: '1px solid #eee', padding: '20px', borderRadius: '8px' }}>
+                        <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Common Images (Applied to All Options)</h3>
+                        <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '10px' }}>
+                            Images uploaded here will be shown for ALL options. <br />
+                            If an option has its own images, they will be shown <strong>first</strong>, followed by these common images.
+                        </p>
+
+                        <div
+                            className={`${styles.dropZone} ${dragActiveIndex === 'common' ? styles.dropZoneActive : ''}`}
+                            onDragEnter={(e) => handleDrag(e, 'common')}
+                            onDragLeave={(e) => handleDrag(e, 'common')}
+                            onDragOver={(e) => handleDrag(e, 'common')}
+                            onDrop={(e) => handleDrop(e, 'common')}
+                            onClick={() => document.getElementById(`common-image-upload`).click()}
+                        >
+                            <div className={styles.dropIcon}>☁️</div>
+                            <span>Drag & Drop Common Images Here</span>
+                            <span style={{ fontSize: '0.8rem', color: '#999' }}>or click to upload</span>
+                            <input
+                                id={`common-image-upload`}
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={(e) => handleCommonImageUpload(e.target.files)}
+                                style={{ display: 'none' }}
+                            />
                         </div>
 
-                        {/* Common Images Section */}
-                        <div style={{ marginBottom: '30px', border: '1px solid #eee', padding: '20px', borderRadius: '8px' }}>
-                            <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Common Images (Applied to All Options)</h3>
-                            <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '10px' }}>
-                                Images uploaded here will be shown for ALL options. <br />
-                                If an option has its own images, they will be shown <strong>first</strong>, followed by these common images.
-                            </p>
-
-                            <div
-                                className={`${styles.dropZone} ${dragActiveIndex === 'common' ? styles.dropZoneActive : ''}`}
-                                onDragEnter={(e) => handleDrag(e, 'common')}
-                                onDragLeave={(e) => handleDrag(e, 'common')}
-                                onDragOver={(e) => handleDrag(e, 'common')}
-                                onDrop={(e) => handleDrop(e, 'common')}
-                                onClick={() => document.getElementById(`common-image-upload`).click()}
-                            >
-                                <div className={styles.dropIcon}>☁️</div>
-                                <span>Drag & Drop Common Images Here</span>
-                                <span style={{ fontSize: '0.8rem', color: '#999' }}>or click to upload</span>
-                                <input
-                                    id={`common-image-upload`}
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    onChange={(e) => handleCommonImageUpload(e.target.files)}
-                                    style={{ display: 'none' }}
-                                />
+                        {/* Common Image Previews */}
+                        {commonImages.length > 0 && (
+                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                                {commonImages.map((img, i) => (
+                                    <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
+                                        <img src={img} alt={`Common ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+                                        <button
+                                            onClick={() => removeCommonImage(i)}
+                                            style={{
+                                                position: 'absolute', top: -5, right: -5,
+                                                background: 'red', color: 'white', border: 'none',
+                                                borderRadius: '50%', width: '20px', height: '20px',
+                                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: '12px'
+                                            }}
+                                        >
+                                            X
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
+                        )}
+                    </div>
 
-                            {/* Common Image Previews */}
-                            {commonImages.length > 0 && (
-                                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
-                                    {commonImages.map((img, i) => (
-                                        <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
-                                            <img src={img} alt={`Common ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
-                                            <button
-                                                onClick={() => removeCommonImage(i)}
-                                                style={{
-                                                    position: 'absolute', top: -5, right: -5,
-                                                    background: 'red', color: 'white', border: 'none',
-                                                    borderRadius: '50%', width: '20px', height: '20px',
-                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    fontSize: '12px'
-                                                }}
-                                            >
-                                                X
-                                            </button>
-                                        </div>
-                                    ))}
+                    <div className={styles.formGroup}>
+                        <div className={styles.sectionTitle}>Options (Variants)</div>
+                        {options.map((opt, idx) => (
+                            <div key={idx} className={styles.optionBlock} style={{ backgroundColor: '#fafafa', border: '1px solid #eee', padding: '15px', marginBottom: '15px' }}>
+
+                                {/* Specs Row */}
+                                <div className={styles.row}>
+                                    <div className={styles.col}>
+                                        <label className={styles.label} style={{ fontSize: '0.8rem' }}>Theme</label>
+                                        <select className={styles.select} value={opt.theme} onChange={(e) => handleOptionChange(idx, 'theme', e.target.value)}>
+                                            {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className={styles.col}>
+                                        <label className={styles.label} style={{ fontSize: '0.8rem' }}>Category</label>
+                                        <select className={styles.select} value={opt.category} onChange={(e) => handleOptionChange(idx, 'category', e.target.value)}>
+                                            {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className={styles.col}>
+                                        <label className={styles.label} style={{ fontSize: '0.8rem' }}>Material</label>
+                                        <select className={styles.select} value={opt.material} onChange={(e) => handleOptionChange(idx, 'material', e.target.value)}>
+                                            {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className={styles.col} style={{ flex: '0 0 80px' }}>
+                                        <label className={styles.label} style={{ fontSize: '0.8rem' }}>Index</label>
+                                        <input type="number" className={styles.input} value={opt.index} onChange={(e) => handleOptionChange(idx, 'index', e.target.value)} />
+                                    </div>
                                 </div>
-                            )}
-                        </div>
 
-                        <div className={styles.formGroup}>
-                            <div className={styles.sectionTitle}>Options (Variants)</div>
-                            {options.map((opt, idx) => (
-                                <div key={idx} className={styles.optionBlock}>
-                                    <div className={styles.row}>
-                                        <div className={styles.col}>
-                                            <label className={styles.label}>Color</label>
-                                            <select
-                                                className={styles.select}
-                                                value={opt.mainColor}
-                                                onChange={(e) => handleOptionChange(idx, 'mainColor', e.target.value)}
-                                            >
-                                                {Object.keys(MAIN_COLORS).map(k => <option key={k} value={k}>{k}</option>)}
-                                            </select>
+                                <div className={styles.row}>
+                                    <div className={styles.col}>
+                                        <label className={styles.label}>Color</label>
+                                        <select
+                                            className={styles.select}
+                                            value={opt.mainColor}
+                                            onChange={(e) => handleOptionChange(idx, 'mainColor', e.target.value)}
+                                        >
+                                            {Object.keys(MAIN_COLORS).map(k => <option key={k} value={k}>{k}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className={styles.col}>
+                                        <label className={styles.label}>Option</label>
+                                        <select
+                                            className={styles.select}
+                                            value={opt.subColor}
+                                            onChange={(e) => handleOptionChange(idx, 'subColor', e.target.value)}
+                                        >
+                                            {Object.keys(SUB_COLORS).map(k => <option key={k} value={k}>{k}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className={styles.col}>
+                                        <label className={styles.label}>Size</label>
+                                        <input
+                                            className={styles.input}
+                                            value={opt.size}
+                                            onChange={(e) => handleOptionChange(idx, 'size', e.target.value)}
+                                            placeholder="e.g. 12 or FR"
+                                        />
+                                    </div>
+                                    <div className={styles.col}>
+                                        <label className={styles.label}>Stock</label>
+                                        <input
+                                            type="number"
+                                            className={styles.input}
+                                            value={opt.stock}
+                                            onChange={(e) => handleOptionChange(idx, 'stock', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className={styles.row}>
+                                    <div className={styles.col}>
+                                        <label className={styles.label}>Cost</label>
+                                        <input
+                                            type="number"
+                                            className={styles.input}
+                                            value={opt.cost}
+                                            onChange={(e) => handleOptionChange(idx, 'cost', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className={styles.col}>
+                                        <label className={styles.label}>Calculated</label>
+                                        <div style={{ fontSize: '0.9rem', paddingTop: '5px' }}>
+                                            {opt.price ? `${opt.price.toLocaleString()} KRW` : '-'} <br />
+                                            <span style={{ color: '#888' }}>({opt.tier || '-'})</span>
                                         </div>
-                                        <div className={styles.col}>
-                                            <label className={styles.label}>Option</label>
-                                            <select
-                                                className={styles.select}
-                                                value={opt.subColor}
-                                                onChange={(e) => handleOptionChange(idx, 'subColor', e.target.value)}
+                                    </div>
+                                    <div className={styles.col} style={{ flex: 2 }}>
+                                        <label className={styles.label}>Purchase Info</label>
+                                        <input
+                                            className={styles.input}
+                                            value={opt.purchaseInfo || ''}
+                                            onChange={(e) => handleOptionChange(idx, 'purchaseInfo', e.target.value)}
+                                            placeholder="Details..."
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                    SKU: {generateSKU(opt.theme, opt.category, opt.material, opt.index, opt.mainColor, opt.subColor, opt.size || 'XX')}
+                                </div>
+                                <div className={styles.row}>
+                                    <div className={styles.col}>
+                                        <label className={styles.label}>Product Images</label>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {/* Image Gallery */}
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                {opt.imageNames && opt.imageNames.map((imgUrl, imgIdx) => (
+                                                    <div key={imgIdx} style={{ position: 'relative', width: '60px', height: '60px' }}>
+                                                        <img
+                                                            src={imgUrl}
+                                                            alt={`Preview ${imgIdx}`}
+                                                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }}
+                                                        />
+                                                        <button
+                                                            onClick={() => removeImage(idx, imgIdx)}
+                                                            style={{
+                                                                position: 'absolute', top: '-5px', right: '-5px',
+                                                                background: 'red', color: 'white', border: 'none',
+                                                                borderRadius: '50%', width: '18px', height: '18px',
+                                                                cursor: 'pointer', fontSize: '10px', display: 'flex',
+                                                                alignItems: 'center', justifyContent: 'center'
+                                                            }}
+                                                        >
+                                                            X
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Upload Input with Drag & Drop */}
+                                            <div
+                                                className={`${styles.dropZone} ${dragActiveIndex === idx ? styles.dropZoneActive : ''}`}
+                                                onDragEnter={(e) => handleDrag(e, idx)}
+                                                onDragLeave={(e) => handleDrag(e, idx)}
+                                                onDragOver={(e) => handleDrag(e, idx)}
+                                                onDrop={(e) => handleDrop(e, idx)}
+                                                onClick={() => document.getElementById(`file-input-${idx}`).click()}
                                             >
-                                                {Object.keys(SUB_COLORS).map(k => <option key={k} value={k}>{k}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className={styles.col}>
-                                            <label className={styles.label}>Size</label>
-                                            <input
-                                                className={styles.input}
-                                                value={opt.size}
-                                                onChange={(e) => handleOptionChange(idx, 'size', e.target.value)}
-                                                placeholder="e.g. 12 or FR"
-                                            />
-                                            <div className={styles.col}>
-                                                <label className={styles.label}>Cost</label>
+                                                <div className={styles.dropIcon}>☁️</div>
+                                                <p>Drag & Drop images here or click to upload</p>
                                                 <input
-                                                    type="number"
-                                                    className={styles.input}
-                                                    value={opt.cost}
-                                                    onChange={(e) => handleOptionChange(idx, 'cost', e.target.value)}
+                                                    id={`file-input-${idx}`}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={(e) => handleImageUpload(idx, e.target.files)}
+                                                    style={{ display: 'none' }}
                                                 />
                                             </div>
                                         </div>
                                     </div>
-                                    <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                        SKU: {generateSKU(theme, category, material, index, opt.mainColor, opt.subColor, opt.size || 'XX')}
-                                    </div>
-                                    <div className={styles.row}>
-                                        <div className={styles.col}>
-                                            <label className={styles.label}>Product Images</label>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                {/* Image Gallery */}
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                                    {opt.imageNames && opt.imageNames.map((imgUrl, imgIdx) => (
-                                                        <div key={imgIdx} style={{ position: 'relative', width: '60px', height: '60px' }}>
-                                                            <img
-                                                                src={imgUrl}
-                                                                alt={`Preview ${imgIdx}`}
-                                                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }}
-                                                            />
-                                                            <button
-                                                                onClick={() => removeImage(idx, imgIdx)}
-                                                                style={{
-                                                                    position: 'absolute', top: '-5px', right: '-5px',
-                                                                    background: 'red', color: 'white', border: 'none',
-                                                                    borderRadius: '50%', width: '18px', height: '18px',
-                                                                    cursor: 'pointer', fontSize: '10px', display: 'flex',
-                                                                    alignItems: 'center', justifyContent: 'center'
-                                                                }}
-                                                            >
-                                                                X
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                {/* Upload Input with Drag & Drop */}
-                                                <div
-                                                    className={`${styles.dropZone} ${dragActiveIndex === idx ? styles.dropZoneActive : ''}`}
-                                                    onDragEnter={(e) => handleDrag(e, idx)}
-                                                    onDragLeave={(e) => handleDrag(e, idx)}
-                                                    onDragOver={(e) => handleDrag(e, idx)}
-                                                    onDrop={(e) => handleDrop(e, idx)}
-                                                    onClick={() => document.getElementById(`file-input-${idx}`).click()}
-                                                >
-                                                    <div className={styles.dropIcon}>☁️</div>
-                                                    <p>Drag & Drop images here or click to upload</p>
-                                                    <input
-                                                        id={`file-input-${idx}`}
-                                                        type="file"
-                                                        accept="image/*"
-                                                        multiple
-                                                        onChange={(e) => handleImageUpload(idx, e.target.files)}
-                                                        style={{ display: 'none' }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {options.length > 1 && (
-                                        <button className={styles.btnSecondary} onClick={() => removeOption(idx)} style={{ padding: '5px 10px', fontSize: '0.8rem' }}>
-                                            Remove Option
-                                        </button>
-                                    )}
                                 </div>
-                            ))}
-                            <button className={styles.btnSecondary} onClick={addOption}>+ Add Another Option</button>
-                        </div>
+                                {options.length > 1 && (
+                                    <button className={styles.btnSecondary} onClick={() => removeOption(idx)} style={{ padding: '5px 10px', fontSize: '0.8rem' }}>
+                                        Remove Option
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <button className={styles.btnSecondary} onClick={addOption}>+ Add Another Option</button>
+                    </div>
 
-                        <div className={styles.buttonGroup}>
-                            <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>Cancel</button>
-                            {isEditing && (
-                                <button
-                                    className={styles.btnSecondary}
-                                    onClick={handleDelete}
-                                    style={{ borderColor: '#d32f2f', color: '#d32f2f' }}
-                                >
-                                    Delete Product
-                                </button>
-                            )}
+                    <div className={styles.buttonGroup}>
+                        <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>Cancel</button>
+                        {isEditing && (
                             <button
-                                className={styles.btnPrimary}
-                                onClick={handleSave}
-                                disabled={loading}
-                                style={loading ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+                                className={styles.btnSecondary}
+                                onClick={handleDelete}
+                                style={{ borderColor: '#d32f2f', color: '#d32f2f' }}
                             >
-                                {loading ? 'Processing...' : (isEditing ? 'Update Product' : 'Create Product')}
+                                Delete Product
                             </button>
-                        </div>
+                        )}
+                        <button
+                            className={styles.btnPrimary}
+                            onClick={handleSave}
+                            disabled={loading}
+                            style={loading ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+                        >
+                            {loading ? 'Processing...' : (isEditing ? 'Update Product' : 'Create Product')}
+                        </button>
+                    </div>
 
-                        <div style={{ marginTop: '50px', paddingTop: '20px', borderTop: '2px solid #ff4444' }}>
-                            <h3 style={{ color: '#ff4444' }}>Danger Zone</h3>
-                            <button
-                                onClick={async () => {
-                                    if (window.confirm('WARNING: This will delete ALL products and options! This action cannot be undone. Are you sure?')) {
-                                        setLoading(true);
-                                        const { error: optErr } = await supabase.from('product_options').delete().neq('id', 0); // Delete all options
-                                        const { error: prodErr } = await supabase.from('products').delete().neq('id', 'placeholder'); // Delete all products
+                    <div style={{ marginTop: '50px', paddingTop: '20px', borderTop: '2px solid #ff4444' }}>
+                        <h3 style={{ color: '#ff4444' }}>Danger Zone</h3>
+                        <button
+                            onClick={async () => {
+                                if (window.confirm('WARNING: This will delete ALL products and options! This action cannot be undone. Are you sure?')) {
+                                    setLoading(true);
+                                    const { error: optErr } = await supabase.from('product_options').delete().neq('id', 0); // Delete all options
+                                    const { error: prodErr } = await supabase.from('products').delete().neq('id', 'placeholder'); // Delete all products
 
-                                        if (optErr || prodErr) {
-                                            alert('Error resetting DB: ' + (optErr?.message || prodErr?.message));
-                                        } else {
-                                            alert('Database has been reset successfully.');
-                                            setProducts([]);
-                                            setView('dashboard');
-                                        }
-                                        setLoading(false);
+                                    if (optErr || prodErr) {
+                                        alert('Error resetting DB: ' + (optErr?.message || prodErr?.message));
+                                    } else {
+                                        alert('Database has been reset successfully.');
+                                        setProducts([]);
+                                        setView('dashboard');
                                     }
-                                }}
-                                style={{ backgroundColor: '#ff4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }}
-                            >
-                                Reset Entire Database
-                            </button>
-                        </div>
-                    </>
-                )
-                }
-            </div >
+                                    setLoading(false);
+                                }
+                            }}
+                            style={{ backgroundColor: '#ff4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                            Reset Entire Database
+                        </button>
+                    </div>
+                </>
+            )
+            }
         </div >
-    );
+    </div >
+);
 };
 
 export default Admin;
