@@ -447,12 +447,10 @@ const Admin = () => {
     const fetchNextIndex = async () => {
         // Find maximum index globally across all products (regardless of prefix)
         // because user seemingly expects a running serial number.
-        console.log('Calculating Global Max Index...');
 
         // Ensure we iterate over something
         let listToScan = products;
         if (products.length === 0) {
-            console.log('Product list empty or potentially stale, fetching from DB for index calc...');
             const loaded = await fetchProductsFromDB();
             if (loaded && loaded.length > 0) listToScan = loaded;
         }
@@ -474,7 +472,6 @@ const Admin = () => {
                 }
             }
         });
-        console.log('Setting Global max index to:', maxIdx + 1);
         setIndex(maxIdx + 1);
     };
 
