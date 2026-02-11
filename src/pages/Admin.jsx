@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
-import { generateSKU, THEMES, CATEGORIES, MATERIALS, MANUFACTURERS, COLORS } from '../utils/skuGenerator';
+import { generateSKU, THEMES, CATEGORIES, MATERIALS, COLORS } from '../utils/skuGenerator';
 import { supabase } from '../utils/supabaseClient';
 import { fetchProducts, uploadImage } from '../services/productService';
 import { useNavigate, Link } from 'react-router-dom';
@@ -37,7 +37,6 @@ const Admin = () => {
     const [theme, setTheme] = useState('HYPE');
     const [category, setCategory] = useState('RING');
     const [material, setMaterial] = useState('SURGICAL_STEEL');
-    const [manufacturer, setManufacturer] = useState('HOLIC');
     const [index, setIndex] = useState(1);
     const [price, setPrice] = useState(0);
     const [cost, setCost] = useState(0); // Wholesale Cost
@@ -116,7 +115,7 @@ const Admin = () => {
         setMessage('Saving...');
 
         // 1. Construct Main Product ID
-        const mainId = generateSKU(theme, category, material, manufacturer, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
+        const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
 
         // 2. Prepare Data
         const productData = {
@@ -129,8 +128,8 @@ const Admin = () => {
             price_usd: Number(priceUsd), // USD Retail
             price_thb: Number(priceTHB), // THB Retail
             description,
-            material,
-            manufacturer
+            description,
+            material
         };
 
         // Check for duplicates if creating new
@@ -185,7 +184,7 @@ const Admin = () => {
 
             return {
                 product_id: mainId,
-                sku: generateSKU(theme, category, material, manufacturer, index, opt.color, opt.size),
+                sku: generateSKU(theme, category, material, index, opt.color, opt.size),
                 color: opt.color,
                 size: opt.size,
                 stock: Number(opt.stock),
@@ -388,7 +387,7 @@ const Admin = () => {
 
     const fetchNextIndex = async () => {
         // Find existing products with same prefix to determine max index
-        const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}${MANUFACTURERS[manufacturer]}`;
+        const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
         // Query database for IDs starting with this prefix
         // Since we can't do complex regex easily on client side without fetching all, 
         // let's just fetch all and filter client side for now as dataset is small, 
@@ -424,7 +423,6 @@ const Admin = () => {
             setTheme('HYPE');
             setCategory('RING');
             setMaterial('SURGICAL_STEEL');
-            setManufacturer('HOLIC');
             // Index will be set by useEffect
             setPrice(0);
             setCost(0);
@@ -451,7 +449,7 @@ const Admin = () => {
         setTheme(product.theme);
         setCategory(product.category);
         setMaterial(product.material);
-        setManufacturer(product.manufacturer || 'HOLIC'); // Load manufacturer, default to HOLIC if missing
+        setMaterial(product.material);
         setPrice(product.price);
         setCost(product.cost || 0); // Load cost
         setPriceUsd(product.price_usd || 0); // Load USD price
@@ -500,7 +498,7 @@ const Admin = () => {
     };
 
     // Include SKU preview for the main product ID
-    const mainId = generateSKU(theme, category, material, manufacturer, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
+    const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
 
     return (
         <div className="page-container">
@@ -728,16 +726,7 @@ const Admin = () => {
                                         {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
                                     </select>
                                 </div>
-                                <div className={styles.col}>
-                                    <label className={styles.label}>Manufacturer</label>
-                                    <select className={styles.select} value={manufacturer} onChange={(e) => setManufacturer(e.target.value)}>
-                                        {Object.keys(MANUFACTURERS).map(k => (
-                                            <option key={k} value={k}>
-                                                {k} ({MANUFACTURERS[k]})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+
                                 <div className={styles.col}>
                                     <label className={styles.label}>Index Number</label>
                                     <input
@@ -941,9 +930,10 @@ const Admin = () => {
                             </button>
                         </div>
                     </>
-                )}
-            </div>
-        </div>
+                )
+                }
+            </div >
+        </div >
     );
 };
 
