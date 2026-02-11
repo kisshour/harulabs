@@ -59,13 +59,20 @@ const Category = () => {
                                     <div className={styles.info}>
                                         <div className={styles.productName}>{product.name}</div>
                                         <div className={styles.price}>
-                                            {
-                                                language === 'ko'
-                                                    ? `${product.price.toLocaleString()} KRW`
-                                                    : language === 'th'
-                                                        ? `${product.price_thb ? product.price_thb.toLocaleString() : '0'} THB`
-                                                        : `$${product.price_usd || '0.00'}`
-                                            }
+                                            {(() => {
+                                                const prices = product.options.map(o => o.price).filter(p => p > 0);
+                                                const minPrice = prices.length > 0 ? Math.min(...prices) : product.price;
+
+                                                const pricesThb = product.options.map(o => o.price_thb).filter(p => p > 0);
+                                                const minPriceThb = pricesThb.length > 0 ? Math.min(...pricesThb) : (product.price_thb || 0);
+
+                                                const pricesUsd = product.options.map(o => o.price_usd).filter(p => p > 0);
+                                                const minPriceUsd = pricesUsd.length > 0 ? Math.min(...pricesUsd) : (product.price_usd || 0);
+
+                                                if (language === 'ko') return `${minPrice ? minPrice.toLocaleString() : 0} KRW`;
+                                                if (language === 'th') return `${minPriceThb ? minPriceThb.toLocaleString() : 0} THB`;
+                                                return `$${minPriceUsd || '0.00'}`;
+                                            })()}
                                         </div>
                                     </div>
                                 </div>
