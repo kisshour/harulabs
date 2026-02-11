@@ -496,10 +496,15 @@ const Admin = () => {
         setIsEditing(true);
         setEditingId(product.id); // Store original ID
         setName(product.name);
-        setTheme(product.theme);
-        setCategory(product.category);
-        setMaterial(product.material);
-        setMaterial(product.material);
+
+        const initialTheme = product.theme || (product.options && product.options[0]?.theme) || 'URBAN';
+        const initialCategory = product.category || (product.options && product.options[0]?.category) || 'RING';
+        const initialMaterial = product.material || (product.options && product.options[0]?.material) || 'SURGICAL_STEEL';
+
+        setTheme(initialTheme);
+        setCategory(initialCategory);
+        setMaterial(initialMaterial);
+
         setPrice(product.price);
         setCost(product.cost || 0); // Load cost
         setPriceUsd(product.price_usd || 0); // Load USD price
@@ -525,21 +530,29 @@ const Admin = () => {
         // Map options
         if (product.options && product.options.length > 0) {
             setOptions(product.options.map(opt => ({
-                color: opt.color,
-                size: opt.size,
-                stock: opt.stock,
-                // We need to decide how to split specific vs common when editing.
-                // Since we merged them on save, we can't easily distinguish unless we store them separately or check against commonImages state (which isn't loaded yet/doesn't exist on product).
-                // Actually, for now, we just load ALL images into the option's specific images list.
-                // The common image feature is mostly for *creation* convenience.
-                // If we want to support "editing common images" affecting all, we'd need a schema change or convention.
-                // Current Requirement: "Upload common, and specific. Show specific then common."
-                // On Edit: We just load what's saved. If the user wants to add common again, they can, but it might duplicate.
-                // Let's keep it simple: specific images load as is. Common images input starts empty on edit.
+                theme: initialTheme, // Inherit from product level logic
+                category: initialCategory,
+                material: initialMaterial,
+                // Map DB columns to State keys
+                mainColor: opt.color || 'SILVER',
+                subColor: opt.sub_color || 'ETC',
+                size: opt.size || 'FR',
+                stock: opt.stock || 999,
+                cost: opt.cost || 0,
+                price: opt.price || 0,
+                priceUsd: opt.price_usd || 0,
+                priceTHB: opt.price_thb || 0,
+                tier: opt.tier || '',
+                purchaseInfo: opt.purchase_info || '', // Just in case, though likely ignored now
                 imageNames: opt.images || []
             })));
         } else {
-            setOptions([{ color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
+            setOptions([{
+                theme: initialTheme, category: initialCategory, material: initialMaterial,
+                mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
+                cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '', purchaseInfo: '',
+                imageNames: []
+            }]);
         }
 
         setCommonImages([]); // Reset common images on edit start to avoid confusion
