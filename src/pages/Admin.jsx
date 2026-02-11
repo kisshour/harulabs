@@ -53,6 +53,12 @@ const Admin = () => {
         const newCost = Number(e.target.value);
         setCost(newCost);
 
+        // Update cost for all options that haven't been manually modified? 
+        // Or just update all for simplicity as this is "Base Cost".
+        // Let's update all options to match new base cost to save user time, 
+        // assuming they set base cost first.
+        setOptions(options.map(opt => ({ ...opt, cost: newCost })));
+
         // Find matching price tier
         // Strategy: Find exact match or the next higher tier if not exact? 
         // Or just closest? The user image implies strict tiers.
@@ -191,6 +197,7 @@ const Admin = () => {
                 sub_color: opt.subColor, // Store Sub Color in new column
                 size: opt.size,
                 stock: Number(opt.stock),
+                cost: Number(opt.cost), // Store Option Cost
                 images: combinedImages
             };
         });
@@ -371,7 +378,7 @@ const Admin = () => {
     };
 
     const addOption = () => {
-        setOptions([...options, { mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, imageNames: [] }]);
+        setOptions([...options, { mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, cost: cost, imageNames: [] }]);
     };
 
     const removeOption = (idx) => {
@@ -434,7 +441,7 @@ const Admin = () => {
             setTier('');
             setDescription('');
             setPurchaseInfo('');
-            setOptions([{ mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, imageNames: [] }]);
+            setOptions([{ mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, cost: 0, imageNames: [] }]);
             setCommonImages([]); // Reset common images
             setMessage('');
             setView('form');
@@ -585,6 +592,7 @@ const Admin = () => {
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Color</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Option</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Cost</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
                                                                     </tr>
                                                                 </thead>
@@ -598,6 +606,7 @@ const Admin = () => {
                                                                             <td style={{ padding: '8px 5px' }}>{opt.color}</td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.sub_color || '-'}</td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.size}</td>
+                                                                            <td style={{ padding: '8px 5px' }}>{opt.cost ? opt.cost.toLocaleString() : '-'}</td>
                                                                             <td style={{ padding: '8px 5px' }}>
                                                                                 {opt.images && opt.images.length > 0 ? (
                                                                                     <img src={opt.images[0]} alt="opt" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '2px' }} />
@@ -848,6 +857,15 @@ const Admin = () => {
                                                 onChange={(e) => handleOptionChange(idx, 'size', e.target.value)}
                                                 placeholder="e.g. 12 or FR"
                                             />
+                                            <div className={styles.col}>
+                                                <label className={styles.label}>Cost</label>
+                                                <input
+                                                    type="number"
+                                                    className={styles.input}
+                                                    value={opt.cost}
+                                                    onChange={(e) => handleOptionChange(idx, 'cost', e.target.value)}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                     <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>

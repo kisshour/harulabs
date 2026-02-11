@@ -79,6 +79,7 @@ export const upsertProduct = async (productData) => {
         sub_color: opt.sub_color,
         size: opt.size,
         stock: opt.stock,
+        cost: opt.cost,
         images: opt.images
     }));
 
