@@ -44,6 +44,7 @@ export const SUB_COLORS = {
     'BLUE': '06',
     'PURPLE': '07',
     'RED': '08',
+    'GREEN': '25',
     'MOTHER_OF_PEARL': '09',
     'ONYX': '10',
     'SAPPHIRE': '11',
