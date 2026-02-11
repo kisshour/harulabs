@@ -189,7 +189,7 @@ const ProductDetail = () => {
 
                 {/* Right: Product Info */}
                 <div className={styles.info}>
-                    <div className={styles.category}>{product.category} / {product.material}</div>
+                    <div className={styles.category}>{product.category}</div>
                     <h1 className={styles.title}>
                         {product.name}
                     </h1>
