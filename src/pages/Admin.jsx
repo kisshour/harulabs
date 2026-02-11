@@ -141,9 +141,19 @@ const Admin = () => {
 
         // Check for duplicates if creating new
         if (!isEditing) {
-            const exists = products.some(p => p.id === mainId);
+            const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
+            const indexCode = String(index).padStart(4, '0');
+            const targetIdBase = `${prefix}${indexCode}`;
+
+            const exists = products.some(p => {
+                // Check if any existing product ID starts with the same Theme+Cat+Mat+Index
+                // ID Format: HYRGSS0001-SVFR
+                const pIdBase = p.id.split('-')[0];
+                return pIdBase === targetIdBase;
+            });
+
             if (exists) {
-                setMessage(`Error: Product ID ${mainId} already exists! Please increase Index Number.`);
+                setMessage(`Error: Product Index ${index} for this category already exists! (ID: ${targetIdBase}...)`);
                 setLoading(false);
                 return;
             }
