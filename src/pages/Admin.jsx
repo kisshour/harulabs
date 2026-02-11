@@ -618,6 +618,7 @@ const Admin = () => {
                                         <th>Image</th>
                                         <th>Name</th>
                                         <th>SKU / ID</th>
+                                        <th>Collection</th>
                                         <th>Category</th>
                                         <th>Actions</th>
                                     </tr>
@@ -648,6 +649,13 @@ const Admin = () => {
                                                     </Link>
                                                 </td>
                                                 <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
+                                                <td style={{ fontSize: '0.9rem', fontWeight: 500 }}>
+                                                    {expandedRows[product.id] ? (
+                                                        <span className={styles.badge} style={{ backgroundColor: '#eee', color: '#333' }}>{product.theme}</span>
+                                                    ) : (
+                                                        <span style={{ color: '#555' }}>{product.theme}</span>
+                                                    )}
+                                                </td>
                                                 <td>
                                                     <span className={styles.badge}>{product.category}</span>
                                                 </td>
@@ -662,7 +670,7 @@ const Admin = () => {
                                             </tr>
                                             {expandedRows[product.id] && (
                                                 <tr>
-                                                    <td colSpan="6" style={{ padding: '0 0 20px 50px', backgroundColor: '#f9f9f9' }}>
+                                                    <td colSpan="7" style={{ padding: '0 0 20px 50px', backgroundColor: '#f9f9f9' }}>
                                                         <div style={{ padding: '10px', background: 'white', border: '1px solid #ddd', borderRadius: '4px' }}>
                                                             <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>Variants (Options)</h4>
                                                             <table style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}>
@@ -708,7 +716,7 @@ const Admin = () => {
                                     ))}
                                     {!loading && products.length === 0 && (
                                         <tr>
-                                            <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                                            <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
                                                 No products found. Add one to get started!
                                             </td>
                                         </tr>
