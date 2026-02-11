@@ -196,13 +196,17 @@ const Admin = () => {
                 sub_color: opt.subColor, // Store Sub Color in new column
                 size: opt.size,
                 stock: Number(opt.stock),
-                stock: Number(opt.stock),
                 cost: Number(opt.cost), // Store Option Cost
                 price: Number(opt.price),
                 price_usd: Number(opt.priceUsd), // Note naming convention snake_case for DB? productService expects object keys to match DB or be mapped?
                 // Let's check productService. It maps opt.price_usd etc.
                 price_thb: Number(opt.priceTHB),
                 tier: opt.tier,
+                // Save these just in case, though they are now product-level mostly
+                theme: theme,
+                category: category,
+                material: material,
+                purchase_info: purchaseInfo, // Also inheritance
                 images: combinedImages
             };
         });
@@ -727,6 +731,26 @@ const Admin = () => {
                                     placeholder="Supplier info, cost details, links... (Admin Only)"
                                 />
                             </div>
+                            <div className={styles.row}>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Theme</label>
+                                    <select className={styles.select} value={theme} onChange={(e) => setTheme(e.target.value)}>
+                                        {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Category</label>
+                                    <select className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
+                                        {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                                <div className={styles.col}>
+                                    <label className={styles.label}>Material</label>
+                                    <select className={styles.select} value={material} onChange={(e) => setMaterial(e.target.value)}>
+                                        {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Common Images Section */}
@@ -790,25 +814,8 @@ const Admin = () => {
                                 <div key={idx} className={styles.optionBlock} style={{ backgroundColor: '#fafafa', border: '1px solid #eee', padding: '15px', marginBottom: '15px' }}>
 
                                     {/* Specs Row */}
-                                    <div className={styles.row}>
-                                        <div className={styles.col}>
-                                            <label className={styles.label} style={{ fontSize: '0.8rem' }}>Theme</label>
-                                            <select className={styles.select} value={opt.theme} onChange={(e) => handleOptionChange(idx, 'theme', e.target.value)}>
-                                                {Object.keys(THEMES).map(k => <option key={k} value={k}>{k}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className={styles.col}>
-                                            <label className={styles.label} style={{ fontSize: '0.8rem' }}>Category</label>
-                                            <select className={styles.select} value={opt.category} onChange={(e) => handleOptionChange(idx, 'category', e.target.value)}>
-                                                {Object.keys(CATEGORIES).map(k => <option key={k} value={k}>{k}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className={styles.col}>
-                                            <label className={styles.label} style={{ fontSize: '0.8rem' }}>Material</label>
-                                            <select className={styles.select} value={opt.material} onChange={(e) => handleOptionChange(idx, 'material', e.target.value)}>
-                                                {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
-                                            </select>
-                                        </div>
+                                    <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                        SKU: {generateSKU(theme, category, material, index, opt.mainColor, opt.subColor, opt.size || 'XX')}
                                     </div>
 
                                     <div className={styles.row}>
@@ -869,9 +876,7 @@ const Admin = () => {
                                         </div>
                                     </div>
 
-                                    <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                        SKU: {generateSKU(opt.theme, opt.category, opt.material, index, opt.mainColor, opt.subColor, opt.size || 'XX')}
-                                    </div>
+
                                     <div className={styles.row}>
                                         <div className={styles.col}>
                                             <label className={styles.label}>Product Images</label>
