@@ -445,9 +445,9 @@ const Admin = () => {
     }, [theme, category, material, isEditing, view, products]);
 
     const fetchNextIndex = async () => {
-        // Find existing products with same prefix to determine max index
-        const prefix = `${THEMES[theme]}${CATEGORIES[category]}${MATERIALS[material]}`;
-        console.log('Using prefix:', prefix);
+        // Find maximum index globally across all products (regardless of prefix)
+        // because user seemingly expects a running serial number.
+        console.log('Calculating Global Max Index...');
 
         // Ensure we iterate over something
         let listToScan = products;
@@ -458,7 +458,9 @@ const Admin = () => {
         }
 
         let maxIdx = 0;
-        const regex = new RegExp(`^${prefix}(\\d+)`);
+        // Regex: Any Prefix (A-Z) + optional separator + 4 Digits
+        // e.g. URRGSS0001 or HY-NK-SS-0005
+        const regex = /^[A-Z]{2,}[-_]?(\d{4})/i;
 
         (listToScan || []).forEach(p => {
             if (p && p.id) {
@@ -471,7 +473,8 @@ const Admin = () => {
                     }
                 }
             }
-        }); console.log('Setting max index to:', maxIdx + 1);
+        });
+        console.log('Setting Global max index to:', maxIdx + 1);
         setIndex(maxIdx + 1);
     };
 
