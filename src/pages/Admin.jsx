@@ -820,7 +820,7 @@ const Admin = () => {
                                         </div>
                                     </div>
                                     <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                        SKU: {generateSKU(theme, category, material, manufacturer, index, opt.color, opt.size || 'XX')}
+                                        SKU: {generateSKU(theme, category, material, index, opt.color, opt.size || 'XX')}
                                     </div>
                                     <div className={styles.row}>
                                         <div className={styles.col}>
