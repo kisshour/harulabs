@@ -899,9 +899,13 @@ const Admin = () => {
                                                 <span>${opt.priceUsd ? opt.priceUsd : 0}</span>
                                                 <span style={{ color: '#ccc' }}>|</span>
                                                 <span>{opt.priceTHB ? opt.priceTHB.toLocaleString() : 0} THB</span>
-                                                <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#666', border: '1px solid #ccc', padding: '2px 6px', borderRadius: '4px' }}>
-                                                    {opt.tier || 'NO TIER'}
-                                                </span>
+                                                <input
+                                                    type="text"
+                                                    value={opt.tier || ''}
+                                                    onChange={(e) => handleOptionChange(idx, 'tier', e.target.value)}
+                                                    placeholder="Tier"
+                                                    style={{ width: '60px', padding: '2px 4px', border: '1px solid #ccc', borderRadius: '4px', textAlign: 'center' }}
+                                                />
                                             </div>
                                         </div>
                                     </div>
