@@ -34,7 +34,7 @@ const Admin = () => {
 
     // Form State
     const [name, setName] = useState('');
-    const [theme, setTheme] = useState('HYPE');
+    const [theme, setTheme] = useState('URBAN');
     const [category, setCategory] = useState('RING');
     const [material, setMaterial] = useState('SURGICAL_STEEL');
     const [index, setIndex] = useState(1);
@@ -84,7 +84,7 @@ const Admin = () => {
     // Options State (Starting with one default option)
     const [options, setOptions] = useState([
         {
-            theme: 'HYPE', category: 'RING', material: 'SURGICAL_STEEL',
+            theme: 'URBAN', category: 'RING', material: 'SURGICAL_STEEL',
             mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
             cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '',
             imageNames: []
@@ -397,7 +397,7 @@ const Admin = () => {
         // Inherit base defaults? We removed default settings inputs.
         // So just use reasonable defaults.
         setOptions([...options, {
-            theme: 'HYPE', category: 'RING', material: 'SURGICAL_STEEL',
+            theme: 'URBAN', category: 'RING', material: 'SURGICAL_STEEL',
             mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
             cost: 0,
             price: 0, priceUsd: 0, priceTHB: 0, tier: '',
@@ -459,7 +459,7 @@ const Admin = () => {
             setIsEditing(false);
             setEditingId(null);
             setName('');
-            setTheme('HYPE');
+            setTheme('URBAN');
             setCategory('RING');
             setMaterial('SURGICAL_STEEL');
             // Index will be set by useEffect
@@ -472,7 +472,7 @@ const Admin = () => {
             setPurchaseInfo('');
             setPurchaseInfo('');
             setOptions([{
-                theme: 'HYPE', category: 'RING', material: 'SURGICAL_STEEL', index: 1,
+                theme: 'URBAN', category: 'RING', material: 'SURGICAL_STEEL', index: 1,
                 mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
                 cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '', purchaseInfo: '',
                 imageNames: []
@@ -808,10 +808,6 @@ const Admin = () => {
                                             <select className={styles.select} value={opt.material} onChange={(e) => handleOptionChange(idx, 'material', e.target.value)}>
                                                 {Object.keys(MATERIALS).map(k => <option key={k} value={k}>{k}</option>)}
                                             </select>
-                                        </div>
-                                        <div className={styles.col} style={{ flex: '0 0 80px' }}>
-                                            <label className={styles.label} style={{ fontSize: '0.8rem' }}>Index</label>
-                                            <input type="number" className={styles.input} value={opt.index} onChange={(e) => handleOptionChange(idx, 'index', e.target.value)} />
                                         </div>
                                     </div>
 
