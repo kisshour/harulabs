@@ -49,12 +49,19 @@ const Category = () => {
                             <Link to={`/product/${product.id}`} key={product.id} className={styles.cardLink}>
                                 <div className={styles.card}>
                                     <div className={styles.imagePlaceholder}>
-                                        {/* Using the first option's image if available, else placeholder */}
-                                        {product.options[0]?.images?.[0] ? (
-                                            <img src={product.options[0].images[0]} alt={product.name} />
-                                        ) : (
-                                            <div className={styles.noImage}>No Image</div>
-                                        )}
+                                        {/* Using the image of the cheapest option if available */}
+                                        {(() => {
+                                            const validOptions = product.options.filter(o => o.price > 0);
+                                            const sortedOptions = validOptions.length > 0 ? validOptions.sort((a, b) => a.price - b.price) : product.options;
+                                            const displayOption = sortedOptions[0];
+                                            const displayImage = displayOption?.images?.[0];
+
+                                            return displayImage ? (
+                                                <img src={displayImage} alt={product.name} />
+                                            ) : (
+                                                <div className={styles.noImage}>No Image</div>
+                                            );
+                                        })()}
                                     </div>
                                     <div className={styles.info}>
                                         <div className={styles.productName}>{product.name}</div>
