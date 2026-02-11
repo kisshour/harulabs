@@ -76,6 +76,7 @@ export const upsertProduct = async (productData) => {
         product_id: id,
         sku: opt.sku,
         color: opt.color,
+        sub_color: opt.sub_color,
         size: opt.size,
         stock: opt.stock,
         images: opt.images

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
-import { generateSKU, THEMES, CATEGORIES, MATERIALS, COLORS } from '../utils/skuGenerator';
+import { generateSKU, THEMES, CATEGORIES, MATERIALS, MAIN_COLORS, SUB_COLORS } from '../utils/skuGenerator';
 import { supabase } from '../utils/supabaseClient';
 import { fetchProducts, uploadImage } from '../services/productService';
 import { useNavigate, Link } from 'react-router-dom';
@@ -116,7 +116,7 @@ const Admin = () => {
         setMessage('Saving...');
 
         // 1. Construct Main Product ID
-        const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
+        const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || '기타', options[0]?.size || 'XX');
 
         // 2. Prepare Data
         const productData = {
@@ -186,8 +186,9 @@ const Admin = () => {
 
             return {
                 product_id: mainId,
-                sku: generateSKU(theme, category, material, index, opt.color, opt.size),
-                color: opt.color,
+                sku: generateSKU(theme, category, material, index, opt.mainColor, opt.subColor, opt.size),
+                color: opt.mainColor, // Store Main Color in 'color' column
+                sub_color: opt.subColor, // Store Sub Color in new column
                 size: opt.size,
                 stock: Number(opt.stock),
                 images: combinedImages
@@ -370,7 +371,7 @@ const Admin = () => {
     };
 
     const addOption = () => {
-        setOptions([...options, { color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
+        setOptions([...options, { mainColor: 'SILVER', subColor: '기타', size: 'FR', stock: 999, imageNames: [] }]);
     };
 
     const removeOption = (idx) => {
@@ -433,7 +434,7 @@ const Admin = () => {
             setTier('');
             setDescription('');
             setPurchaseInfo('');
-            setOptions([{ color: 'SILVER', size: 'FR', stock: 999, imageNames: [] }]);
+            setOptions([{ mainColor: 'SILVER', subColor: '기타', size: 'FR', stock: 999, imageNames: [] }]);
             setCommonImages([]); // Reset common images
             setMessage('');
             setView('form');
@@ -502,7 +503,7 @@ const Admin = () => {
     };
 
     // Include SKU preview for the main product ID
-    const mainId = generateSKU(theme, category, material, index, options[0]?.color || 'XX', options[0]?.size || 'XX');
+    const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || '기타', options[0]?.size || 'XX');
 
     return (
         <div className="page-container">
@@ -581,7 +582,8 @@ const Admin = () => {
                                                                 <thead>
                                                                     <tr style={{ borderBottom: '1px solid #eee', color: '#666' }}>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>SKU</th>
-                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Color</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Main Color</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Sub Color</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
                                                                     </tr>
@@ -594,6 +596,7 @@ const Admin = () => {
                                                                                 {opt.sku}
                                                                             </td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.color}</td>
+                                                                            <td style={{ padding: '8px 5px' }}>{opt.sub_color || '-'}</td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.size}</td>
                                                                             <td style={{ padding: '8px 5px' }}>
                                                                                 {opt.images && opt.images.length > 0 ? (
@@ -818,13 +821,23 @@ const Admin = () => {
                                 <div key={idx} className={styles.optionBlock}>
                                     <div className={styles.row}>
                                         <div className={styles.col}>
-                                            <label className={styles.label}>Color</label>
+                                            <label className={styles.label}>Main Color</label>
                                             <select
                                                 className={styles.select}
-                                                value={opt.color}
-                                                onChange={(e) => handleOptionChange(idx, 'color', e.target.value)}
+                                                value={opt.mainColor}
+                                                onChange={(e) => handleOptionChange(idx, 'mainColor', e.target.value)}
                                             >
-                                                {Object.keys(COLORS).map(k => <option key={k} value={k}>{k}</option>)}
+                                                {Object.keys(MAIN_COLORS).map(k => <option key={k} value={k}>{k}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className={styles.col}>
+                                            <label className={styles.label}>Sub Color</label>
+                                            <select
+                                                className={styles.select}
+                                                value={opt.subColor}
+                                                onChange={(e) => handleOptionChange(idx, 'subColor', e.target.value)}
+                                            >
+                                                {Object.keys(SUB_COLORS).map(k => <option key={k} value={k}>{k}</option>)}
                                             </select>
                                         </div>
                                         <div className={styles.col}>
@@ -838,7 +851,7 @@ const Admin = () => {
                                         </div>
                                     </div>
                                     <div style={{ marginBottom: '10px', color: '#666', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                        SKU: {generateSKU(theme, category, material, index, opt.color, opt.size || 'XX')}
+                                        SKU: {generateSKU(theme, category, material, index, opt.mainColor, opt.subColor, opt.size || 'XX')}
                                     </div>
                                     <div className={styles.row}>
                                         <div className={styles.col}>

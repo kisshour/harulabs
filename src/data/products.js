@@ -2,7 +2,7 @@ import { generateSKU } from "../utils/skuGenerator.js";
 
 export const PRODUCTS = [
     {
-        id: generateSKU('HYPE', 'RING', 'SURGICAL_STEEL', 1, 'SILVER', 12),
+        id: generateSKU('HYPE', 'RING', 'SURGICAL_STEEL', 1, 'SILVER', '크리스탈', 12),
         name: "Classic Hype Ring",
         theme: "HYPE",
         category: "RING",
@@ -11,15 +11,17 @@ export const PRODUCTS = [
         material: "SURGICAL_STEEL",
         options: [
             {
-                sku: generateSKU('HYPE', 'RING', 'SURGICAL_STEEL', 1, 'SILVER', 12),
+                sku: generateSKU('HYPE', 'RING', 'SURGICAL_STEEL', 1, 'SILVER', '크리스탈', 12),
                 color: "SILVER",
+                sub_color: "크리스탈",
                 size: "12",
                 stock: 10,
                 images: ["/assets/products/hype-ring-1.jpg"] // Placeholder
             },
             {
-                sku: generateSKU('HYPE', 'RING', 'SURGICAL_STEEL', 1, 'SILVER', 14),
+                sku: generateSKU('HYPE', 'RING', 'SURGICAL_STEEL', 1, 'SILVER', '크리스탈', 14),
                 color: "SILVER",
+                sub_color: "크리스탈",
                 size: "14",
                 stock: 5,
                 images: ["/assets/products/hype-ring-1.jpg"]
@@ -27,7 +29,7 @@ export const PRODUCTS = [
         ]
     },
     {
-        id: generateSKU('AURA', 'NECKLACE', 'SILVER', 2, 'GOLD', 'FR'),
+        id: generateSKU('AURA', 'NECKLACE', 'SILVER', 2, 'GOLD', '기타', 'FR'),
         name: "Aura Essence Necklace",
         theme: "AURA",
         category: "NECKLACE",
@@ -36,8 +38,9 @@ export const PRODUCTS = [
         material: "SILVER",
         options: [
             {
-                sku: generateSKU('AURA', 'NECKLACE', 'SILVER', 2, 'GOLD', 'FR'),
+                sku: generateSKU('AURA', 'NECKLACE', 'SILVER', 2, 'GOLD', '기타', 'FR'),
                 color: "GOLD",
+                sub_color: "기타",
                 size: "FR", // Free size
                 stock: 15,
                 images: ["/assets/products/aura-necklace-1.jpg"]
@@ -45,7 +48,7 @@ export const PRODUCTS = [
         ]
     },
     {
-        id: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSE_GOLD', 'FR'),
+        id: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSE_GOLD', '기타', 'FR'),
         name: "Rhythm Flow Bracelet",
         theme: "RHYTHM",
         category: "BRACELET",
@@ -54,8 +57,9 @@ export const PRODUCTS = [
         material: "GOLD",
         options: [
             {
-                sku: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSE_GOLD', 'FR'),
+                sku: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSE_GOLD', '기타', 'FR'),
                 color: "ROSE_GOLD",
+                sub_color: "기타",
                 size: "FR",
                 stock: 8,
                 images: ["/assets/products/rhythm-bracelet-1.jpg"]
@@ -63,7 +67,7 @@ export const PRODUCTS = [
         ]
     },
     {
-        id: generateSKU('URBAN', 'EARRING', 'SURGICAL_STEEL', 4, 'BLACK', 'FR'),
+        id: generateSKU('URBAN', 'EARRING', 'SURGICAL_STEEL', 4, 'BLACK', '오닉스', 'FR'),
         name: "Urban Edge Earrings",
         theme: "URBAN",
         category: "EARRING",
@@ -72,8 +76,9 @@ export const PRODUCTS = [
         material: "SURGICAL_STEEL",
         options: [
             {
-                sku: generateSKU('URBAN', 'EARRING', 'SURGICAL_STEEL', 4, 'BLACK', 'FR'),
+                sku: generateSKU('URBAN', 'EARRING', 'SURGICAL_STEEL', 4, 'BLACK', '오닉스', 'FR'),
                 color: "BLACK",
+                sub_color: "오닉스",
                 size: "FR",
                 stock: 20,
                 images: ["/assets/products/urban-earring-1.jpg"]
