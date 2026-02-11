@@ -383,7 +383,7 @@ const Admin = () => {
         if (!isEditing && view === 'form') {
             fetchNextIndex();
         }
-    }, [theme, category, material, manufacturer, isEditing, view]);
+    }, [theme, category, material, isEditing, view]);
 
     const fetchNextIndex = async () => {
         // Find existing products with same prefix to determine max index
