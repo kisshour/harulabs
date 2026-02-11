@@ -461,24 +461,17 @@ const Admin = () => {
         const regex = new RegExp(`^${prefix}(\\d+)`);
 
         (listToScan || []).forEach(p => {
-            // ID format: PREFIX(including index)-OPTIONS...
-            // e.g. HYRGSSHL0001-SVFR
-            if (p.id.startsWith(prefix)) {
-                // Example ID: URRGSS0001-SVFR
-                // Split by '-' ensures we get the base ID part
-                const baseId = p.id.split('-')[0]; // URRGSS0001
-                // Remove prefix to get index string
-                const idxStr = baseId.replace(prefix, ''); // 0001
-                const idx = parseInt(idxStr, 10);
-
-                console.log(`Found match: ${p.id}, baseId: ${baseId}, extracted idx: ${idx}`);
-
-                if (!isNaN(idx) && idx > maxIdx) {
-                    maxIdx = idx;
+            if (p && p.id) {
+                const match = p.id.match(regex);
+                if (match && match[1]) {
+                    const idx = parseInt(match[1], 10);
+                    // console.log(`Found match: ${p.id}, extracted idx: ${idx}`);
+                    if (!isNaN(idx) && idx > maxIdx) {
+                        maxIdx = idx;
+                    }
                 }
             }
-        });
-        console.log('Setting max index to:', maxIdx + 1);
+        }); console.log('Setting max index to:', maxIdx + 1);
         setIndex(maxIdx + 1);
     };
 
