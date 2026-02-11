@@ -116,7 +116,7 @@ const Admin = () => {
         setMessage('Saving...');
 
         // 1. Construct Main Product ID
-        const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || '기타', options[0]?.size || 'XX');
+        const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
 
         // 2. Prepare Data
         const productData = {
@@ -371,7 +371,7 @@ const Admin = () => {
     };
 
     const addOption = () => {
-        setOptions([...options, { mainColor: 'SILVER', subColor: '기타', size: 'FR', stock: 999, imageNames: [] }]);
+        setOptions([...options, { mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, imageNames: [] }]);
     };
 
     const removeOption = (idx) => {
@@ -434,7 +434,7 @@ const Admin = () => {
             setTier('');
             setDescription('');
             setPurchaseInfo('');
-            setOptions([{ mainColor: 'SILVER', subColor: '기타', size: 'FR', stock: 999, imageNames: [] }]);
+            setOptions([{ mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, imageNames: [] }]);
             setCommonImages([]); // Reset common images
             setMessage('');
             setView('form');
@@ -503,7 +503,7 @@ const Admin = () => {
     };
 
     // Include SKU preview for the main product ID
-    const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || '기타', options[0]?.size || 'XX');
+    const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
 
     return (
         <div className="page-container">
