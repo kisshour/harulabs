@@ -57,7 +57,17 @@ const Admin = () => {
         // Or just update all for simplicity as this is "Base Cost".
         // Let's update all options to match new base cost to save user time, 
         // assuming they set base cost first.
-        setOptions(options.map(opt => ({ ...opt, cost: newCost })));
+        const pricing = calculatePricing(newCost);
+
+        // Update all options to match new base cost + calculated pricing
+        setOptions(options.map(opt => ({
+            ...opt,
+            cost: newCost,
+            price: pricing.price,
+            priceUsd: pricing.priceUsd,
+            priceTHB: pricing.priceTHB,
+            tier: pricing.tier
+        })));
 
         // Find matching price tier
         // Strategy: Find exact match or the next higher tier if not exact? 
@@ -197,7 +207,13 @@ const Admin = () => {
                 sub_color: opt.subColor, // Store Sub Color in new column
                 size: opt.size,
                 stock: Number(opt.stock),
+                stock: Number(opt.stock),
                 cost: Number(opt.cost), // Store Option Cost
+                price: Number(opt.price),
+                price_usd: Number(opt.priceUsd), // Note naming convention snake_case for DB? productService expects object keys to match DB or be mapped?
+                // Let's check productService. It maps opt.price_usd etc.
+                price_thb: Number(opt.priceTHB),
+                tier: opt.tier,
                 images: combinedImages
             };
         });
@@ -315,6 +331,17 @@ const Admin = () => {
     const handleOptionChange = (idx, field, value) => {
         const newOptions = [...options];
         newOptions[idx][field] = value;
+
+        // Auto-calculate pricing if cost changes
+        if (field === 'cost') {
+            const costVal = Number(value);
+            const pricing = calculatePricing(costVal);
+            newOptions[idx].price = pricing.price;
+            newOptions[idx].priceUsd = pricing.priceUsd;
+            newOptions[idx].priceTHB = pricing.priceTHB;
+            newOptions[idx].tier = pricing.tier;
+        }
+
         setOptions(newOptions);
     };
 
@@ -378,7 +405,14 @@ const Admin = () => {
     };
 
     const addOption = () => {
-        setOptions([...options, { mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, cost: cost, imageNames: [] }]);
+        // Inherit base cost/pricing
+        const pricing = calculatePricing(cost);
+        setOptions([...options, {
+            mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999,
+            cost: cost,
+            price: pricing.price, priceUsd: pricing.priceUsd, priceTHB: pricing.priceTHB, tier: pricing.tier,
+            imageNames: []
+        }]);
     };
 
     const removeOption = (idx) => {
@@ -441,7 +475,7 @@ const Admin = () => {
             setTier('');
             setDescription('');
             setPurchaseInfo('');
-            setOptions([{ mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, cost: 0, imageNames: [] }]);
+            setOptions([{ mainColor: 'SILVER', subColor: 'ETC', size: 'FR', stock: 999, cost: 0, price: 0, priceUsd: 0, priceTHB: 0, tier: '', imageNames: [] }]);
             setCommonImages([]); // Reset common images
             setMessage('');
             setView('form');
@@ -593,6 +627,7 @@ const Admin = () => {
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Option</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Size</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Cost</th>
+                                                                        <th style={{ padding: '5px', textAlign: 'left' }}>Price/Tier</th>
                                                                         <th style={{ padding: '5px', textAlign: 'left' }}>Image</th>
                                                                     </tr>
                                                                 </thead>
@@ -607,6 +642,9 @@ const Admin = () => {
                                                                             <td style={{ padding: '8px 5px' }}>{opt.sub_color || '-'}</td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.size}</td>
                                                                             <td style={{ padding: '8px 5px' }}>{opt.cost ? opt.cost.toLocaleString() : '-'}</td>
+                                                                            <td style={{ padding: '8px 5px' }}>
+                                                                                {opt.price ? opt.price.toLocaleString() : '-'} / {opt.tier || '-'}
+                                                                            </td>
                                                                             <td style={{ padding: '8px 5px' }}>
                                                                                 {opt.images && opt.images.length > 0 ? (
                                                                                     <img src={opt.images[0]} alt="opt" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '2px' }} />

@@ -80,6 +80,10 @@ export const upsertProduct = async (productData) => {
         size: opt.size,
         stock: opt.stock,
         cost: opt.cost,
+        price: opt.price,
+        price_usd: opt.price_usd,
+        price_thb: opt.price_thb,
+        tier: opt.tier,
         images: opt.images
     }));
 

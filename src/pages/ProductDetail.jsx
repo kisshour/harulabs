@@ -141,12 +141,21 @@ const ProductDetail = () => {
 
 
     let formattedPrice;
+
+    // Determine which price to show: Option-specific (if selected) or Product Default
+    const displayPriceObj = exactOption || product;
+
+    // Check if exactOption has specific price set (it might be 0/null if legacy data, fall back to product)
+    const priceKRW = displayPriceObj.price || product.price;
+    const priceTHB = displayPriceObj.price_thb || product.price_thb;
+    const priceUSD = displayPriceObj.price_usd || product.price_usd; // Assuming mapped/available
+
     if (language === 'ko') {
-        formattedPrice = `${product.price.toLocaleString()} KRW`;
+        formattedPrice = `${priceKRW ? priceKRW.toLocaleString() : '0'} KRW`;
     } else if (language === 'th') {
-        formattedPrice = `${product.price_thb ? product.price_thb.toLocaleString() : '0'} THB`;
+        formattedPrice = `${priceTHB ? priceTHB.toLocaleString() : '0'} THB`;
     } else {
-        formattedPrice = `$${product.price_usd || '0.00'}`;
+        formattedPrice = `$${priceUSD || '0.00'}`;
     }
 
     return (
