@@ -9,6 +9,7 @@ const ProductDetail = () => {
     const { content, language } = useLanguage();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [selectedColor, setSelectedColor] = useState(null);
     const [selectedSubColor, setSelectedSubColor] = useState(null);
     const [selectedSize, setSelectedSize] = useState(null);
     const [currentImage, setCurrentImage] = useState(null);
