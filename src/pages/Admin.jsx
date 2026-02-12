@@ -9,7 +9,8 @@ import { useNavigate, Link } from 'react-router-dom';
 const TIER_RANGES = [
     { name: 'Tier-UR1', min: 0, max: 2000, krw: 9900, usd: 6.99, thb: 199 },
     { name: 'Tier-UR2', min: 2001, max: 4000, krw: 14900, usd: 10.99, thb: 299 },
-    { name: 'Tier-UR3', min: 4001, max: 8000, krw: 24900, usd: 18.99, thb: 499 },
+    { name: 'Tier-UR3', min: 4001, max: 5500, krw: 19900, usd: 14.99, thb: 399 },
+    { name: 'Tier-UR4', min: 5501, max: 8000, krw: 24900, usd: 18.99, thb: 499 },
     { name: 'Tier-RH1', min: 16000, max: 19000, krw: 49000, usd: 34.99, thb: 999 },
 ];
 
