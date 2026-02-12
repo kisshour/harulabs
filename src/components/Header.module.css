@@ -361,9 +361,22 @@
         z-index: 1002;
     }
 
-    /* Ensure icons are visible */
+    /* Ensure icons are visible and styled correctly */
     .menuButton {
         display: block;
-        /* override previous display:none if needed, though mobile media query handles it */
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #1a1a1a;
+        transition: color 0.2s ease;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .menuButton:hover,
+    .menuButton:active {
+        color: #ffb7c5;
     }
 }
