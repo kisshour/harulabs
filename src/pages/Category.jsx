@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProducts } from '../services/productService';
 import { useLanguage } from '../context/LanguageContext';
@@ -13,6 +13,7 @@ const Category = () => {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 12;
+    const gridRef = useRef(null);
 
     useEffect(() => {
         const loadProducts = async () => {
@@ -29,9 +30,18 @@ const Category = () => {
         setCurrentPage(1);
     }, [type]);
 
-    // Scroll to top on page change
+    // Scroll to Top of Grid on page change
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (gridRef.current) {
+            const headerOffset = 150; // Accounting for sticky header + some breathing room
+            const elementPosition = gridRef.current.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
     }, [currentPage]);
 
     // Mapping URL param to CATEGORY codes in products.js if needed, 
@@ -72,7 +82,7 @@ const Category = () => {
                     </div>
                 ) : (
                     <>
-                        <div className={styles.grid}>
+                        <div className={styles.grid} ref={gridRef}>
                             {displayedProducts.map(product => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
