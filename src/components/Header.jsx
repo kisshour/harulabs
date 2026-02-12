@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import logo from '../assets/logo.png';
-import { Menu, X, Search } from 'lucide-react';
+import { Menu, X, Search, User } from 'lucide-react';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -96,71 +96,35 @@ const Header = () => {
                         </div>
                     </div>
 
-                    {/* PC Search Bar */}
-                    <form onSubmit={handleSearchSubmit} className={styles.desktopSearchForm}>
-                        <div className={styles.searchContainer}>
-                            <input
-                                type="text"
-                                placeholder={content.ui.common?.searchPlaceholder || "Search..."}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className={styles.searchInput}
-                            />
-                            <button type="submit" className={styles.searchButton}>
-                                <Search size={18} />
-                            </button>
-                        </div>
-                    </form>
-
-                    {/* Language Selector */}
-                    {/* Language Selector */}
-                    <div style={{ display: 'flex', gap: '10px', marginLeft: '20px', fontSize: '0.8rem', fontWeight: '500' }}>
-                        <span
-                            onClick={() => {
-                                setLanguage('ko');
-                                setIsMobileMenuOpen(false);
-                                if (location.pathname === '/en' || location.pathname === '/th') {
-                                    navigate('/');
-                                }
-                            }}
-                            style={{
-                                cursor: 'pointer',
-                                color: language === 'ko' ? '#1A1A1A' : '#999',
-                                borderBottom: language === 'ko' ? '1px solid #1A1A1A' : 'none'
-                            }}
-                        >
-                            KR
-                        </span>
+                    {/* Mobile Language Selector (Hidden on Desktop) */}
+                    <div className={styles.mobileLang} style={{ display: 'flex', gap: '10px', marginTop: '20px', fontSize: '0.9rem', fontWeight: '500', justifyContent: 'center' }}>
+                        <span onClick={() => { setLanguage('ko'); setIsMobileMenuOpen(false); if (location.pathname === '/en' || location.pathname === '/th') navigate('/'); }} style={{ cursor: 'pointer', color: language === 'ko' ? '#1A1A1A' : '#999', borderBottom: language === 'ko' ? '1px solid #1A1A1A' : 'none' }}>KR</span>
                         <span style={{ color: '#ccc' }}>|</span>
-                        <span
-                            onClick={() => {
-                                setLanguage('en');
-                                setIsMobileMenuOpen(false);
-                            }}
-                            style={{
-                                cursor: 'pointer',
-                                color: language === 'en' ? '#1A1A1A' : '#999',
-                                borderBottom: language === 'en' ? '1px solid #1A1A1A' : 'none'
-                            }}
-                        >
-                            EN
-                        </span>
+                        <span onClick={() => { setLanguage('en'); setIsMobileMenuOpen(false); }} style={{ cursor: 'pointer', color: language === 'en' ? '#1A1A1A' : '#999', borderBottom: language === 'en' ? '1px solid #1A1A1A' : 'none' }}>EN</span>
                         <span style={{ color: '#ccc' }}>|</span>
-                        <span
-                            onClick={() => {
-                                setLanguage('th');
-                                setIsMobileMenuOpen(false);
-                            }}
-                            style={{
-                                cursor: 'pointer',
-                                color: language === 'th' ? '#1A1A1A' : '#999',
-                                borderBottom: language === 'th' ? '1px solid #1A1A1A' : 'none'
-                            }}
-                        >
-                            TH
-                        </span>
+                        <span onClick={() => { setLanguage('th'); setIsMobileMenuOpen(false); }} style={{ cursor: 'pointer', color: language === 'th' ? '#1A1A1A' : '#999', borderBottom: language === 'th' ? '1px solid #1A1A1A' : 'none' }}>TH</span>
                     </div>
                 </nav>
+
+                {/* Desktop Utils (Right) */}
+                <div className={styles.utilsSection}>
+                    <button className={styles.iconButton} onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                        <Search size={20} />
+                    </button>
+                    <div style={{ width: '1px', height: '14px', background: '#ddd', margin: '0 5px' }}></div>
+                    {/* Desktop Language Selector */}
+                    <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem', fontWeight: '500', alignItems: 'center' }}>
+                        <span onClick={() => { setLanguage('ko'); if (location.pathname === '/en' || location.pathname === '/th') navigate('/'); }} style={{ cursor: 'pointer', color: language === 'ko' ? '#1A1A1A' : '#999' }}>KR</span>
+                        <span style={{ color: '#eee' }}>|</span>
+                        <span onClick={() => setLanguage('en')} style={{ cursor: 'pointer', color: language === 'en' ? '#1A1A1A' : '#999' }}>EN</span>
+                        <span style={{ color: '#eee' }}>|</span>
+                        <span onClick={() => setLanguage('th')} style={{ cursor: 'pointer', color: language === 'th' ? '#1A1A1A' : '#999' }}>TH</span>
+                    </div>
+                    <div style={{ width: '1px', height: '14px', background: '#ddd', margin: '0 5px' }}></div>
+                    <button className={styles.iconButton} onClick={() => navigate('/login')}>
+                        <User size={20} />
+                    </button>
+                </div>
 
                 <div className={styles.mobileIcons}>
                     <button className={styles.menuButton} onClick={() => { setIsSearchOpen(!isSearchOpen); setIsMobileMenuOpen(false); }}>
@@ -172,18 +136,21 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* Mobile Search Bar (Toggled) */}
+            {/* Search Overlay (Mobile & Desktop) */}
             {isSearchOpen && (
-                <div className={styles.mobileSearchContainer}>
-                    <form onSubmit={handleSearchSubmit}>
+                <div className={styles.searchOverlay}>
+                    <form onSubmit={handleSearchSubmit} className={styles.searchOverlayForm}>
                         <input
                             type="text"
                             placeholder={content.ui.common?.searchPlaceholder || "Search..."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className={styles.mobileSearchInput}
+                            className={styles.searchInputOverlay}
                             autoFocus
                         />
+                        <button type="submit" className={styles.iconButton} style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)' }}>
+                            <Search size={20} />
+                        </button>
                     </form>
                 </div>
             )}
