@@ -115,7 +115,7 @@ export const CONTENT = {
                 care: "Care Guide",
                 contact: "Contact",
                 language: "LANGUAGE",
-                slogan: "Where Every Moment Becomes Your Signature.",
+                slogan: "Where Every Moment Becomes Your Signature",
                 copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED.",
                 businessInfo: {
                     registration: "사업자등록번호: 431-07-03272",
@@ -246,7 +246,7 @@ export const CONTENT = {
                 care: "Care Guide",
                 contact: "Contact",
                 language: "LANGUAGE",
-                slogan: "Where Every Moment Becomes Your Signature.",
+                slogan: "Where Every Moment Becomes Your Signature",
                 copyright: "© 2026 HARULABS. ALL RIGHTS RESERVED."
             },
             home: {
