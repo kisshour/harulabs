@@ -670,11 +670,7 @@ const Admin = () => {
                                                 </td>
                                                 <td style={{ fontSize: '0.85rem', color: '#666' }}>{product.id}</td>
                                                 <td style={{ fontSize: '0.9rem', fontWeight: 500 }}>
-                                                    {expandedRows[product.id] ? (
-                                                        <span className={styles.badge} style={{ backgroundColor: '#eee', color: '#333' }}>{product.theme}</span>
-                                                    ) : (
-                                                        <span style={{ color: '#555' }}>{product.theme}</span>
-                                                    )}
+                                                    <span className={styles.badge}>{product.theme}</span>
                                                 </td>
                                                 <td>
                                                     <span className={styles.badge}>{product.category}</span>
