@@ -28,6 +28,7 @@ const Header = () => {
     const toggleMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
         setActiveDropdown(null); // Reset dropdowns when toggling menu
+        if (!isMobileMenuOpen) setIsSearchOpen(false); // Close search when opening menu
     };
 
     const handleDropdownClick = (e, dropdownName) => {
@@ -55,7 +56,7 @@ const Header = () => {
             className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}
         >
             <div className={`container ${styles.headerContent}`}>
-                <NavLink to="/" className={styles.logoLink} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>
+                <NavLink to="/" className={styles.logoLink} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); setIsSearchOpen(false); }}>
                     {/* Using text for now as logo might need sizing or specific handling */}
                     <img src={logo} alt="HARU Logo" className={styles.logoImage} />
                 </NavLink>
@@ -162,7 +163,7 @@ const Header = () => {
                 </nav>
 
                 <div className={styles.mobileIcons}>
-                    <button className={styles.menuButton} onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                    <button className={styles.menuButton} onClick={() => { setIsSearchOpen(!isSearchOpen); setIsMobileMenuOpen(false); }}>
                         <Search size={24} />
                     </button>
                     <button className={styles.menuButton} onClick={toggleMenu}>
