@@ -61,7 +61,10 @@ const Header = () => {
                     <img src={logo} alt="HARU Logo" className={styles.logoImage} />
                 </NavLink>
 
-                <nav className={`${styles.desktopNav} ${isMobileMenuOpen ? styles.mobileOpen : ''}`}>
+                <nav
+                    className={`${styles.desktopNav} ${isMobileMenuOpen ? styles.mobileOpen : ''}`}
+                    onMouseEnter={() => setIsSearchOpen(false)}
+                >
                     <NavLink to="/" className={({ isActive }) => isActive ? styles.activeLink : ''} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.home}</NavLink>
                     <NavLink to="/brand" className={({ isActive }) => isActive ? styles.activeLink : ''} onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.brand}</NavLink>
 
@@ -120,10 +123,10 @@ const Header = () => {
                         <span style={{ color: '#eee' }}>|</span>
                         <span onClick={() => setLanguage('th')} style={{ cursor: 'pointer', color: language === 'th' ? '#1A1A1A' : '#999' }}>TH</span>
                     </div>
-                    <div style={{ width: '1px', height: '14px', background: '#ddd', margin: '0 5px' }}></div>
+                    {/* <div style={{ width: '1px', height: '14px', background: '#ddd', margin: '0 5px' }}></div>
                     <button className={styles.iconButton} onClick={() => navigate('/login')}>
                         <User size={20} />
-                    </button>
+                    </button> */}
                 </div>
 
                 <div className={styles.mobileIcons}>
