@@ -25,11 +25,31 @@ const Admin = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    // Search State
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Filter Products based on Search Term
+    const filteredProducts = products.filter(product => {
+        if (!searchTerm) return true;
+        const lowerTerm = searchTerm.toLowerCase();
+        return (
+            product.name.toLowerCase().includes(lowerTerm) ||
+            product.id.toLowerCase().includes(lowerTerm) ||
+            (product.theme && product.theme.toLowerCase().includes(lowerTerm)) ||
+            (product.category && product.category.toLowerCase().includes(lowerTerm))
+        );
+    });
+
     // Calculate Pagination
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(products.length / itemsPerPage);
+    const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+    // Reset to page 1 when search term changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -635,8 +655,20 @@ const Admin = () => {
                 {view === 'dashboard' && (
                     <>
                         <div className={styles.dashboardHeader}>
-                            <h2>Product Dashboard ({products.length})</h2>
-                            <div style={{ display: 'flex', gap: '10px' }}>
+                            <h2>Product Dashboard ({filteredProducts.length})</h2>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Search products..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{
+                                        padding: '10px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        width: '200px'
+                                    }}
+                                />
                                 <button className={styles.btnSecondary} onClick={handleLogout} style={{ fontSize: '0.9rem' }}>Logout</button>
                                 <button className={styles.btnPrimary} onClick={handleCreateClick}>+ Create New Product</button>
                             </div>
@@ -756,7 +788,7 @@ const Admin = () => {
                         </div>
 
                         {/* Pagination Controls */}
-                        {products.length > itemsPerPage && (
+                        {filteredProducts.length > itemsPerPage && (
                             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px' }}>
                                 <button
                                     onClick={() => handlePageChange(currentPage - 1)}
