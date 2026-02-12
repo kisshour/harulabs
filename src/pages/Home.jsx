@@ -8,24 +8,59 @@ import styles from './Home.module.css';
 const Home = () => {
     const { content } = useLanguage();
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 30 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.8,
+                ease: "easeOut"
+            }
+        }
+    };
+
     return (
         <div>
             <Hero />
             <section className={styles.section}>
-                <h2 className={styles.title}>{content.ui.home.preview}</h2>
-                <div className={styles.grid}>
+                <motion.h2
+                    className={styles.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
+                    {content.ui.home.preview}
+                </motion.h2>
+                <motion.div
+                    className={styles.grid}
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                >
                     {content.collections.map((col) => (
-                        <Link key={col.id} to={`/collection/${col.id}`}>
-                            <motion.div
-                                whileHover={{ y: -10 }}
-                                className={styles.card}
-                            >
-                                <h3 className={styles.cardTitle}>{col.title}</h3>
-                                <p className={styles.cardSubtitle}>{col.subtitle}</p>
-                            </motion.div>
-                        </Link>
+                        <motion.div key={col.id} variants={itemVariants}>
+                            <Link to={`/collection/${col.id}`}>
+                                <div className={styles.card}>
+                                    <h3 className={styles.cardTitle}>{col.title}</h3>
+                                    <p className={styles.cardSubtitle}>{col.subtitle}</p>
+                                </div>
+                            </Link>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </section>
         </div>
     );
