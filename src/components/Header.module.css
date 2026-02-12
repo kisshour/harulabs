@@ -378,6 +378,6 @@
     .menuButton:hover,
     .menuButton:active,
     .menuButton.active {
-        color: #ffb7c5;
+        color: #1a1a1a;
     }
 }
