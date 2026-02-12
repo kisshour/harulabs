@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { fetchProductById } from '../services/productService';
 import { useLanguage } from '../context/LanguageContext';
 import styles from './ProductDetail.module.css';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -48,7 +49,14 @@ const ProductDetail = () => {
         loadProduct();
     }, [id]);
 
-    if (loading) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Loading...</div>;
+    if (loading) {
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.loader}></div>
+            </div>
+        );
+    }
+
     if (!product) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Product not found.</div>;
 
 
@@ -82,6 +90,18 @@ const ProductDetail = () => {
                     product?.options?.[0]; // Fallback to first option explanation
 
     const galleryImages = displayOption?.images || [];
+
+    const handleNextImage = () => {
+        const currentIndex = galleryImages.indexOf(currentImage);
+        const nextIndex = (currentIndex + 1) % galleryImages.length;
+        setCurrentImage(galleryImages[nextIndex]);
+    };
+
+    const handlePrevImage = () => {
+        const currentIndex = galleryImages.indexOf(currentImage);
+        const prevIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+        setCurrentImage(galleryImages[prevIndex]);
+    };
 
     // SKU Display
     const currentSKU = exactOption ? exactOption.sku : product.id;

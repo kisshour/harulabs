@@ -271,6 +271,76 @@
     font-size: 0.95rem;
 }
 
+/* Image Navigation Arrows */
+.mainImageContainer {
+    position: relative;
+    /* group-hover: show buttons; */
+}
+
+.navBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #333;
+}
+
+.mainImageContainer:hover .navBtn {
+    opacity: 1;
+}
+
+.prevBtn {
+    left: 20px;
+}
+
+.nextBtn {
+    right: 20px;
+}
+
+.navBtn:hover {
+    background: white;
+    scale: 1.1;
+}
+
+/* Loader */
+.loadingContainer {
+    width: 100%;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ffb7c5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 /* Responsive */
 @media (max-width: 900px) {
     .wrapper {
@@ -283,6 +353,13 @@
     }
 
     .title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
+    }
+
+    .navBtn {
+        opacity: 1;
+        /* Always show on mobile since no hover */
+        width: 30px;
+        height: 30px;
     }
 }

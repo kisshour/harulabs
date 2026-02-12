@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchProducts } from '../services/productService';
 import { useLanguage } from '../context/LanguageContext';
+import { useProducts } from '../context/ProductContext';
 import styles from './Category.module.css';
 import Pagination from '../components/Pagination';
 import ProductCard from '../components/ProductCard';
@@ -9,22 +9,11 @@ import ProductCard from '../components/ProductCard';
 const Category = () => {
     const { type } = useParams();
     const { content, language } = useLanguage();
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { products, loading } = useProducts();
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 12;
     const gridRef = useRef(null);
     const prevTypeRef = useRef(type);
-
-    useEffect(() => {
-        const loadProducts = async () => {
-            setLoading(true);
-            const allProducts = await fetchProducts();
-            setProducts(allProducts);
-            setLoading(false);
-        };
-        loadProducts();
-    }, []);
 
     // Reset page to 1 when category changes
     useEffect(() => {

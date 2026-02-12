@@ -1,26 +1,15 @@
-
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { fetchProducts } from '../services/productService';
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useProducts } from '../context/ProductContext';
 import styles from './Category.module.css'; // Reusing Category styles for grid
+import ProductCard from '../components/ProductCard';
 
 const Search = () => {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q') || '';
-    const { content, language } = useLanguage();
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const loadProducts = async () => {
-            setLoading(true);
-            const allProducts = await fetchProducts();
-            setProducts(allProducts);
-            setLoading(false);
-        };
-        loadProducts();
-    }, []);
+    const { content } = useLanguage();
+    const { products, loading } = useProducts();
 
     const lowerQuery = query.toLowerCase();
     const filteredProducts = products.filter(p => {
@@ -50,43 +39,7 @@ const Search = () => {
                 ) : (
                     <div className={styles.grid}>
                         {filteredProducts.map(product => (
-                            <Link to={`/product/${product.id}`} key={product.id} className={styles.cardLink}>
-                                <div className={styles.card}>
-                                    <div className={styles.imagePlaceholder}>
-                                        {(() => {
-                                            const validOptions = product.options.filter(o => o.price > 0);
-                                            const sortedOptions = validOptions.length > 0 ? validOptions.sort((a, b) => a.price - b.price) : product.options;
-                                            const displayOption = sortedOptions[0];
-                                            const displayImage = displayOption?.images?.[0];
-
-                                            return displayImage ? (
-                                                <img src={displayImage} alt={product.name} />
-                                            ) : (
-                                                <div className={styles.noImage}>No Image</div>
-                                            );
-                                        })()}
-                                    </div>
-                                    <div className={styles.info}>
-                                        <div className={styles.productName}>{product.name}</div>
-                                        <div className={styles.price}>
-                                            {(() => {
-                                                const prices = product.options.map(o => o.price).filter(p => p > 0);
-                                                const minPrice = prices.length > 0 ? Math.min(...prices) : product.price;
-
-                                                const pricesThb = product.options.map(o => o.price_thb).filter(p => p > 0);
-                                                const minPriceThb = pricesThb.length > 0 ? Math.min(...pricesThb) : (product.price_thb || 0);
-
-                                                const pricesUsd = product.options.map(o => o.price_usd).filter(p => p > 0);
-                                                const minPriceUsd = pricesUsd.length > 0 ? Math.min(...pricesUsd) : (product.price_usd || 0);
-
-                                                if (language === 'ko') return `${minPrice ? minPrice.toLocaleString() : 0} KRW`;
-                                                if (language === 'th') return `${minPriceThb ? minPriceThb.toLocaleString() : 0} THB`;
-                                                return `$${minPriceUsd || '0.00'}`;
-                                            })()}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            <ProductCard key={product.id} product={product} />
                         ))}
                     </div>
                 )}
