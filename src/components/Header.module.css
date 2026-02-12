@@ -376,7 +376,8 @@
     }
 
     .menuButton:hover,
-    .menuButton:active {
+    .menuButton:active,
+    .menuButton.active {
         color: #ffb7c5;
     }
 }

@@ -130,10 +130,16 @@ const Header = () => {
                 </div>
 
                 <div className={styles.mobileIcons}>
-                    <button className={styles.menuButton} onClick={() => { setIsSearchOpen(!isSearchOpen); setIsMobileMenuOpen(false); }}>
+                    <button
+                        className={`${styles.menuButton} ${isSearchOpen ? styles.active : ''}`}
+                        onClick={() => { setIsSearchOpen(!isSearchOpen); setIsMobileMenuOpen(false); }}
+                    >
                         <Search size={24} />
                     </button>
-                    <button className={styles.menuButton} onClick={toggleMenu}>
+                    <button
+                        className={`${styles.menuButton} ${isMobileMenuOpen ? styles.active : ''}`}
+                        onClick={toggleMenu}
+                    >
                         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
