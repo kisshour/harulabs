@@ -14,6 +14,7 @@ const Category = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 12;
     const gridRef = useRef(null);
+    const prevTypeRef = useRef(type);
 
     useEffect(() => {
         const loadProducts = async () => {
@@ -30,8 +31,13 @@ const Category = () => {
         setCurrentPage(1);
     }, [type]);
 
-    // Scroll to Top of Grid on page change
+    // Scroll to Top of Grid on page change (only if type hasn't changed)
     useEffect(() => {
+        if (type !== prevTypeRef.current) {
+            prevTypeRef.current = type;
+            return; // Skip grid scroll when changing categories
+        }
+
         if (gridRef.current) {
             const headerOffset = 150; // Accounting for sticky header + some breathing room
             const elementPosition = gridRef.current.getBoundingClientRect().top + window.pageYOffset;
@@ -42,7 +48,7 @@ const Category = () => {
                 behavior: 'smooth'
             });
         }
-    }, [currentPage]);
+    }, [currentPage, type]);
 
     // Mapping URL param to CATEGORY codes in products.js if needed, 
     // but products.js uses "RING", "NECKLACE" etc.

@@ -14,6 +14,7 @@ const Collection = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 12;
     const gridRef = useRef(null);
+    const prevIdRef = useRef(id);
 
     const collection = content.collections.find(c => c.id === id);
 
@@ -32,8 +33,13 @@ const Collection = () => {
         setCurrentPage(1);
     }, [id]);
 
-    // Scroll to Top of Grid on page change
+    // Scroll to Top of Grid on page change (only if ID hasn't changed)
     useEffect(() => {
+        if (id !== prevIdRef.current) {
+            prevIdRef.current = id;
+            return; // Skip grid scroll when changing collections
+        }
+
         if (gridRef.current) {
             const headerOffset = 150; // Accounting for sticky header + some breathing room
             const elementPosition = gridRef.current.getBoundingClientRect().top + window.pageYOffset;
@@ -44,7 +50,7 @@ const Collection = () => {
                 behavior: 'smooth'
             });
         }
-    }, [currentPage]);
+    }, [currentPage, id]);
 
     if (!collection) return <div>Collection not found</div>;
 
