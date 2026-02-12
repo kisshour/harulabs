@@ -189,8 +189,28 @@ const Admin = () => {
             return;
         }
 
+        // Check for duplicate options within the form (Color + SubColor + Size)
+        const seenOptions = new Set();
+        let hasDuplicateOption = false;
+
+        for (const opt of options) {
+            const key = `${opt.mainColor}-${opt.subColor}-${opt.size}`;
+            if (seenOptions.has(key)) {
+                hasDuplicateOption = true;
+                break;
+            }
+            seenOptions.add(key);
+        }
+
+        if (hasDuplicateOption) {
+            setMessage('Error: Duplicate options (Color/Option/Size) detected!');
+            setLoading(false);
+            return;
+        }
+
         // 1. Construct Main Product ID
-        const mainId = generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
+        // If editing, keep the original ID to prevent duplication
+        const mainId = isEditing ? editingId : generateSKU(theme, category, material, index, options[0]?.mainColor || 'SILVER', options[0]?.subColor || 'ETC', options[0]?.size || 'XX');
 
         // 2. Prepare Data
         const productData = {

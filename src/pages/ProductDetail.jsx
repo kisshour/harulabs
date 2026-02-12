@@ -15,34 +15,65 @@ const ProductDetail = () => {
     const [selectedSize, setSelectedSize] = useState(null);
     const [currentImage, setCurrentImage] = useState(null);
 
+    // --- SORT ORDERS (Repeated for use in useEffect and render) ---
+    const COLOR_ORDER = ['SILVER', 'GOLD', 'ROSEGOLD', 'ETC'];
+    const SIZE_ORDER_PREF = 'FR';
+    const SUB_COLOR_ORDER = ['ETC', 'CRYSTAL', 'WHITE', 'BLACK', 'BEIGE', 'PINK', 'BLUE', 'PURPLE', 'RED', 'GREEN'];
+
+    const sortStrings = (a, b, order) => {
+        const indexA = order.indexOf(a);
+        const indexB = order.indexOf(b);
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return a.localeCompare(b);
+    };
+
+    const sortSizes = (a, b) => {
+        if (a === SIZE_ORDER_PREF) return -1;
+        if (b === SIZE_ORDER_PREF) return 1;
+        return a.localeCompare(b, undefined, { numeric: true });
+    };
+
     useEffect(() => {
         const loadProduct = async () => {
             setLoading(true);
             const data = await fetchProductById(id);
-            if (data) {
+            if (data && data.options && data.options.length > 0) {
                 setProduct(data);
-                // Initialize selection
-                if (data.options && data.options.length > 0) {
-                    const initialColor = data.options[0].color; // Main Color
-                    setSelectedColor(initialColor);
 
-                    // Find first sub_color for this color
-                    const initialSubColor = data.options.find(opt => opt.color === initialColor)?.sub_color;
-                    setSelectedSubColor(initialSubColor);
+                // 1. Get Sorted Available Colors
+                const availableColors = [...new Set(data.options.map(opt => opt.color))]
+                    .sort((a, b) => sortStrings(a, b, COLOR_ORDER));
 
-                    // Find first size for this color + sub_color
-                    const initialSizeOption = data.options.find(opt => opt.color === initialColor && opt.sub_color === initialSubColor);
-                    if (initialSizeOption?.size) {
-                        setSelectedSize(initialSizeOption.size);
-                    }
+                const initialColor = availableColors[0];
+                setSelectedColor(initialColor);
+
+                // 2. Get Sorted Sub-colors for that Color
+                const availableSubs = [...new Set(
+                    data.options
+                        .filter(opt => opt.color === initialColor)
+                        .map(opt => opt.sub_color)
+                )].filter(Boolean).sort((a, b) => sortStrings(a, b, SUB_COLOR_ORDER));
+
+                const initialSub = availableSubs[0];
+                setSelectedSubColor(initialSub);
+
+                // 3. Get Sorted Sizes for that Color + Sub
+                const availableSizes = data.options
+                    .filter(opt => opt.color === initialColor && opt.sub_color === initialSub)
+                    .sort((a, b) => sortSizes(a.size, b.size));
+
+                if (availableSizes.length > 0) {
+                    setSelectedSize(availableSizes[0].size);
 
                     // Set initial image
-                    if (initialSizeOption?.images?.length > 0) {
-                        setCurrentImage(initialSizeOption.images[0]);
-                    } else if (data.options[0].images?.length > 0) {
-                        setCurrentImage(data.options[0].images[0]);
+                    if (availableSizes[0].images?.length > 0) {
+                        setCurrentImage(availableSizes[0].images[0]);
                     }
                 }
+            } else if (data) {
+                setProduct(data);
             }
             setLoading(false);
         };
@@ -60,21 +91,22 @@ const ProductDetail = () => {
     if (!product) return <div className="page-container" style={{ paddingTop: '120px', textAlign: 'center' }}>Product not found.</div>;
 
 
-    // 1. Available Colors (Main)
-    const availableColors = [...new Set(product?.options?.map(opt => opt.color))];
+    // 1. Available Colors (Main) - Sorted
+    const availableColors = [...new Set(product?.options?.map(opt => opt.color))]
+        .sort((a, b) => sortStrings(a, b, COLOR_ORDER));
 
-    // 2. Available Options (Sub Colors) for selected Color
+    // 2. Available Options (Sub Colors) for selected Color - Sorted
     const availableSubColors = [...new Set(
         product?.options
             ?.filter(opt => opt.color === selectedColor)
             .map(opt => opt.sub_color)
-    )].filter(Boolean); // Remove null/undefined if any
+    )].filter(Boolean).sort((a, b) => sortStrings(a, b, SUB_COLOR_ORDER));
 
-    // 3. Available Sizes for selected Color + Sub Color
+    // 3. Available Sizes for selected Color + Sub Color - Sorted
     const availableSizes = product?.options
         ?.filter(opt => opt.color === selectedColor && opt.sub_color === selectedSubColor)
         .map(opt => ({ size: opt.size, stock: opt.stock }))
-        .sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true })) || [];
+        .sort((a, b) => sortSizes(a.size, b.size)) || [];
 
 
     // Image Logic
@@ -87,7 +119,7 @@ const ProductDetail = () => {
         (exactOption?.images?.length > 0) ? exactOption :
             (subColorOption?.images?.length > 0) ? subColorOption :
                 (colorOption?.images?.length > 0) ? colorOption :
-                    product?.options?.[0]; // Fallback to first option explanation
+                    product?.options?.[0]; // Fallback to first option
 
     const galleryImages = displayOption?.images || [];
 
@@ -111,26 +143,39 @@ const ProductDetail = () => {
         if (color === selectedColor) return;
         setSelectedColor(color);
 
-        // Reset SubColor and Size based on new color
+        // PERSISTENCE LOGIC
         const newOptions = product.options.filter(opt => opt.color === color);
-        if (newOptions.length > 0) {
-            const nextSubColor = newOptions[0].sub_color;
-            setSelectedSubColor(nextSubColor);
 
-            // Filter sizes for new color + new sub color
-            const nextSizes = newOptions.filter(opt => opt.sub_color === nextSubColor);
-            if (nextSizes.length > 0) {
-                setSelectedSize(nextSizes[0].size);
+        // 1. Try to keep current SubColor
+        let nextSubColor = selectedSubColor;
+        const subExists = newOptions.some(opt => opt.sub_color === selectedSubColor);
 
-                // Update Image
-                const nextOpt = nextSizes[0];
-                if (nextOpt.images?.length > 0) setCurrentImage(nextOpt.images[0]);
+        if (!subExists) {
+            // Fallback to first available sub-color (sorted)
+            const sortedSubByColor = [...new Set(newOptions.map(opt => opt.sub_color))]
+                .sort((a, b) => sortStrings(a, b, SUB_COLOR_ORDER));
+            nextSubColor = sortedSubByColor[0];
+        }
+        setSelectedSubColor(nextSubColor);
+
+        // 2. Try to keep current Size
+        const sizesForNewSub = newOptions.filter(opt => opt.sub_color === nextSubColor);
+        const sizeExists = sizesForNewSub.some(opt => opt.size === selectedSize);
+
+        if (sizeExists) {
+            // Keep current size
+            // Update Image if available for this specific path
+            const opt = sizesForNewSub.find(o => o.size === selectedSize);
+            if (opt?.images?.length > 0) setCurrentImage(opt.images[0]);
+        } else {
+            // Fallback to first available size (sorted)
+            const sortedSizes = sizesForNewSub.sort((a, b) => sortSizes(a.size, b.size));
+            if (sortedSizes.length > 0) {
+                setSelectedSize(sortedSizes[0].size);
+                if (sortedSizes[0].images?.length > 0) setCurrentImage(sortedSizes[0].images[0]);
             } else {
                 setSelectedSize(null);
             }
-        } else {
-            setSelectedSubColor(null);
-            setSelectedSize(null);
         }
     };
 
@@ -138,16 +183,23 @@ const ProductDetail = () => {
         if (subColor === selectedSubColor) return;
         setSelectedSubColor(subColor);
 
-        // Reset Size based on new sub color
-        const newOptions = product.options.filter(opt => opt.color === selectedColor && opt.sub_color === subColor);
-        if (newOptions.length > 0) {
-            const nextSizes = newOptions.sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true }));
-            setSelectedSize(nextSizes[0].size); // Auto-select first size
+        // PERSISTENCE LOGIC
+        const sizesForNewSub = product.options.filter(opt => opt.color === selectedColor && opt.sub_color === subColor);
+        const sizeExists = sizesForNewSub.some(opt => opt.size === selectedSize);
 
-            // Update Image
-            if (nextSizes[0].images?.length > 0) setCurrentImage(nextSizes[0].images[0]);
+        if (sizeExists) {
+            // Keep current size
+            const opt = sizesForNewSub.find(o => o.size === selectedSize);
+            if (opt?.images?.length > 0) setCurrentImage(opt.images[0]);
         } else {
-            setSelectedSize(null);
+            // Fallback to first available size (sorted)
+            const sortedSizes = sizesForNewSub.sort((a, b) => sortSizes(a.size, b.size));
+            if (sortedSizes.length > 0) {
+                setSelectedSize(sortedSizes[0].size);
+                if (sortedSizes[0].images?.length > 0) setCurrentImage(sortedSizes[0].images[0]);
+            } else {
+                setSelectedSize(null);
+            }
         }
     };
 

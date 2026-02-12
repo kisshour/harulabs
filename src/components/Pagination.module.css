@@ -38,3 +38,13 @@
     color: #ccc;
     cursor: not-allowed;
 }
+
+.dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: #999;
+    font-size: 1rem;
+}
