@@ -12,8 +12,10 @@ const Home = () => {
     const { content, language } = useLanguage();
     const { products, loading } = useProducts();
 
-    // Latest 8 products
-    const latestProducts = [...products].sort((a, b) => b.id.localeCompare(a.id)).slice(0, 8);
+    // Latest 8 products - added safety check
+    const latestProducts = Array.isArray(products)
+        ? [...products].sort((a, b) => b.id.localeCompare(a.id)).slice(0, 8)
+        : [];
 
     const containerVariants = {
         hidden: { opacity: 0 },

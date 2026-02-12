@@ -48,7 +48,7 @@ export const PRODUCTS = [
         ]
     },
     {
-        id: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSE_GOLD', 'ETC', 'FR'),
+        id: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSEGOLD', 'ETC', 'FR'),
         name: "Rhythm Flow Bracelet",
         theme: "RHYTHM",
         category: "BRACELET",
@@ -57,8 +57,8 @@ export const PRODUCTS = [
         material: "GOLD",
         options: [
             {
-                sku: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSE_GOLD', 'ETC', 'FR'),
-                color: "ROSE_GOLD",
+                sku: generateSKU('RHYTHM', 'BRACELET', 'GOLD', 3, 'ROSEGOLD', 'ETC', 'FR'),
+                color: "ROSEGOLD",
                 sub_color: "ETC",
                 size: "FR",
                 stock: 8,

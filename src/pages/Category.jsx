@@ -13,31 +13,31 @@ const Category = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 12;
     const gridRef = useRef(null);
-    const prevTypeRef = useRef(type);
+    const prevPageRef = useRef(currentPage);
 
-    // Reset page to 1 when category changes
+    // Reset pagination state when category changes
     useEffect(() => {
         setCurrentPage(1);
+        prevPageRef.current = 1;
     }, [type]);
 
-    // Scroll to Top of Grid on page change (only if type hasn't changed)
+    // Dedicated Scroll Logic for Pagination
     useEffect(() => {
-        if (type !== prevTypeRef.current) {
-            prevTypeRef.current = type;
-            return; // Skip grid scroll when changing categories
-        }
+        if (currentPage !== prevPageRef.current) {
+            // Only scroll to grid if THIS is a page change
+            if (gridRef.current) {
+                const headerOffset = 150;
+                const elementPosition = gridRef.current.getBoundingClientRect().top + window.pageYOffset;
+                const offsetPosition = elementPosition - headerOffset;
 
-        if (gridRef.current) {
-            const headerOffset = 150; // Accounting for sticky header + some breathing room
-            const elementPosition = gridRef.current.getBoundingClientRect().top + window.pageYOffset;
-            const offsetPosition = elementPosition - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+            prevPageRef.current = currentPage;
         }
-    }, [currentPage, type]);
+    }, [currentPage]);
 
     // Mapping URL param to CATEGORY codes in products.js if needed, 
     // but products.js uses "RING", "NECKLACE" etc.

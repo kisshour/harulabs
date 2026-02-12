@@ -186,7 +186,19 @@ const ProductDetail = () => {
                 <div className={styles.gallery}>
                     <div className={styles.mainImageContainer}>
                         {currentImage ? (
-                            <img src={currentImage} alt={product.name} className={styles.mainImage} />
+                            <>
+                                <img src={currentImage} alt={product.name} className={styles.mainImage} />
+                                {galleryImages.length > 1 && (
+                                    <>
+                                        <button className={`${styles.navBtn} ${styles.prevBtn}`} onClick={handlePrevImage}>
+                                            <ChevronLeft size={24} />
+                                        </button>
+                                        <button className={`${styles.navBtn} ${styles.nextBtn}`} onClick={handleNextImage}>
+                                            <ChevronRight size={24} />
+                                        </button>
+                                    </>
+                                )}
+                            </>
                         ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>No Image</div>
                         )}

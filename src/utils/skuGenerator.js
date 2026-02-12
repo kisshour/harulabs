@@ -30,7 +30,7 @@ export const MATERIALS = {
 export const MAIN_COLORS = {
     SILVER: 'SV',
     GOLD: 'GD',
-    ROSE_GOLD: 'RG',
+    ROSEGOLD: 'RG',
     ETC: 'ET'
 };
 

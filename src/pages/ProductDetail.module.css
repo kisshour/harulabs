@@ -57,14 +57,14 @@
     /* Keep square */
     border-radius: 4px;
     cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s, border 0.2s;
-    border: 1px solid transparent;
+    opacity: 0.35;
+    transition: opacity 0.2s ease;
+    border: none;
+    overflow: hidden;
 }
 
 .thumbnail.active {
     opacity: 1;
-    border: 1px solid #333;
 }
 
 .thumbnail img {
@@ -290,7 +290,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0;
+    opacity: 0.3;
     transition: all 0.3s ease;
     z-index: 10;
     color: #333;

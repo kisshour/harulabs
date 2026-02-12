@@ -28,17 +28,29 @@ const Admin = () => {
     // Search State
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Filter Products based on Search Term
-    const filteredProducts = products.filter(product => {
-        if (!searchTerm) return true;
-        const lowerTerm = searchTerm.toLowerCase();
-        return (
-            product.name.toLowerCase().includes(lowerTerm) ||
-            product.id.toLowerCase().includes(lowerTerm) ||
-            (product.theme && product.theme.toLowerCase().includes(lowerTerm)) ||
-            (product.category && product.category.toLowerCase().includes(lowerTerm))
-        );
-    });
+    // Filter & Sort Products based on Search Term and Index
+    const filteredProducts = products
+        .filter(product => {
+            if (!searchTerm) return true;
+            const lowerTerm = searchTerm.toLowerCase();
+            return (
+                product.name.toLowerCase().includes(lowerTerm) ||
+                product.id.toLowerCase().includes(lowerTerm) ||
+                (product.theme && product.theme.toLowerCase().includes(lowerTerm)) ||
+                (product.category && product.category.toLowerCase().includes(lowerTerm))
+            );
+        })
+        .sort((a, b) => {
+            // Regex to extract 4 digits (serial number) from ID
+            const regex = /^[A-Z]{2,}[-_]?(\d{4})/i;
+            const matchA = a.id.match(regex);
+            const matchB = b.id.match(regex);
+
+            const valA = matchA ? parseInt(matchA[1], 10) : 0;
+            const valB = matchB ? parseInt(matchB[1], 10) : 0;
+
+            return valA - valB; // Ascending order
+        });
 
     // Calculate Pagination
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -853,7 +865,6 @@ const Admin = () => {
                             <button className={styles.btnSecondary} onClick={() => setView('dashboard')}>
                                 &larr; Back to Dashboard
                             </button>
-                            {message && <span style={{ color: message.includes('Error') ? 'red' : 'green', fontWeight: 'bold' }}>{message}</span>}
                         </div>
 
                         <h1 className={styles.title}>{isEditing ? 'Edit Product' : 'Create New Product'}</h1>
@@ -1133,6 +1144,17 @@ const Admin = () => {
                             >
                                 {loading ? 'Processing...' : (isEditing ? 'Update Product' : 'Create Product')}
                             </button>
+                            {message && (
+                                <span style={{
+                                    color: message.includes('Error') ? '#d32f2f' : '#2e7d32',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem',
+                                    marginLeft: '10px',
+                                    alignSelf: 'center'
+                                }}>
+                                    {message}
+                                </span>
+                            )}
                         </div>
 
                         <div style={{ marginTop: '50px', paddingTop: '20px', borderTop: '2px solid #ff4444' }}>
