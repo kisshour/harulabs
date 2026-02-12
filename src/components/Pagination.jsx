@@ -5,13 +5,6 @@ import styles from './Pagination.module.css';
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     if (totalPages <= 1) return null;
 
-    const handlePageClick = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            onPageChange(page);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    };
-
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -21,7 +14,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <div className={styles.pagination}>
             <button
                 className={styles.pageBtn}
-                onClick={() => handlePageClick(currentPage - 1)}
+                onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
             >
                 <ChevronLeft size={20} />
@@ -31,7 +24,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 <button
                     key={page}
                     className={`${styles.pageBtn} ${currentPage === page ? styles.active : ''}`}
-                    onClick={() => handlePageClick(page)}
+                    onClick={() => onPageChange(page)}
                 >
                     {page}
                 </button>
@@ -39,7 +32,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
             <button
                 className={styles.pageBtn}
-                onClick={() => handlePageClick(currentPage + 1)}
+                onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
             >
                 <ChevronRight size={20} />

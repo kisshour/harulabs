@@ -25,6 +25,11 @@ const Collection = () => {
         loadProducts();
     }, []);
 
+    // Scroll to top on page change
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
+
     if (!collection) return <div>Collection not found</div>;
 
     const filteredProducts = products.filter(p => p.theme === id.toUpperCase());

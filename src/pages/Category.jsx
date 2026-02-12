@@ -23,6 +23,11 @@ const Category = () => {
         loadProducts();
     }, []);
 
+    // Scroll to top on page change
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
+
     // Mapping URL param to CATEGORY codes in products.js if needed, 
     // but products.js uses "RING", "NECKLACE" etc.
     // The URL param will likely be "ring", "necklace".
