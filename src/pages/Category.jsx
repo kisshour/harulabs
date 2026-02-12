@@ -24,6 +24,11 @@ const Category = () => {
         loadProducts();
     }, []);
 
+    // Reset page to 1 when category changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [type]);
+
     // Scroll to top on page change
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });

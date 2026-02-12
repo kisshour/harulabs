@@ -26,6 +26,11 @@ const Collection = () => {
         loadProducts();
     }, []);
 
+    // Reset page to 1 when collection changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [id]);
+
     // Scroll to top on page change
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
