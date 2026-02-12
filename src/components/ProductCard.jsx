@@ -9,9 +9,37 @@ const ProductCard = ({ product }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
-    // Logic to select the best option and images
-    const validOptions = product.options?.filter(o => o.price > 0) || [];
-    const sortedOptions = validOptions.length > 0 ? validOptions.sort((a, b) => a.price - b.price) : (product.options || []);
+    // --- SORT ORDERS (Consistent with ProductDetail.jsx) ---
+    const COLOR_ORDER = ['SILVER', 'GOLD', 'ROSEGOLD', 'ETC'];
+    const SIZE_ORDER_PREF = 'FR';
+    const SUB_COLOR_ORDER = ['ETC', 'CRYSTAL', 'WHITE', 'BLACK', 'BEIGE', 'PINK', 'BLUE', 'PURPLE', 'RED', 'GREEN'];
+
+    const sortStrings = (a, b, order) => {
+        const indexA = order.indexOf(a);
+        const indexB = order.indexOf(b);
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return a.localeCompare(b);
+    };
+
+    const sortSizes = (a, b) => {
+        if (a === SIZE_ORDER_PREF) return -1;
+        if (b === SIZE_ORDER_PREF) return 1;
+        return a.localeCompare(b, undefined, { numeric: true });
+    };
+
+    // 1. Sort options by priority: Color -> SubColor -> Size
+    const sortedOptions = [...(product.options || [])].sort((a, b) => {
+        const colorDiff = sortStrings(a.color, b.color, COLOR_ORDER);
+        if (colorDiff !== 0) return colorDiff;
+
+        const subColorDiff = sortStrings(a.sub_color, b.sub_color, SUB_COLOR_ORDER);
+        if (subColorDiff !== 0) return subColorDiff;
+
+        return sortSizes(a.size, b.size);
+    });
+
     const displayOption = sortedOptions[0];
     const images = displayOption?.images || [];
 
