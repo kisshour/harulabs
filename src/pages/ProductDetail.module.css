@@ -149,55 +149,71 @@
 }
 
 .colorBtn {
-    padding: 8px 16px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 16px;
     border: 1px solid #ddd;
     background: white;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s;
-    border-radius: 2px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 400;
 }
 
 .colorBtn:hover {
-    border-color: #999;
+    border-color: #1a1a1a;
+    background-color: #fafafa;
 }
 
 .colorBtn.selected {
-    border-color: #333;
-    background-color: #333;
+    border-color: #1a1a1a;
+    background-color: #1a1a1a;
     color: white;
+    font-weight: 500;
 }
 
 .sizeList {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .sizeBtn {
-    min-width: 48px;
-    height: 48px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 12px;
     border: 1px solid #ddd;
     background: white;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-    border-radius: 2px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 400;
 }
 
 .sizeBtn:hover {
-    border-color: #999;
+    border-color: #1a1a1a;
+    background-color: #fafafa;
 }
 
 .sizeBtn.selected {
-    border-color: #333;
-    background-color: #333;
+    border-color: #1a1a1a;
+    background-color: #1a1a1a;
     color: white;
+    font-weight: 500;
 }
 
 .outOfStock {

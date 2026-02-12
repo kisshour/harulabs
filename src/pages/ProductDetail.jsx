@@ -224,7 +224,6 @@ const ProductDetail = () => {
                                 {availableSubColors.map(sub => (
                                     <button
                                         key={sub}
-                                        style={{ minWidth: 'auto', padding: '5px 10px' }} // Inline override or add new class
                                         className={`${styles.colorBtn} ${selectedSubColor === sub ? styles.selected : ''}`}
                                         onClick={() => handleSubColorClick(sub)}
                                     >
