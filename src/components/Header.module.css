@@ -48,10 +48,10 @@
 .desktopNav a,
 .dropdownTrigger {
     font-family: var(--font-main);
-    font-weight: 500;
-    font-size: 0.95rem;
+    font-weight: 400;
+    font-size: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--ls-nav);
     color: var(--color-text-main);
     transition: color 0.2s ease;
     position: relative;
@@ -294,6 +294,8 @@
     background: transparent;
     font-family: var(--font-main);
     text-align: center;
+    letter-spacing: 0.15em;
+    font-weight: 300;
 }
 
 .searchInputOverlay::placeholder {

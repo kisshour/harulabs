@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap');
 
 :root {
   /* Brand Colors */
@@ -12,6 +12,9 @@
 
   /* Typography */
   --font-main: 'Outfit', 'Inter', sans-serif;
+  --ls-heading: 0.1em;
+  --ls-button: 0.15em;
+  --ls-nav: 0.12em;
 
   /* Spacing */
   --spacing-container: 1280px;
