@@ -1,7 +1,7 @@
 export const CONTENT = {
     ko: {
         brandStory: {
-            title: "BRAND STORY: HARU",
+            title: "BRAND STORY",
             subtitle: "매 순간이 당신의 시그니처가 되는 곳",
             description: [
                 "HARU는 스쳐 지나가는 일상의 조각들을 모아 가장 빛나는 순간으로 재탄생시킵니다. 우리는 장식을 넘어, 착용자의 삶과 태도를 대변하는 하나의 상징을 만듭니다.",
@@ -132,7 +132,7 @@ export const CONTENT = {
     },
     en: {
         brandStory: {
-            title: "BRAND STORY: HARU",
+            title: "BRAND STORY",
             subtitle: "Where Every Moment Becomes Your Signature",
             description: [
                 "HARU collects fragments of passing daily life and rebirths them into the most shining moments. Beyond decoration, we create a symbol that represents the wearer's life and attitude.",
@@ -259,7 +259,7 @@ export const CONTENT = {
     },
     th: {
         brandStory: {
-            title: "BRAND STORY: HARU",
+            title: "BRAND STORY",
             subtitle: "ที่ที่ทุกช่วงเวลา กลายเป็นเอกลักษณ์ในแบบคุณ",
             description: [
                 "HARU รวบรวมชิ้นส่วนของชีวิตประจำวันที่ผ่านเลยไป เพื่อนำมาสร้างสรรค์ใหม่ให้เป็นช่วงเวลาที่เปล่งประกายที่สุด เราสร้างสรรค์สิ่งที่มากกว่าเครื่องประดับ แต่เป็นสัญลักษณ์ที่บ่งบอกถึงทัศนคติและการใช้ชีวิตของผู้สวมใส่",
