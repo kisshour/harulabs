@@ -21,6 +21,20 @@ const Admin = () => {
     const [products, setProducts] = useState([]);
     const [expandedRows, setExpandedRows] = useState({});
 
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculate Pagination
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
     const toggleRow = (id) => {
         setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
     };
@@ -644,7 +658,7 @@ const Admin = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {products.map((product) => (
+                                    {currentItems.map((product) => (
                                         <React.Fragment key={product.id}>
                                             <tr style={{ background: expandedRows[product.id] ? '#f9f9f9' : 'transparent' }}>
                                                 <td style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => toggleRow(product.id)}>
@@ -737,6 +751,65 @@ const Admin = () => {
                                             </td>
                                         </tr>
                                     )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {products.length > itemsPerPage && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px' }}>
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className={styles.btnSecondary}
+                                    style={{ padding: '8px 12px', fontSize: '0.8rem', opacity: currentPage === 1 ? 0.5 : 1 }}
+                                >
+                                    Previous
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                                    <button
+                                        key={number}
+                                        onClick={() => handlePageChange(number)}
+                                        className={currentPage === number ? styles.btnPrimary : styles.btnSecondary}
+                                        style={{ padding: '8px 12px', fontSize: '0.8rem' }}
+                                    >
+                                        {number}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className={styles.btnSecondary}
+                                    style={{ padding: '8px 12px', fontSize: '0.8rem', opacity: currentPage === totalPages ? 0.5 : 1 }}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Tier Pricing Table */}
+                        <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', border: '1px solid #ddd' }}>
+                            <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: '#333' }}>Tier Pricing Reference</h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#eee', color: '#333' }}>
+                                        <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Tier Name</th>
+                                        <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Cost Range (KRW)</th>
+                                        <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Retail (KRW)</th>
+                                        <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Retail (USD)</th>
+                                        <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ccc' }}>Retail (THB)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {TIER_RANGES.map((tier) => (
+                                        <tr key={tier.name} style={{ borderBottom: '1px solid #eee' }}>
+                                            <td style={{ padding: '10px' }}><strong>{tier.name}</strong></td>
+                                            <td style={{ padding: '10px' }}>{tier.min.toLocaleString()} ~ {tier.max.toLocaleString()}</td>
+                                            <td style={{ padding: '10px' }}>{tier.krw.toLocaleString()}</td>
+                                            <td style={{ padding: '10px' }}>{tier.usd}</td>
+                                            <td style={{ padding: '10px' }}>{tier.thb}</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
