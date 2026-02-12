@@ -245,3 +245,117 @@
         display: none;
     }
 }
+
+/* Search Styles */
+.desktopSearchForm {
+    margin-left: 20px;
+}
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 2px;
+    transition: border-color 0.2s;
+}
+
+.searchContainer:focus-within {
+    border-bottom-color: #1a1a1a;
+}
+
+.searchInput {
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    width: 150px;
+    color: #1a1a1a;
+    background: transparent;
+    font-family: var(--font-main);
+}
+
+.searchInput::placeholder {
+    color: #ccc;
+}
+
+.searchButton {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.searchButton:hover {
+    color: #1a1a1a;
+}
+
+.mobileIcons {
+    display: none;
+}
+
+.mobileSearchContainer {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    /* Full width breakout */
+    padding: 15px 20px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    animation: slideDown 0.3s ease-out;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.mobileSearchInput {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    outline: none;
+    background: #f9f9f9;
+    font-family: var(--font-main);
+}
+
+.mobileSearchInput:focus {
+    border-color: #ccc;
+    background: #fff;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .desktopSearchForm {
+        display: none;
+    }
+
+    .mobileIcons {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        z-index: 1002;
+    }
+
+    /* Ensure icons are visible */
+    .menuButton {
+        display: block;
+        /* override previous display:none if needed, though mobile media query handles it */
+    }
+}

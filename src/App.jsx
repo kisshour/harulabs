@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Brand from './pages/Brand';
 import Collection from './pages/Collection';
 import Category from './pages/Category';
+import Search from './pages/Search';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Care from './pages/Care';
@@ -58,6 +59,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/en" element={<EnglishHome />} />
           <Route path="/th" element={<ThaiHome />} />
+          <Route path="/search" element={<Search />} />
           <Route path="/brand" element={<Brand />} />
           <Route path="/collection/:id" element={<Collection />} />
           <Route path="/category/:type" element={<Category />} />

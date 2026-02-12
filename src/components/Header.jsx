@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import logo from '../assets/logo.png';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Search } from 'lucide-react';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -13,6 +13,8 @@ const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null); // 'collections' or 'categories'
+    const [isSearchOpen, setIsSearchOpen] = useState(false); // Mobile search toggle
+    const [searchQuery, setSearchQuery] = useState('');
     const { scrollY } = useScroll();
 
     useMotionValueEvent(scrollY, "change", (latest) => {
@@ -35,6 +37,16 @@ const Header = () => {
             e.preventDefault(); // Prevent navigation if it's a link (though these are spans/divs now)
             e.stopPropagation();
             setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+        }
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+            setIsSearchOpen(false);
+            setSearchQuery('');
+            setIsMobileMenuOpen(false);
         }
     };
 
@@ -82,6 +94,22 @@ const Header = () => {
                             <NavLink to="/category/etc" onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }}>{content.ui.nav.categoryList.etc}</NavLink>
                         </div>
                     </div>
+
+                    {/* PC Search Bar */}
+                    <form onSubmit={handleSearchSubmit} className={styles.desktopSearchForm}>
+                        <div className={styles.searchContainer}>
+                            <input
+                                type="text"
+                                placeholder={content.ui.common?.searchPlaceholder || "Search..."}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                            <button type="submit" className={styles.searchButton}>
+                                <Search size={18} />
+                            </button>
+                        </div>
+                    </form>
 
                     {/* Language Selector */}
                     {/* Language Selector */}
@@ -133,10 +161,31 @@ const Header = () => {
                     </div>
                 </nav>
 
-                <button className={styles.menuButton} onClick={toggleMenu}>
-                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
+                <div className={styles.mobileIcons}>
+                    <button className={styles.menuButton} onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                        <Search size={24} />
+                    </button>
+                    <button className={styles.menuButton} onClick={toggleMenu}>
+                        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                </div>
             </div>
+
+            {/* Mobile Search Bar (Toggled) */}
+            {isSearchOpen && (
+                <div className={styles.mobileSearchContainer}>
+                    <form onSubmit={handleSearchSubmit}>
+                        <input
+                            type="text"
+                            placeholder={content.ui.common?.searchPlaceholder || "Search..."}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className={styles.mobileSearchInput}
+                            autoFocus
+                        />
+                    </form>
+                </div>
+            )}
         </header>
     );
 };
