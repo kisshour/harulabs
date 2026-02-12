@@ -10,8 +10,8 @@ const ProductCard = ({ product }) => {
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
     // Logic to select the best option and images
-    const validOptions = product.options.filter(o => o.price > 0);
-    const sortedOptions = validOptions.length > 0 ? validOptions.sort((a, b) => a.price - b.price) : product.options;
+    const validOptions = product.options?.filter(o => o.price > 0) || [];
+    const sortedOptions = validOptions.length > 0 ? validOptions.sort((a, b) => a.price - b.price) : (product.options || []);
     const displayOption = sortedOptions[0];
     const images = displayOption?.images || [];
 
@@ -19,9 +19,12 @@ const ProductCard = ({ product }) => {
     useEffect(() => {
         let interval;
         if (isHovered && images.length > 1) {
+            // Jump to the second image immediately so the user sees a response
+            setCurrentImgIndex(1);
+
             interval = setInterval(() => {
                 setCurrentImgIndex((prev) => (prev + 1) % images.length);
-            }, 1800); // 1.8s for a premium, steady pace
+            }, 1800); // Back to 1.8s for a relaxed loop
         } else {
             setCurrentImgIndex(0); // Reset to first image when not hovered
         }
@@ -29,13 +32,13 @@ const ProductCard = ({ product }) => {
     }, [isHovered, images.length]);
 
     const getPriceDisplay = () => {
-        const prices = product.options.map(o => o.price).filter(p => p > 0);
+        const prices = product.options?.map(o => o.price).filter(p => p > 0) || [];
         const minPrice = prices.length > 0 ? Math.min(...prices) : product.price;
 
-        const pricesThb = product.options.map(o => o.price_thb).filter(p => p > 0);
+        const pricesThb = product.options?.map(o => o.price_thb).filter(p => p > 0) || [];
         const minPriceThb = pricesThb.length > 0 ? Math.min(...pricesThb) : (product.price_thb || 0);
 
-        const pricesUsd = product.options.map(o => o.price_usd).filter(p => p > 0);
+        const pricesUsd = product.options?.map(o => o.price_usd).filter(p => p > 0) || [];
         const minPriceUsd = pricesUsd.length > 0 ? Math.min(...pricesUsd) : (product.price_usd || 0);
 
         if (language === 'ko') return `${minPrice ? minPrice.toLocaleString() : 0} KRW`;
@@ -45,35 +48,57 @@ const ProductCard = ({ product }) => {
 
     return (
         <Link to={`/product/${product.id}`} className={styles.cardLink}>
-            <div
+            <motion.div
                 className={styles.card}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
+                whileHover={{ y: -5 }} // Subtle Lift
+                transition={{ duration: 0.3 }}
             >
-                <div className={styles.imagePlaceholder}>
-                    <AnimatePresence mode="wait">
-                        {images.length > 0 ? (
+                <div className={styles.imagePlaceholder} style={{ position: 'relative', overflow: 'hidden' }}>
+                    {/* Always render the first image as base to avoid "empty" space during transitions */}
+                    {images.length > 0 && (
+                        <img
+                            src={images[0]}
+                            alt={product.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    )}
+
+                    {/* Overlay for looping images */}
+                    <AnimatePresence>
+                        {isHovered && images.length > 1 && (
                             <motion.img
                                 key={currentImgIndex}
                                 src={images[currentImgIndex]}
                                 alt={`${product.name} - ${currentImgIndex + 1}`}
-                                className={styles.mainImg}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                transition={{ duration: 0.6, ease: "easeInOut" }}
-                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                transition={{ duration: 0.8, ease: "easeInOut" }}
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    zIndex: 2,
+                                    backgroundColor: '#f5f5f5' // Prevent flash if image loading takes a sec
+                                }}
                             />
-                        ) : (
-                            <div className={styles.noImage}>No Image</div>
                         )}
                     </AnimatePresence>
+
+                    {images.length === 0 && (
+                        <div className={styles.noImage}>No Image</div>
+                    )}
                 </div>
                 <div className={styles.info}>
                     <div className={styles.productName}>{product.name}</div>
                     <div className={styles.price}>{getPriceDisplay()}</div>
                 </div>
-            </div>
+            </motion.div>
         </Link>
     );
 };
