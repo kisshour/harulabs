@@ -18,7 +18,9 @@ const ProductCard = ({ product }) => {
     // Auto-looping logic
     useEffect(() => {
         let interval;
-        if (isHovered && images.length > 1) {
+        const supportsHover = window.matchMedia('(hover: hover)').matches;
+
+        if (isHovered && images.length > 1 && supportsHover) {
             // Jump to the second image immediately so the user sees a response
             setCurrentImgIndex(1);
 
@@ -26,7 +28,7 @@ const ProductCard = ({ product }) => {
                 setCurrentImgIndex((prev) => (prev + 1) % images.length);
             }, 1800); // Back to 1.8s for a relaxed loop
         } else {
-            setCurrentImgIndex(0); // Reset to first image when not hovered
+            setCurrentImgIndex(0); // Reset to first image when not hovered (or on mobile)
         }
         return () => clearInterval(interval);
     }, [isHovered, images.length]);
