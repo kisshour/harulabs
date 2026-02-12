@@ -202,7 +202,7 @@ const ProductDetail = () => {
 
                     {/* Color Selection */}
                     <div className={styles.optionGroup}>
-                        <label className={styles.optionLabel}>COLOR: {selectedColor}</label>
+                        <label className={styles.optionLabel}>COLOR: {selectedColor?.toUpperCase()}</label>
                         <div className={styles.colorList}>
                             {availableColors.map(color => (
                                 <button
@@ -219,7 +219,7 @@ const ProductDetail = () => {
                     {/* Option (Sub-Color) Selection */}
                     {availableSubColors.length > 0 && (
                         <div className={styles.optionGroup}>
-                            <label className={styles.optionLabel}>OPTION: {selectedSubColor}</label>
+                            <label className={styles.optionLabel}>OPTION: {selectedSubColor?.toUpperCase()}</label>
                             <div className={styles.colorList}> {/* Reusing colorList style for horizontal buttons */}
                                 {availableSubColors.map(sub => (
                                     <button

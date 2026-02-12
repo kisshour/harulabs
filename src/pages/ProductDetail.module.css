@@ -149,13 +149,13 @@
 }
 
 .colorBtn {
-    min-width: 44px;
-    height: 44px;
-    padding: 0 16px;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 12px;
     border: 1px solid #ddd;
     background: white;
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 4px;
@@ -186,13 +186,13 @@
 }
 
 .sizeBtn {
-    min-width: 44px;
-    height: 44px;
-    padding: 0 12px;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
     border: 1px solid #ddd;
     background: white;
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     display: flex;
     align-items: center;
