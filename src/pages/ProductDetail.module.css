@@ -3,6 +3,8 @@
     max-width: 1200px;
     margin: 0 auto;
     font-family: var(--font-main);
+    color: #1a1a1a;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .wrapper {
@@ -165,6 +167,8 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 400;
+    color: #1a1a1a;
+    -webkit-appearance: none;
 }
 
 .colorBtn:hover {
@@ -202,6 +206,8 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 400;
+    color: #1a1a1a;
+    -webkit-appearance: none;
 }
 
 .sizeBtn:hover {
@@ -344,16 +350,46 @@
 /* Responsive */
 @media (max-width: 900px) {
     .wrapper {
+        display: flex;
         flex-direction: column;
-        gap: 30px;
+        gap: 20px;
+    }
+
+    /* Mobile Reordering: InfoTop -> Gallery -> InfoBottom */
+    .info {
+        display: contents;
+        /* Allows children to be direct flex items of .wrapper for ordering */
+    }
+
+    .infoTop {
+        order: 1;
     }
 
     .gallery {
+        order: 2;
         width: 100%;
+    }
+
+    .infoBottom {
+        order: 3;
     }
 
     .title {
         font-size: 1.8rem;
+        margin-bottom: 5px;
+    }
+
+    .price {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+
+    .skuDisplay {
+        margin-bottom: 15px;
+    }
+
+    .divider {
+        margin: 20px 0;
     }
 
     .navBtn {
@@ -361,5 +397,11 @@
         /* Always show on mobile since no hover */
         width: 30px;
         height: 30px;
+    }
+
+    .colorBtn,
+    .sizeBtn {
+        appearance: none;
+        -webkit-appearance: none;
     }
 }

@@ -273,76 +273,79 @@ const ProductDetail = () => {
 
                 {/* Right: Product Info */}
                 <div className={styles.info}>
-                    <div className={styles.category}>{product.theme} COLLECTION</div>
-                    <h1 className={styles.title}>
-                        {product.name}
-                    </h1>
-                    <div className={styles.skuDisplay}>
-                        {currentSKU || product.id}
-                    </div>
-                    <div className={styles.price}>{formattedPrice}</div>
-
-                    <div className={styles.divider}></div>
-
-                    {/* Color Selection */}
-                    <div className={styles.optionGroup}>
-                        <label className={styles.optionLabel}>COLOR: {selectedColor?.toUpperCase()}</label>
-                        <div className={styles.colorList}>
-                            {availableColors.map(color => (
-                                <button
-                                    key={color}
-                                    className={`${styles.colorBtn} ${selectedColor === color ? styles.selected : ''}`}
-                                    onClick={() => handleColorClick(color)}
-                                >
-                                    {color}
-                                </button>
-                            ))}
+                    <div className={styles.infoTop}>
+                        <div className={styles.category}>{product.theme} COLLECTION</div>
+                        <h1 className={styles.title}>
+                            {product.name}
+                        </h1>
+                        <div className={styles.skuDisplay}>
+                            {currentSKU || product.id}
                         </div>
+                        <div className={styles.price}>{formattedPrice}</div>
                     </div>
 
-                    {/* Option (Sub-Color) Selection */}
-                    {availableSubColors.length > 0 && (
+                    <div className={styles.infoBottom}>
+                        <div className={styles.divider}></div>
+
+                        {/* Color Selection */}
                         <div className={styles.optionGroup}>
-                            <label className={styles.optionLabel}>OPTION: {selectedSubColor?.toUpperCase()}</label>
-                            <div className={styles.colorList}> {/* Reusing colorList style for horizontal buttons */}
-                                {availableSubColors.map(sub => (
+                            <label className={styles.optionLabel}>COLOR: {selectedColor?.toUpperCase()}</label>
+                            <div className={styles.colorList}>
+                                {availableColors.map(color => (
                                     <button
-                                        key={sub}
-                                        className={`${styles.colorBtn} ${selectedSubColor === sub ? styles.selected : ''}`}
-                                        onClick={() => handleSubColorClick(sub)}
+                                        key={color}
+                                        className={`${styles.colorBtn} ${selectedColor === color ? styles.selected : ''}`}
+                                        onClick={() => handleColorClick(color)}
                                     >
-                                        {sub}
+                                        {color}
                                     </button>
                                 ))}
                             </div>
                         </div>
-                    )}
 
-                    {/* Size Selection */}
-                    <div className={styles.optionGroup}>
-                        <label className={styles.optionLabel}>SIZE</label>
-                        <div className={styles.sizeList}>
-                            {availableSizes.map(({ size, stock }) => (
-                                <button
-                                    key={size}
-                                    className={`${styles.sizeBtn} ${selectedSize === size ? styles.selected : ''}`}
-                                    onClick={() => {
-                                        setSelectedSize(size);
-                                        // Update main image logic
-                                        const option = product.options.find(opt => opt.color === selectedColor && opt.sub_color === selectedSubColor && opt.size === size);
-                                        if (option?.images?.length > 0) {
-                                            setCurrentImage(option.images[0]);
-                                        }
-                                    }}
-                                >
-                                    {size}
-                                </button>
-                            ))}
+                        {/* Option (Sub-Color) Selection */}
+                        {availableSubColors.length > 0 && (
+                            <div className={styles.optionGroup}>
+                                <label className={styles.optionLabel}>OPTION: {selectedSubColor?.toUpperCase()}</label>
+                                <div className={styles.colorList}> {/* Reusing colorList style for horizontal buttons */}
+                                    {availableSubColors.map(sub => (
+                                        <button
+                                            key={sub}
+                                            className={`${styles.colorBtn} ${selectedSubColor === sub ? styles.selected : ''}`}
+                                            onClick={() => handleSubColorClick(sub)}
+                                        >
+                                            {sub}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Size Selection */}
+                        <div className={styles.optionGroup}>
+                            <label className={styles.optionLabel}>SIZE</label>
+                            <div className={styles.sizeList}>
+                                {availableSizes.map(({ size, stock }) => (
+                                    <button
+                                        key={size}
+                                        className={`${styles.sizeBtn} ${selectedSize === size ? styles.selected : ''}`}
+                                        onClick={() => {
+                                            setSelectedSize(size);
+                                            // Update main image logic
+                                            const option = product.options.find(opt => opt.color === selectedColor && opt.sub_color === selectedSubColor && opt.size === size);
+                                            if (option?.images?.length > 0) {
+                                                setCurrentImage(option.images[0]);
+                                            }
+                                        }}
+                                    >
+                                        {size}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Actions - Cart Removed */}
-                    {/* <div className={styles.actions}>
+                        {/* Actions - Cart Removed */}
+                        {/* <div className={styles.actions}>
                         <button
                             className={styles.addToCartBtn}
                             onClick={handleAddToCart}
@@ -352,10 +355,11 @@ const ProductDetail = () => {
                         </button>
                     </div> */}
 
-                    {/* Details */}
-                    <div className={styles.details}>
-                        <div className={styles.sectionTitle}>DESCRIPTION</div>
-                        <p className={styles.description}>{product.description}</p>
+                        {/* Details */}
+                        <div className={styles.details}>
+                            <div className={styles.sectionTitle}>DESCRIPTION</div>
+                            <p className={styles.description}>{product.description}</p>
+                        </div>
                     </div>
                 </div>
             </div>
