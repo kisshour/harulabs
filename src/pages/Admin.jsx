@@ -503,10 +503,9 @@ const Admin = () => {
     // We'll keep a "Default Index" in state that auto-updates, and new options inherit it.
     useEffect(() => {
         if (!isEditing && view === 'form') {
-            console.log('Fetching next index for:', { theme, category, material, productsLength: products.length });
             fetchNextIndex();
         }
-    }, [theme, category, material, isEditing, view, products]);
+    }, [theme, category, material, isEditing, view, products.length]);
 
     const fetchNextIndex = async () => {
         // Find maximum index globally across all products (regardless of prefix)
@@ -514,7 +513,7 @@ const Admin = () => {
 
         // Ensure we iterate over something
         let listToScan = products;
-        if (products.length === 0) {
+        if (products.length === 0 && !loading) {
             const loaded = await fetchProductsFromDB();
             if (loaded && loaded.length > 0) listToScan = loaded;
         }
