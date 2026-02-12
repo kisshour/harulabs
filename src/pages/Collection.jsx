@@ -3,12 +3,15 @@ import { useParams, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { fetchProducts } from '../services/productService';
 import styles from './Category.module.css'; // Reusing grid styles
+import Pagination from '../components/Pagination';
 
 const Collection = () => {
     const { id } = useParams();
     const { content, language } = useLanguage();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 12;
 
     const collection = content.collections.find(c => c.id === id);
 
@@ -25,6 +28,20 @@ const Collection = () => {
     if (!collection) return <div>Collection not found</div>;
 
     const filteredProducts = products.filter(p => p.theme === id.toUpperCase());
+
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+    const displayedProducts = filteredProducts.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     return (
         <div className="page-container" style={{ paddingTop: '100px', minHeight: '80vh' }}>
@@ -45,7 +62,7 @@ const Collection = () => {
                     </div>
                 ) : (
                     <div className={styles.grid}>
-                        {filteredProducts.map(product => (
+                        {displayedProducts.map(product => (
                             <Link to={`/product/${product.id}`} key={product.id} className={styles.cardLink}>
                                 <div className={styles.card}>
                                     <div className={styles.imagePlaceholder}>
@@ -85,6 +102,15 @@ const Collection = () => {
                             </Link>
                         ))}
                     </div>
+                )}
+
+                {/* Pagination */}
+                {!loading && filteredProducts.length > 0 && (
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 )}
             </div>
         </div>
