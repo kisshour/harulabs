@@ -1,5 +1,5 @@
 .heroContainer {
-    height: 100vh;
+    height: 80vh;
     width: 100%;
     position: relative;
     overflow: hidden;
@@ -34,31 +34,22 @@
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     line-height: 1.4;
     padding: 0 20px;
-}
-
-.pcBr {
-    display: inline;
-}
-
-.mobileBr {
-    display: none;
+    margin: 0;
 }
 
 @media (max-width: 768px) {
+    .heroContainer {
+        height: 70vh;
+    }
+
     .contentOverlay {
         bottom: 80px;
     }
 
     .subtitle {
-        font-size: 1.1rem;
-        letter-spacing: 0.05em;
-    }
-
-    .pcBr {
-        display: none;
-    }
-
-    .mobileBr {
-        display: block;
+        font-size: 0.95rem;
+        /* Small enough for one line */
+        letter-spacing: 0.02em;
+        white-space: nowrap;
     }
 }
