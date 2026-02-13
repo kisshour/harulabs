@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
+import styles from './Hero.module.css';
+
 const images = ["/main1.jpeg", "/main2.jpeg?v=2", "/main3.jpeg"];
 
 const Hero = () => {
@@ -9,7 +11,6 @@ const Hero = () => {
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        console.log("Current slide index:", index);
         const timer = setInterval(() => {
             setIndex((prev) => (prev + 1) % images.length);
         }, 5000);
@@ -17,13 +18,7 @@ const Hero = () => {
     }, [index]);
 
     return (
-        <div style={{
-            height: '100vh',
-            width: '100%',
-            position: 'relative',
-            overflow: 'hidden',
-            backgroundColor: '#111' // Dark grey fallback
-        }}>
+        <div className={styles.heroContainer}>
             <AnimatePresence mode='popLayout'>
                 <motion.div
                     key={index}
@@ -34,39 +29,19 @@ const Hero = () => {
                         opacity: { duration: 1.5 },
                         scale: { duration: 6, ease: "linear" }
                     }}
+                    className={styles.slide}
                     style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
                         backgroundImage: `url(${images[index]})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        zIndex: 0
                     }}
                 />
             </AnimatePresence>
 
-            <div className="container" style={{
-                textAlign: 'center',
-                zIndex: 1,
-                position: 'absolute',
-                bottom: '100px',
-                left: '0',
-                right: '0'
-            }}>
+            <div className={`container ${styles.contentOverlay}`}>
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    style={{
-                        fontSize: '1.5rem',
-                        color: '#fff',
-                        letterSpacing: '0.1em',
-                        fontWeight: '500',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.5)'
-                    }}
+                    className={styles.subtitle}
                 >
                     {content.brandStory.subtitle}
                 </motion.p>

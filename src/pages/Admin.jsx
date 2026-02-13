@@ -41,15 +41,12 @@ const Admin = () => {
             );
         })
         .sort((a, b) => {
-            // Regex to extract 4 digits (serial number) from ID
             const regex = /^[A-Z]{2,}[-_]?(\d{4})/i;
             const matchA = a.id.match(regex);
             const matchB = b.id.match(regex);
-
             const valA = matchA ? parseInt(matchA[1], 10) : 0;
             const valB = matchB ? parseInt(matchB[1], 10) : 0;
-
-            return valA - valB; // Ascending order
+            return valB - valA; // Descending order (Latest/Highest Index first)
         });
 
     // Calculate Pagination
@@ -165,6 +162,93 @@ const Admin = () => {
         }
     };
 
+    // --- RECENT IMPROVEMENT: Deep Cleanup Tool (v3 - Paginated & Aggressive) ---
+    const runDeepCleanup = async () => {
+        if (!window.confirm('Are you sure you want to clean all image duplicates in the database? This will handle thousands of options and normalize all URLs.')) return;
+
+        setLoading(true);
+        setMessage('Starting deep cleanup...');
+
+        try {
+            let totalFixed = 0;
+            let offset = 0;
+            const limit = 1000;
+            let hasMore = true;
+
+            while (hasMore) {
+                setMessage(`Cleaning batch starting at ${offset}...`);
+                const { data: options, error } = await supabase
+                    .from('product_options')
+                    .select('id, images, sku, product_id, color, sub_color, size')
+                    .range(offset, offset + limit - 1);
+
+                if (error) throw error;
+                if (!options || options.length === 0) {
+                    hasMore = false;
+                    break;
+                }
+
+                // --- NEW: ROW-LEVEL DEDUPLICATION ---
+                const seenKeys = new Map();
+                for (const opt of options) {
+                    const key = `${opt.product_id || 'unknown'}|${opt.color}|${opt.sub_color}|${opt.size}`;
+                    if (seenKeys.has(key)) {
+                        // Duplicate row! Delete it.
+                        console.warn(`Duplicate row detected for key ${key}. Deleting ID ${opt.id}`);
+                        await supabase.from('product_options').delete().eq('id', opt.id);
+                        totalFixed++;
+                        continue;
+                    }
+                    seenKeys.set(key, opt.id);
+
+                    if (!opt.images || opt.images.length === 0) continue;
+                    // ... (previous image cleaning logic follows)
+
+                    const unique = [];
+                    const seen = new Set();
+                    let changed = false;
+
+                    for (const img of opt.images) {
+                        if (!img || typeof img !== 'string') continue;
+
+                        // Aggressive normalization: Trim, Lowercase extension part, Fix slashes
+                        const parts = img.trim().split('.');
+                        const ext = parts.pop().toLowerCase();
+                        const base = parts.join('.');
+                        const norm = (base + '.' + ext).replace(/([^:])\/\//g, '$1/');
+
+                        if (seen.has(norm)) {
+                            changed = true;
+                            continue;
+                        }
+                        seen.add(norm);
+                        unique.push(norm);
+                        if (norm !== img) changed = true;
+                    }
+
+                    if (changed || unique.length < opt.images.length) {
+                        const { error: uError } = await supabase.from('product_options').update({ images: unique }).eq('id', opt.id);
+                        if (!uError) totalFixed++;
+                    }
+                }
+
+                if (options.length < limit) {
+                    hasMore = false;
+                } else {
+                    offset += limit;
+                }
+            }
+
+            setMessage(`Cleanup Finished! Total fixed: ${totalFixed} options.`);
+            await fetchProductsFromDB();
+        } catch (err) {
+            console.error('Deep Cleanup failed:', err);
+            setMessage(`Deep Cleanup failed: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Save Logic (Create or Update)
     const handleSave = async () => {
         setLoading(true);
@@ -223,7 +307,6 @@ const Admin = () => {
             price_usd: Number(priceUsd), // USD Retail
             price_thb: Number(priceTHB), // THB Retail
             description,
-            description,
             purchase_info: purchaseInfo,
             material
         };
@@ -272,8 +355,14 @@ const Admin = () => {
         }
 
         // 4. Handle Options (Delete old ones first for simplicity, then insert new)
-        // First delete existing options for this product
-        await supabase.from('product_options').delete().eq('product_id', mainId);
+        const { error: deleteError } = await supabase.from('product_options').delete().eq('product_id', mainId);
+
+        if (deleteError) {
+            console.error('Failed to delete existing options:', deleteError);
+            setMessage(`Critical Error: Could not refresh options. ${deleteError.message}`);
+            setLoading(false);
+            return;
+        }
 
         // Prepare Options Data
         // Merge specific images with common images (Specific First + Common Last)
@@ -285,10 +374,6 @@ const Admin = () => {
             // For now, simple concatenation as requested: "Specific then Common".
 
             const combinedImages = [...(opt.imageNames || []), ...commonImages];
-
-            // Remove duplicates just in case?
-            // const uniqueImages = [...new Set(combinedImages)]; 
-            // User might want specific ordering, so simple concat is safer for "Specific then Common".
 
             return {
                 product_id: mainId,
@@ -451,21 +536,29 @@ const Admin = () => {
 
     const handleImageUpload = async (idx, files) => {
         if (!files || files.length === 0) return;
+
+        // --- CLIENT-SIDE DEDUPLICATION ---
+        // Check if these files are already in THIS option
+        const currentImages = options[idx].imageNames || [];
+        // We can't check by URL easily if they haven't been uploaded, 
+        // but we can at least wait to see if someone is spam clicking same file.
+        // For now, let's proceed but filter the files array if possible.
+
         setLoading(true);
         setMessage('Uploading images... Please wait.');
 
         try {
             const uploadedUrls = [];
-            // Upload specific files in parallel
             const uploadPromises = Array.from(files).map(file => uploadImage(file));
             const results = await Promise.all(uploadPromises);
 
             uploadedUrls.push(...results);
             console.log('Uploads successful:', uploadedUrls);
 
-            // Append new images to existing list
+            // Append and Deduplicate URLs 
             const newOptions = [...options];
-            newOptions[idx].imageNames = [...(newOptions[idx].imageNames || []), ...uploadedUrls];
+            const combined = [...(newOptions[idx].imageNames || []), ...uploadedUrls];
+            newOptions[idx].imageNames = [...new Set(combined.map(u => u.trim()))];
             setOptions(newOptions);
 
             setMessage('Images uploaded successfully!');
@@ -488,7 +581,11 @@ const Admin = () => {
             const results = await Promise.all(uploadPromises);
 
             uploadedUrls.push(...results);
-            setCommonImages([...commonImages, ...uploadedUrls]);
+
+            // Deduplicate URLs in case of accidental double upload
+            const combined = [...commonImages, ...uploadedUrls];
+            setCommonImages([...new Set(combined.map(u => u.trim()))]);
+
             setMessage('Common images uploaded successfully!');
         } catch (error) {
             console.error('Upload failed:', error);
@@ -609,26 +706,25 @@ const Admin = () => {
     const handleEditClick = (product) => {
         setIsEditing(true);
         setEditingId(product.id); // Store original ID
-        setName(product.name);
 
         const initialTheme = product.theme || (product.options && product.options[0]?.theme) || 'URBAN';
         const initialCategory = product.category || (product.options && product.options[0]?.category) || 'RING';
         const initialMaterial = product.material || (product.options && product.options[0]?.material) || 'SURGICAL_STEEL';
 
+        // Initialize state
+        setName(product.name || '');
         setTheme(initialTheme);
         setCategory(initialCategory);
         setMaterial(initialMaterial);
-
-        setPrice(product.price);
-        setCost(product.cost || 0); // Load cost
-        setPriceUsd(product.price_usd || 0); // Load USD price
-        setPriceTHB(product.price_thb || 0); // Load THB price
-        setTier(product.tier || ''); // Load Tier
-        setDescription(product.description || ''); // Handle missing description
+        setPrice(product.price || 0);
+        setCost(product.cost || 0);
+        setPriceUsd(product.price_usd || 0);
+        setPriceTHB(product.price_thb || 0);
+        setTier(product.tier || '');
+        setDescription(product.description || '');
         setPurchaseInfo(product.purchase_info || '');
 
-        // Attempt to parse index from ID: PREFIX(including index)-OPTIONS
-        // e.g. HYRGSSHL0001-SVFR
+        // SKU Logic
         try {
             const parts = product.id.split('-');
             if (parts[0]) {
@@ -1205,7 +1301,7 @@ const Admin = () => {
                     </>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
