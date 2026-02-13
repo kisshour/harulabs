@@ -39,7 +39,8 @@
 
 @media (max-width: 768px) {
     .heroContainer {
-        height: calc(100vh - var(--header-height));
+        height: calc(100vh - var(--header-height) - 60px);
+        /* Subtract extra 60px for browser address bar */
     }
 
     .contentOverlay {
