@@ -6,7 +6,7 @@ import styles from './Hero.module.css';
 const images = ["/main1.jpeg", "/main2.jpeg?v=2", "/main3.jpeg"];
 
 const Hero = () => {
-    const { content } = useLanguage();
+    const { content, language } = useLanguage();
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
@@ -41,6 +41,7 @@ const Hero = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className={styles.subtitle}
+                    data-lang={language}
                 >
                     {content.brandStory.subtitle}
                 </motion.p>
