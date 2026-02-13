@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
-
 import styles from './Hero.module.css';
 
 const images = ["/main1.jpeg", "/main2.jpeg?v=2", "/main3.jpeg"];
