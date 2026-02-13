@@ -95,9 +95,9 @@ const ProductCard = ({ product }) => {
                         />
                     )}
 
-                    {/* Overlay for looping images */}
+                    {/* Overlay for looping images - logic updated to prevent flicker with base image */}
                     <AnimatePresence>
-                        {isHovered && images.length > 1 && (
+                        {isHovered && images.length > 1 && currentImgIndex > 0 && (
                             <motion.img
                                 key={currentImgIndex}
                                 src={images[currentImgIndex]}
@@ -114,7 +114,6 @@ const ProductCard = ({ product }) => {
                                     height: '100%',
                                     objectFit: 'cover',
                                     zIndex: 2,
-                                    backgroundColor: '#f5f5f5' // Prevent flash if image loading takes a sec
                                 }}
                             />
                         )}
